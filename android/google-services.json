@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "277646736048",
+    "firebase_url": "https://rougelikegamegaash-default-rtdb.europe-west1.firebasedatabase.app",
+    "project_id": "rougelikegamegaash",
+    "storage_bucket": "rougelikegamegaash.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:277646736048:android:e170a2f215b8914d5e9975",
+        "android_client_info": {
+          "package_name": "com.example.rougelikegame"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC4stbplTCMBFjiAYFWt5BbWorK12CGfLQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
