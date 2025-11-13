@@ -16,7 +16,6 @@ import java.util.Random;
 
 public class MainActivity extends ApplicationAdapter {
     SpriteBatch batch;
-    Texture upButton, downButton, leftButton, rightButton;
 
     Player player;
     Array<Enemy> enemies;
@@ -64,8 +63,9 @@ public class MainActivity extends ApplicationAdapter {
 
         for (Enemy e : enemies) {
             if (e.getBounds().overlaps(player.bounds)) {
-                System.out.println("Player hit!");
-                // you could reset the player, decrease health, or restart
+                player.health--;
+                player.x = 100;
+                player.y = 100;
             }
         }
 

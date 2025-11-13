@@ -12,6 +12,7 @@ public class Player {
     public float x, y;
     public float width, height;
     public float speed = 300;
+    public float health;
     public Rectangle bounds;
 
     public Player(float x, float y) {
@@ -20,6 +21,7 @@ public class Player {
         this.y = y;
         this.width = 128;
         this.height = 128;
+        this.health = 10;
         bounds = new Rectangle(x, y, width, height);
     }
 
