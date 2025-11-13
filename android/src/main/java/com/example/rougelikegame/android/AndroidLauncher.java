@@ -4,7 +4,7 @@ import android.os.Bundle;
 
 import com.badlogic.gdx.backends.android.AndroidApplication;
 import com.badlogic.gdx.backends.android.AndroidApplicationConfiguration;
-import com.example.rougelikegame.MainActivity;
+import com.example.rougelikegame.screens.MainActivity;
 
 /** Launches the Android application. */
 public class AndroidLauncher extends AndroidApplication {
