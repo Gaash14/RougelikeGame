@@ -25,8 +25,8 @@ import java.util.function.UnaryOperator;
 /// this class is a singleton, use getInstance() to get an instance of this class
 /// @see #getInstance()
 /// @see FirebaseDatabase
-public class DatabaseService {
 
+public class DatabaseService {
     /// tag for logging
     /// @see Log
     private static final String TAG = "DatabaseService";
@@ -241,6 +241,7 @@ public class DatabaseService {
     /// @see DatabaseCallback
     /// @see User
     public void getUser(@NotNull final String uid, @NotNull final DatabaseCallback<User> callback) {
+        getData("users/" + uid, User.class, callback);
         getData(USERS_PATH + "/" + uid, User.class, callback);
     }
 
@@ -252,6 +253,7 @@ public class DatabaseService {
     /// @see List
     /// @see User
     public void getUserList(@NotNull final DatabaseCallback<List<User>> callback) {
+        getDataList("users", User.class, callback);
         getDataList(USERS_PATH, User.class, callback);
     }
 
@@ -259,6 +261,7 @@ public class DatabaseService {
     /// @param uid the user id to delete
     /// @param callback the callback to call when the operation is completed
     public void deleteUser(@NotNull final String uid, @Nullable final DatabaseCallback<Void> callback) {
+        deleteData("users/" + uid, callback);
         deleteData(USERS_PATH + "/" + uid, callback);
     }
 
@@ -329,6 +332,10 @@ public class DatabaseService {
             }
         });
     }
+
+
+    // endregion User Section
+
 
     /*
     // endregion User Section

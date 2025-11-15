@@ -19,15 +19,17 @@ public class LandingActivity extends AppCompatActivity {
         Button exitButton = findViewById(R.id.exitButton);
 
         registerButton.setOnClickListener(v -> {
-            Intent intent = new Intent(this, LoginActivity.class);
-            startActivity(intent);
-        });
-
-        loginButton.setOnClickListener(v -> {
             Intent intent = new Intent(this, RegisterActivity.class);
             startActivity(intent);
         });
 
-        exitButton.setOnClickListener(v -> finishAffinity());
+        loginButton.setOnClickListener(v -> {
+            Intent intent = new Intent(this, LoginActivity.class);
+            startActivity(intent);
+        });
+
+        exitButton.setOnClickListener(v -> {
+            finishAffinity();
+        });
     }
 }

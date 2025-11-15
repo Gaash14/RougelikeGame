@@ -1,4 +1,4 @@
-package com.example.rougelikegame.android;
+package com.example.rougelikegame.android.screens;
 
 import android.os.Bundle;
 
