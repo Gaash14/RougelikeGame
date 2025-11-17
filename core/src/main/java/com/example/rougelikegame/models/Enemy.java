@@ -10,6 +10,8 @@ public class Enemy {
     private float speed;
     public float width, height;
     private Rectangle bounds;
+    private int health;
+    public boolean alive = true;
 
     public Enemy(String texture, float startX, float startY, float speed, float width, float height) {
         this.texture = new Texture(texture);
@@ -18,6 +20,7 @@ public class Enemy {
         this.speed = speed;
         this.width = width;
         this.height = height;
+        this.health = 30;
 
         this.bounds = new Rectangle(x, y, width, height);
     }
@@ -44,6 +47,13 @@ public class Enemy {
 
         // Update collision bounds
         bounds.setPosition(x, y);
+    }
+
+    public void takeDamage(int dmg) {
+        health -= dmg;
+        if (health <= 0) {
+            alive = false;
+        }
     }
 
     // Get collision rectangle

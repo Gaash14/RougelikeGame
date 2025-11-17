@@ -12,8 +12,14 @@ public class Player {
     public float x, y;
     public float width, height;
     public float speed = 300;
-    public float health;
+    public int health;
     public Rectangle bounds;
+
+    boolean attacking = false;
+    float attackTimer = 0;
+    float attackDuration = 0.2f; // 0.2 sec attack window
+
+    Rectangle attackHitbox;
 
     public Player(float x, float y) {
         texture = new Texture("player.png");
@@ -23,6 +29,7 @@ public class Player {
         this.height = 128;
         this.health = 10;
         bounds = new Rectangle(x, y, width, height);
+        attackHitbox = new Rectangle();
     }
 
     public void update(Joystick joystick, float delta) {
@@ -37,7 +44,47 @@ public class Player {
         // Optional: keep player inside screen bounds
         x = MathUtils.clamp(x, 0, Gdx.graphics.getWidth() - texture.getWidth());
         y = MathUtils.clamp(y, 0, Gdx.graphics.getHeight() - texture.getHeight());
+
+        if (attacking) {
+            attackTimer -= delta;
+            if (attackTimer <= 0) {
+                attacking = false;
+            }
+        }
     }
+
+    public void attack(Joystick joystick) {
+
+        float dx = joystick.getPercentX();
+        float dy = joystick.getPercentY();
+
+        // If joystick not moved, default attack to the right
+        if (dx == 0 && dy == 0) {
+            dx = 1;
+            dy = 0;
+        }
+
+        // Horizontal attack
+        if (Math.abs(dx) > Math.abs(dy)) {
+            if (dx > 0) { // right
+                attackHitbox.setPosition(x + width, y + height / 2);
+            } else { // left
+                attackHitbox.setPosition(x - attackHitbox.width, y + height / 2);
+            }
+        }
+        // Vertical attack
+        else {
+            if (dy > 0) { // up
+                attackHitbox.setPosition(x + width / 2, y + height);
+            } else { // down
+                attackHitbox.setPosition(x + width / 2, y - attackHitbox.height);
+            }
+        }
+
+        attacking = true;
+        attackTimer = 0.15f; // attack lasts 0.15 seconds
+    }
+
 
     public void draw(SpriteBatch batch) {
         batch.draw(texture, x, y, width, height);

@@ -2,7 +2,11 @@ package com.example.rougelikegame.screens;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ScreenUtils;
@@ -23,10 +27,17 @@ public class MainActivity extends ApplicationAdapter {
 
     private Stage stage;
     private Joystick joystick;
+    private OrthographicCamera camera;
+
+    Texture attackBtnTexture;
+    Rectangle attackBtnBounds;
 
     @Override
     public void create() {
         batch = new SpriteBatch();
+
+        camera = new OrthographicCamera();
+        camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
         player = new Player(100, 100);
         rnd = new Random();
@@ -45,6 +56,15 @@ public class MainActivity extends ApplicationAdapter {
         Gdx.input.setInputProcessor(stage);
         joystick = new Joystick("joystick_base.png", "joystick_knob.png", 150, 150, 100);
         stage.addActor(joystick);
+
+        // Attack Button
+        attackBtnTexture = new Texture("attack_icon.png");
+        attackBtnBounds = new Rectangle(
+            Gdx.graphics.getWidth() - 250,  // bottom right corner
+            50,
+            200,
+            200
+        );
     }
 
     @Override
@@ -60,11 +80,26 @@ public class MainActivity extends ApplicationAdapter {
             e.update(delta, player.x, player.y);
         }
 
+        for (int i = enemies.size - 1; i >= 0; i--) {
+            if (!enemies.get(i).alive) {
+                enemies.removeIndex(i);
+            }
+        }
+
         for (Enemy e : enemies) {
             if (e.getBounds().overlaps(player.bounds)) {
                 player.health--;
-                player.x = 100;
-                player.y = 100;
+                //player.x = 100;
+                //player.y = 100;
+            }
+        }
+
+        if (Gdx.input.justTouched()) {
+            Vector3 touch = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
+            camera.unproject(touch);
+
+            if (attackBtnBounds.contains(touch.x, touch.y)) {
+                player.attack(joystick);  //
             }
         }
 
@@ -75,6 +110,8 @@ public class MainActivity extends ApplicationAdapter {
         for (Enemy e : enemies) {
             e.draw(batch);
         }
+
+        batch.draw(attackBtnTexture, attackBtnBounds.x, attackBtnBounds.y, attackBtnBounds.width, attackBtnBounds.height);
 
         batch.end();
 
