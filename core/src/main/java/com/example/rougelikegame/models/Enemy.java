@@ -10,8 +10,9 @@ public class Enemy {
     private float speed;
     public float width, height;
     private Rectangle bounds;
-    private int health;
+    public int health;
     public boolean alive = true;
+    public boolean hitThisSwing = false;
 
     public Enemy(String texture, float startX, float startY, float speed, float width, float height) {
         this.texture = new Texture(texture);

@@ -15,11 +15,13 @@ public class Player {
     public int health;
     public Rectangle bounds;
 
-    boolean attacking = false;
-    float attackTimer = 0;
-    float attackDuration = 0.2f; // 0.2 sec attack window
+    public Rectangle attackHitbox;
+    public boolean attacking;
+    public float attackTime;
+    public Texture debugPixel = new Texture("pixel.png");
 
-    Rectangle attackHitbox;
+    public float attackCooldown = 0f;
+    public float attackCooldownTime = 0.5f;   // 0.5 seconds between attacks default
 
     public Player(float x, float y) {
         texture = new Texture("player.png");
@@ -29,7 +31,9 @@ public class Player {
         this.height = 128;
         this.health = 10;
         bounds = new Rectangle(x, y, width, height);
-        attackHitbox = new Rectangle();
+        attackHitbox = new Rectangle(x, y, 60, 60); // size of attack area
+        attacking = false;
+        attackTime = 0;
     }
 
     public void update(Joystick joystick, float delta) {
@@ -46,44 +50,41 @@ public class Player {
         y = MathUtils.clamp(y, 0, Gdx.graphics.getHeight() - texture.getHeight());
 
         if (attacking) {
-            attackTimer -= delta;
-            if (attackTimer <= 0) {
+            attackTime -= delta;
+            if (attackTime <= 0) {
                 attacking = false;
             }
+        }
+
+        if (attackCooldown > 0) {
+            attackCooldown -= delta;
         }
     }
 
     public void attack(Joystick joystick) {
+        // If cooldown is active, do nothing
+        if (attackCooldown > 0) return;
+
+        // start cooldown
+        attackCooldown = attackCooldownTime;
+
+        attacking = true;
+        attackTime = 0.15f; // attack lasts 0.15 seconds
 
         float dx = joystick.getPercentX();
         float dy = joystick.getPercentY();
 
-        // If joystick not moved, default attack to the right
-        if (dx == 0 && dy == 0) {
-            dx = 1;
-            dy = 0;
-        }
+        // default attack direction if joystick is neutral
+        if (dx == 0 && dy == 0) dx = 1;
 
-        // Horizontal attack
-        if (Math.abs(dx) > Math.abs(dy)) {
-            if (dx > 0) { // right
-                attackHitbox.setPosition(x + width, y + height / 2);
-            } else { // left
-                attackHitbox.setPosition(x - attackHitbox.width, y + height / 2);
-            }
-        }
-        // Vertical attack
-        else {
-            if (dy > 0) { // up
-                attackHitbox.setPosition(x + width / 2, y + height);
-            } else { // down
-                attackHitbox.setPosition(x + width / 2, y - attackHitbox.height);
-            }
-        }
-
-        attacking = true;
-        attackTimer = 0.15f; // attack lasts 0.15 seconds
+        // place hitbox in front of player
+        attackHitbox.setSize(80, 80);
+        attackHitbox.setPosition(
+            x + dx * width,
+            y + dy * height
+        );
     }
+
 
 
     public void draw(SpriteBatch batch) {

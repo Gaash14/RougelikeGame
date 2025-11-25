@@ -2,6 +2,8 @@ package com.example.rougelikegame.screens;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.InputAdapter;
+import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -36,35 +38,82 @@ public class MainActivity extends ApplicationAdapter {
     public void create() {
         batch = new SpriteBatch();
 
+        setupCamera();
+        setupPlayerAndEnemies();
+        setupStageAndJoystick();
+        setupAttackButton();
+        setupInput();
+    }
+
+
+    private void setupCamera() {
         camera = new OrthographicCamera();
         camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+    }
 
+    private void setupPlayerAndEnemies() {
         player = new Player(100, 100);
         rnd = new Random();
         enemies = new Array<>();
 
         int numEnemies = 5;
-
         for (int i = 0; i < numEnemies; i++) {
             float x = rnd.nextInt(Gdx.graphics.getWidth() - 128);
             float y = rnd.nextInt(Gdx.graphics.getHeight() - 128);
             enemies.add(new Enemy("enemy.png", x, y, 100, 128, 128));
         }
+    }
 
-        // --- Joystick setup ---
+    private void setupStageAndJoystick() {
         stage = new Stage(new ScreenViewport());
-        Gdx.input.setInputProcessor(stage);
-        joystick = new Joystick("joystick_base.png", "joystick_knob.png", 150, 150, 100);
-        stage.addActor(joystick);
 
-        // Attack Button
+        joystick = new Joystick(
+            "joystick_base.png",
+            "joystick_knob.png",
+            150, 150,
+            100
+        );
+
+        stage.addActor(joystick);
+    }
+
+    private void setupAttackButton() {
         attackBtnTexture = new Texture("attack_icon.png");
         attackBtnBounds = new Rectangle(
-            Gdx.graphics.getWidth() - 250,  // bottom right corner
+            Gdx.graphics.getWidth() - 250,
             50,
             200,
             200
         );
+    }
+
+    private void setupInput() {
+        InputMultiplexer multiplexer = new InputMultiplexer();
+        multiplexer.addProcessor(stage);
+        multiplexer.addProcessor(new InputAdapter() {
+            @Override
+            public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+
+                Vector3 touch = new Vector3(screenX, screenY, 0);
+                camera.unproject(touch);
+
+                if (attackBtnBounds.contains(touch.x, touch.y)) {
+
+                    player.attack(joystick);
+
+                    // Reset hit flags for this swing
+                    for (Enemy e : enemies) {
+                        e.hitThisSwing = false;
+                    }
+
+                    return true;
+                }
+
+                return false;
+            }
+        });
+
+        Gdx.input.setInputProcessor(multiplexer);
     }
 
     @Override
@@ -73,36 +122,54 @@ public class MainActivity extends ApplicationAdapter {
 
         ScreenUtils.clear(0.3f, 0.3f, 0.3f, 1);
 
-        // Update player movement based on joystick input
+        updateGame(delta);
+        handlePlayerEnemyCollision();
+        handleAttackDamage();
+        cleanupDeadEnemies();
+
+        drawGame();
+    }
+
+    private void updateGame(float delta) {
         player.update(joystick, delta);
 
         for (Enemy e : enemies) {
             e.update(delta, player.x, player.y);
         }
+    }
 
+    private void handlePlayerEnemyCollision() {
+        for (Enemy e : enemies) {
+            if (e.getBounds().overlaps(player.bounds)) {
+                player.health--;
+            }
+        }
+    }
+
+    private void handleAttackDamage() {
+        if (!player.attacking) return;
+
+        for (Enemy e : enemies) {
+
+            if (!e.hitThisSwing && e.getBounds().overlaps(player.attackHitbox)) {
+
+                e.takeDamage(10);
+                e.hitThisSwing = true;
+
+                System.out.println("HIT! Enemy HP = " + e.health); // debug
+            }
+        }
+    }
+
+    private void cleanupDeadEnemies() {
         for (int i = enemies.size - 1; i >= 0; i--) {
             if (!enemies.get(i).alive) {
                 enemies.removeIndex(i);
             }
         }
+    }
 
-        for (Enemy e : enemies) {
-            if (e.getBounds().overlaps(player.bounds)) {
-                player.health--;
-                //player.x = 100;
-                //player.y = 100;
-            }
-        }
-
-        if (Gdx.input.justTouched()) {
-            Vector3 touch = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
-            camera.unproject(touch);
-
-            if (attackBtnBounds.contains(touch.x, touch.y)) {
-                player.attack(joystick);  //
-            }
-        }
-
+    private void drawGame() {
         batch.begin();
 
         player.draw(batch);
@@ -111,14 +178,33 @@ public class MainActivity extends ApplicationAdapter {
             e.draw(batch);
         }
 
-        batch.draw(attackBtnTexture, attackBtnBounds.x, attackBtnBounds.y, attackBtnBounds.width, attackBtnBounds.height);
+        batch.draw(
+            attackBtnTexture,
+            attackBtnBounds.x, attackBtnBounds.y,
+            attackBtnBounds.width, attackBtnBounds.height
+        );
+
+        drawDebugAttackHitbox(); // remove later (change to actual animation)
 
         batch.end();
 
-        // draw joystick
-        stage.act(delta);
+        stage.act(Gdx.graphics.getDeltaTime());
         stage.draw();
     }
+
+    private void drawDebugAttackHitbox() {
+        if (!player.attacking) return;
+
+        batch.setColor(1, 0, 0, 0.4f);
+        batch.draw(
+            player.debugPixel,
+            player.attackHitbox.x,
+            player.attackHitbox.y,
+            player.attackHitbox.width,
+            player.attackHitbox.height
+        );
+        batch.setColor(1, 1, 1, 1);
+    } // remove later (change to actual animation)
 
     @Override
     public void dispose() {
@@ -129,8 +215,6 @@ public class MainActivity extends ApplicationAdapter {
         }
 
         player.dispose();
-
         stage.dispose();
     }
 }
-
