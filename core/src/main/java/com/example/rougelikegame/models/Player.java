@@ -8,95 +8,99 @@ import com.badlogic.gdx.math.Rectangle;
 
 public class Player {
 
-    Texture texture;
+    // textures
+    private final Texture texture;
+    public final Texture debugPixel = new Texture("pixel.png");
+
+    // position & size
     public float x, y;
-    public float width, height;
-    public float speed = 300;
-    public int health;
-    public Rectangle bounds;
+    public final float width = 128;
+    public final float height = 128;
 
-    public Rectangle attackHitbox;
-    public boolean attacking;
-    public float attackTime;
-    public Texture debugPixel = new Texture("pixel.png");
-    public float attackCooldown = 0f;
-    public float attackCooldownTime = 0.5f;   // 0.5 seconds between attacks default
-
+    // stats
+    public int health = 10;
+    public float speed = 300f;
     public int coins = 0;
     public int attackBonus = 0;
 
+    // collision
+    public final Rectangle bounds;
+    public final Rectangle attackHitbox;
+
+    // attack system
+    public boolean attacking = false;
+    private float attackTime = 0f;
+
+    public float attackCooldown = 0f;
+    public float attackCooldownTime = 0.5f;   // seconds between attacks
 
     public Player(float x, float y) {
-        texture = new Texture("player.png");
+        this.texture = new Texture("player.png");
+
         this.x = x;
         this.y = y;
-        this.width = 128;
-        this.height = 128;
-        this.health = 10;
-        bounds = new Rectangle(x, y, width, height);
-        attackHitbox = new Rectangle(x, y, 60, 60); // size of attack area
-        attacking = false;
-        attackTime = 0;
+
+        this.bounds = new Rectangle(x, y, width, height);
+
+        // size of attack area
+        this.attackHitbox = new Rectangle(x, y, 80, 80);
     }
 
     public void update(Joystick joystick, float delta) {
-        float knobX = joystick.getPercentX(); // returns -1 to 1
-        float knobY = joystick.getPercentY(); // returns -1 to 1
 
-        x += knobX * speed * delta;
-        y += knobY * speed * delta;
+        // Movement
+        float dx = joystick.getPercentX();
+        float dy = joystick.getPercentY();
+
+        x += dx * speed * delta;
+        y += dy * speed * delta;
+
+        // Clamp screen boundaries
+        x = MathUtils.clamp(x, 0, Gdx.graphics.getWidth() - width);
+        y = MathUtils.clamp(y, 0, Gdx.graphics.getHeight() - height);
 
         bounds.setPosition(x, y);
 
-        // Optional: keep player inside screen bounds
-        x = MathUtils.clamp(x, 0, Gdx.graphics.getWidth() - texture.getWidth());
-        y = MathUtils.clamp(y, 0, Gdx.graphics.getHeight() - texture.getHeight());
-
+        // Attack animation timer
         if (attacking) {
             attackTime -= delta;
-            if (attackTime <= 0) {
-                attacking = false;
-            }
+            if (attackTime <= 0) attacking = false;
         }
 
+        // Attack cooldown
         if (attackCooldown > 0) {
             attackCooldown -= delta;
         }
     }
 
     public void attack(Joystick joystick) {
-        // If cooldown is active, do nothing
+
+        // if cooldown is active, do nothing
         if (attackCooldown > 0) return;
 
-        // start cooldown
         attackCooldown = attackCooldownTime;
-
         attacking = true;
         attackTime = 0.15f; // attack lasts 0.15 seconds
 
         float dx = joystick.getPercentX();
         float dy = joystick.getPercentY();
 
-        // default attack direction if joystick is neutral
+        // Direction defaults to right if joystick is neutral
         if (dx == 0 && dy == 0) dx = 1;
 
-        // place hitbox in front of player
-        attackHitbox.setSize(80, 80);
+        // Position hitbox in the attack direction
         attackHitbox.setPosition(
             x + dx * width,
             y + dy * height
         );
     }
 
-
-
     public void draw(SpriteBatch batch) {
         batch.draw(texture, x, y, width, height);
     }
 
-
     public void dispose() {
         texture.dispose();
+        debugPixel.dispose();
     }
-
 }
