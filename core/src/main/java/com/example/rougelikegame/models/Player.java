@@ -19,9 +19,12 @@ public class Player {
     public boolean attacking;
     public float attackTime;
     public Texture debugPixel = new Texture("pixel.png");
-
     public float attackCooldown = 0f;
     public float attackCooldownTime = 0.5f;   // 0.5 seconds between attacks default
+
+    public int coins = 0;
+    public int attackBonus = 0;
+
 
     public Player(float x, float y) {
         texture = new Texture("player.png");

@@ -15,6 +15,7 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.example.rougelikegame.models.Enemy;
 import com.example.rougelikegame.models.Joystick;
+import com.example.rougelikegame.models.Pickup;
 import com.example.rougelikegame.models.Player;
 
 import java.util.Random;
@@ -24,6 +25,7 @@ public class MainActivity extends ApplicationAdapter {
 
     Player player;
     Array<Enemy> enemies;
+    Array<Pickup> pickups;
 
     Random rnd;
 
@@ -62,6 +64,13 @@ public class MainActivity extends ApplicationAdapter {
             float y = rnd.nextInt(Gdx.graphics.getHeight() - 128);
             enemies.add(new Enemy("enemy.png", x, y, 100, 128, 128));
         }
+
+        pickups = new Array<>();
+        // spawn some pickups
+        pickups.add(new Pickup("health_pickup.png", 400, 400, Pickup.Type.HEALTH));
+        //pickups.add(new Pickup("speed_pickup.png", 800, 300, Pickup.Type.SPEED));
+        //pickups.add(new Pickup("coin.png", 600, 200, Pickup.Type.COIN));
+
     }
 
     private void setupStageAndJoystick() {
@@ -123,6 +132,7 @@ public class MainActivity extends ApplicationAdapter {
         ScreenUtils.clear(0.3f, 0.3f, 0.3f, 1);
 
         updateGame(delta);
+        checkPickups();
         handlePlayerEnemyCollision();
         handleAttackDamage();
         cleanupDeadEnemies();
@@ -135,6 +145,18 @@ public class MainActivity extends ApplicationAdapter {
 
         for (Enemy e : enemies) {
             e.update(delta, player.x, player.y);
+        }
+    }
+
+    private void checkPickups() {
+        for (int i = pickups.size - 1; i >= 0; i--) {
+            Pickup p = pickups.get(i);
+
+            if (player.bounds.overlaps(p.bounds)) {
+
+                applyPickupEffect(p);
+                pickups.removeIndex(i);
+            }
         }
     }
 
@@ -153,7 +175,7 @@ public class MainActivity extends ApplicationAdapter {
 
             if (!e.hitThisSwing && e.getBounds().overlaps(player.attackHitbox)) {
 
-                e.takeDamage(10);
+                e.takeDamage(10 + player.attackBonus);
                 e.hitThisSwing = true;
 
                 System.out.println("HIT! Enemy HP = " + e.health); // debug
@@ -176,6 +198,10 @@ public class MainActivity extends ApplicationAdapter {
 
         for (Enemy e : enemies) {
             e.draw(batch);
+        }
+
+        for (Pickup p : pickups) {
+            p.draw(batch);
         }
 
         batch.draw(
@@ -205,6 +231,32 @@ public class MainActivity extends ApplicationAdapter {
         );
         batch.setColor(1, 1, 1, 1);
     } // remove later (change to actual animation)
+
+    private void applyPickupEffect(Pickup p) {
+
+        switch (p.type) {
+
+            case HEALTH:
+                player.health += 5;
+                System.out.println("Picked up health → player HP = " + player.health);
+                break;
+
+            case SPEED:
+                player.speed += 100;  // temporary buff
+                System.out.println("Picked up speed → new speed = " + player.speed);
+                break;
+
+            case DAMAGE:
+                player.attackBonus += 5; // you can add attackBonus to player
+                System.out.println("Picked up damage → new bonus = " + player.attackBonus);
+                break;
+
+            case COIN:
+                player.coins++;
+                System.out.println("Picked up coin → coins = " + player.coins);
+                break;
+        }
+    }
 
     @Override
     public void dispose() {

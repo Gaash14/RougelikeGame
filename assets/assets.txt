@@ -1,5 +1,6 @@
 attack_icon.png
 enemy.png
+health_pickup.png
 joystick_base.png
 joystick_knob.png
 pixel.png
