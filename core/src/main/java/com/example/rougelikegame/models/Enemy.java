@@ -57,6 +57,19 @@ public class Enemy {
         }
     }
 
+    public float getX() { return x; }
+    public float getY() { return y; }
+
+    public void setX(float x) {
+        this.x = x;
+        bounds.setX(x); // keep collision synced
+    }
+
+    public void setY(float y) {
+        this.y = y;
+        bounds.setY(y); // keep collision synced
+    }
+
     // Get collision rectangle
     public Rectangle getBounds() {
         return bounds;

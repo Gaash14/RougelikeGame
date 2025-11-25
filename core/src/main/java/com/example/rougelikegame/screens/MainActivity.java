@@ -6,6 +6,7 @@ import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector3;
@@ -28,6 +29,7 @@ public class MainActivity extends ApplicationAdapter {
     Array<Pickup> pickups;
 
     Random rnd;
+    BitmapFont font;
 
     private Stage stage;
     private Joystick joystick;
@@ -45,6 +47,7 @@ public class MainActivity extends ApplicationAdapter {
         setupStageAndJoystick();
         setupAttackButton();
         setupInput();
+        setupHealthbar();
     }
 
 
@@ -125,6 +128,11 @@ public class MainActivity extends ApplicationAdapter {
         Gdx.input.setInputProcessor(multiplexer);
     }
 
+    private void setupHealthbar() {
+        font = new BitmapFont();               // default white font
+        font.getData().setScale(5.0f);         // make it bigger
+    }
+
     @Override
     public void render() {
         float delta = Gdx.graphics.getDeltaTime();
@@ -133,6 +141,7 @@ public class MainActivity extends ApplicationAdapter {
 
         updateGame(delta);
         checkPickups();
+        preventOverlapping();
         handlePlayerEnemyCollision();
         handleAttackDamage();
         cleanupDeadEnemies();
@@ -160,10 +169,64 @@ public class MainActivity extends ApplicationAdapter {
         }
     }
 
+    private void preventOverlapping() {
+        for (int i = 0; i < enemies.size; i++) {
+            Enemy a = enemies.get(i);
+
+            for (int j = i + 1; j < enemies.size; j++) {
+                Enemy b = enemies.get(j);
+
+                float dx = b.getX() - a.getX();
+                float dy = b.getY() - a.getY();
+
+                float dist = (float)Math.sqrt(dx*dx + dy*dy);
+                float minDist = a.width;
+
+                if (dist < minDist && dist > 0) {
+
+                    float overlap = minDist - dist;
+
+                    // normalize
+                    dx /= dist;
+                    dy /= dist;
+
+                    // push each enemy half the overlap
+                    a.setX(a.getX() - dx * overlap * 0.5f);
+                    a.setY(a.getY() - dy * overlap * 0.5f);
+
+                    b.setX(b.getX() + dx * overlap * 0.5f);
+                    b.setY(b.getY() + dy * overlap * 0.5f);
+                }
+            }
+        }
+    }
+
     private void handlePlayerEnemyCollision() {
         for (Enemy e : enemies) {
             if (e.getBounds().overlaps(player.bounds)) {
-                player.health--;
+
+                if (player.damageCooldown <= 0) {
+
+                    // Apply damage
+                    player.health--;
+                    player.damageCooldown = player.damageCooldownTime;
+
+                    // Compute knockback direction
+                    float dx = player.x - e.getX();;
+                    float dy = player.y - e.getY();;
+                    float len = (float)Math.sqrt(dx*dx + dy*dy);
+                    if (len != 0) {
+                        dx /= len;
+                        dy /= len;
+                    }
+
+                    // Apply knockback
+                    player.knockbackX = dx;
+                    player.knockbackY = dy;
+                    player.knockbackTime = player.knockbackDuration;
+
+                    System.out.println("Player hit! HP = " + player.health);
+                }
             }
         }
     }
@@ -177,6 +240,23 @@ public class MainActivity extends ApplicationAdapter {
 
                 e.takeDamage(10 + player.attackBonus);
                 e.hitThisSwing = true;
+
+                // knockback enemy away from player
+                float dx = e.getX() - player.x;
+                float dy = e.getY() - player.y;
+
+                // normalize
+                float length = (float)Math.sqrt(dx*dx + dy*dy);
+                if (length != 0) {
+                    dx /= length;
+                    dy /= length;
+                }
+
+                // knockback strength
+                float knockback = 160f;
+
+                e.setX(e.getX() + dx * knockback);
+                e.setY(e.getY() + dy * knockback);
 
                 System.out.println("HIT! Enemy HP = " + e.health); // debug
             }
@@ -211,6 +291,8 @@ public class MainActivity extends ApplicationAdapter {
         );
 
         drawDebugAttackHitbox(); // remove later (change to actual animation)
+
+        font.draw(batch, "HP: " + player.health, 20, Gdx.graphics.getHeight() - 20);
 
         batch.end();
 

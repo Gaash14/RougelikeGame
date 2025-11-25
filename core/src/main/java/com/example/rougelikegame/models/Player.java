@@ -23,9 +23,17 @@ public class Player {
     public int coins = 0;
     public int attackBonus = 0;
 
-    // collision
+    // collisions
     public final Rectangle bounds;
     public final Rectangle attackHitbox;
+
+    public float damageCooldown = 0f;
+    public float damageCooldownTime = 0.5f;
+    public float knockbackX = 0;
+    public float knockbackY = 0;
+    public float knockbackTime = 0;
+    public float knockbackDuration = 0.25f;  // how long knockback lasts
+    public float knockbackStrength = 350f;   // how fast player gets pushed
 
     // attack system
     public boolean attacking = false;
@@ -43,11 +51,10 @@ public class Player {
         this.bounds = new Rectangle(x, y, width, height);
 
         // size of attack area
-        this.attackHitbox = new Rectangle(x, y, 80, 80);
+        this.attackHitbox = new Rectangle(x, y, 100, 100);
     }
 
     public void update(Joystick joystick, float delta) {
-
         // Movement
         float dx = joystick.getPercentX();
         float dy = joystick.getPercentY();
@@ -71,10 +78,24 @@ public class Player {
         if (attackCooldown > 0) {
             attackCooldown -= delta;
         }
+
+        if (damageCooldown > 0) {
+            damageCooldown -= delta;
+        }
+
+        // APPLY KNOCKBACK
+        if (knockbackTime > 0) {
+            knockbackTime -= delta;
+            x += knockbackX * knockbackStrength * delta;
+            y += knockbackY * knockbackStrength * delta;
+        } else {
+            // Normal joystick movement
+            x += joystick.getPercentX() * speed * delta;
+            y += joystick.getPercentY() * speed * delta;
+        }
     }
 
     public void attack(Joystick joystick) {
-
         // if cooldown is active, do nothing
         if (attackCooldown > 0) return;
 
