@@ -39,11 +39,11 @@ public class Pickup {
                 break;
         }
 
-        bounds = new Rectangle(x, y, 64, 64); // size of pickup
+        bounds = new Rectangle(x, y, 128, 128); // size of pickup
     }
 
     public void draw(SpriteBatch batch) {
-        batch.draw(texture, x, y, 64, 64);
+        batch.draw(texture, x, y, 128, 128);
     }
 
     public void dispose() {

@@ -16,6 +16,7 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.example.rougelikegame.models.Enemy;
 import com.example.rougelikegame.models.Joystick;
+import com.example.rougelikegame.models.Obstacle;
 import com.example.rougelikegame.models.Pickup;
 import com.example.rougelikegame.models.Player;
 
@@ -27,6 +28,7 @@ public class MainActivity extends ApplicationAdapter {
     Player player;
     Array<Enemy> enemies;
     Array<Pickup> pickups;
+    Array<Obstacle> obstacles;
 
     Random rnd;
     BitmapFont font;
@@ -49,6 +51,7 @@ public class MainActivity extends ApplicationAdapter {
 
         setupCamera();
         setupPlayerAndEnemies();
+        setupPickupsAndOstacles();
         setupStageAndJoystick();
         setupAttackButton();
         setupInput();
@@ -67,9 +70,33 @@ public class MainActivity extends ApplicationAdapter {
         enemies = new Array<>();
 
         spawnWave(1);
+    }
 
+    private void setupPickupsAndOstacles() {
         pickups = new Array<>();
 
+        obstacles = new Array<>();
+        spawnRandomObstacles();
+    }
+
+    private void spawnRandomObstacles() {
+        obstacles.clear();
+
+        int numObstacles = 5;
+
+        for (int i = 0; i < numObstacles; i++) {
+
+            float x = rnd.nextInt(Gdx.graphics.getWidth() - 128);
+            float y = rnd.nextInt(Gdx.graphics.getHeight() - 128);
+
+            // Make sure they don't spawn on the player
+            if (Math.abs(x - player.x) < 200 && Math.abs(y - player.y) < 200) {
+                i--;
+                continue;
+            }
+
+            obstacles.add(new Obstacle(x, y));
+        }
     }
 
     private void spawnWave(int waveNumber) {
@@ -152,7 +179,7 @@ public class MainActivity extends ApplicationAdapter {
 
         updateGame(delta);
         checkPickups();
-        preventOverlapping();
+        preventOverlapping(delta);
         handlePlayerEnemyCollision();
         handleAttackDamage();
         cleanupDeadEnemies(delta);
@@ -179,7 +206,7 @@ public class MainActivity extends ApplicationAdapter {
         }
     }
 
-    private void preventOverlapping() {
+    private void preventOverlapping(float delta) {
         for (int i = 0; i < enemies.size; i++) {
             Enemy a = enemies.get(i);
 
@@ -208,6 +235,13 @@ public class MainActivity extends ApplicationAdapter {
                     b.setY(b.getY() + dy * overlap * 0.5f);
                 }
             }
+        }
+
+        player.handleObstacleCollision(obstacles);
+
+        for (Enemy e : enemies) {
+            e.update(delta, player.x, player.y);
+            e.handleObstacleCollision(obstacles);
         }
     }
 
@@ -317,6 +351,10 @@ public class MainActivity extends ApplicationAdapter {
 
         for (Enemy e : enemies) {
             e.draw(batch);
+        }
+
+        for (Obstacle o : obstacles) {
+            o.draw(batch);
         }
 
         for (Pickup p : pickups) {

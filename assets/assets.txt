@@ -2,6 +2,7 @@ attack_icon.png
 enemy.png
 joystick_base.png
 joystick_knob.png
+obstacle.png
 pickup_coin.png
 pickup_damage.png
 pickup_health.png

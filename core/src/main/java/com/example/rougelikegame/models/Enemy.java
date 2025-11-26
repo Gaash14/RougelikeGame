@@ -3,6 +3,7 @@ package com.example.rougelikegame.models;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.utils.Array;
 
 public class Enemy {
     private Texture texture;
@@ -48,6 +49,34 @@ public class Enemy {
 
         // Update collision bounds
         bounds.setPosition(x, y);
+    }
+
+    public void handleObstacleCollision(Array<Obstacle> obstacles) {
+        for (Obstacle o : obstacles) {
+            if (bounds.overlaps(o.bounds)) {
+                float overlapX = Math.min(bounds.x + width - o.x, o.x + o.bounds.width - bounds.x);
+                float overlapY = Math.min(bounds.y + height - o.y, o.y + o.bounds.height - bounds.y);
+
+                // Push out in the direction of the smallest overlap
+                if (overlapX < overlapY) {
+                    // push left or right
+                    if (x < o.x) {
+                        x -= overlapX;
+                    } else {
+                        x += overlapX;
+                    }
+                } else {
+                    // push down or up
+                    if (y < o.y) {
+                        y -= overlapY;
+                    } else {
+                        y += overlapY;
+                    }
+                }
+
+                bounds.setPosition(x, y);
+            }
+        }
     }
 
     public void takeDamage(int dmg) {

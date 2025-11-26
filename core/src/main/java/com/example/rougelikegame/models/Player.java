@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.utils.Array;
 
 public class Player {
 
@@ -92,6 +93,34 @@ public class Player {
             // Normal joystick movement
             x += joystick.getPercentX() * speed * delta;
             y += joystick.getPercentY() * speed * delta;
+        }
+    }
+
+    public void handleObstacleCollision(Array<Obstacle> obstacles) {
+        for (Obstacle o : obstacles) {
+            if (bounds.overlaps(o.bounds)) {
+                float overlapX = Math.min(bounds.x + width - o.x, o.x + o.bounds.width - bounds.x);
+                float overlapY = Math.min(bounds.y + height - o.y, o.y + o.bounds.height - bounds.y);
+
+                // Push out in the direction of the smallest overlap
+                if (overlapX < overlapY) {
+                    // push left or right
+                    if (x < o.x) {
+                        x -= overlapX;
+                    } else {
+                        x += overlapX;
+                    }
+                } else {
+                    // push down or up
+                    if (y < o.y) {
+                        y -= overlapY;
+                    } else {
+                        y += overlapY;
+                    }
+                }
+
+                bounds.setPosition(x, y);
+            }
         }
     }
 
