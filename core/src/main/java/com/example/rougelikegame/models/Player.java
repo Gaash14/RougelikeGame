@@ -19,7 +19,7 @@ public class Player {
 
     // stats
     public int health = 10;
-    public float speed = 300f;
+    public int speed = 200;
     public int coins = 0;
     public int attackBonus = 0;
 

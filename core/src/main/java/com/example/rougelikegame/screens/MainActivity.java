@@ -38,6 +38,11 @@ public class MainActivity extends ApplicationAdapter {
     Texture attackBtnTexture;
     Rectangle attackBtnBounds;
 
+    int wave = 1;
+    float timeBetweenWaves = 2f;   // seconds delay before next wave
+    float waveTimer = 0f;
+    boolean waitingForNextWave = false;
+
     @Override
     public void create() {
         batch = new SpriteBatch();
@@ -61,19 +66,25 @@ public class MainActivity extends ApplicationAdapter {
         rnd = new Random();
         enemies = new Array<>();
 
-        int numEnemies = 5;
-        for (int i = 0; i < numEnemies; i++) {
+        spawnWave(1);
+
+        pickups = new Array<>();
+
+    }
+
+    private void spawnWave(int waveNumber) {
+        int enemyCount = 3 + (waveNumber - 1) * 2; // wave 1 = 3, wave 2 = 5, wave 3 = 7...
+
+        Random rnd = new Random();
+
+        for (int i = 0; i < enemyCount; i++) {
             float x = rnd.nextInt(Gdx.graphics.getWidth() - 128);
             float y = rnd.nextInt(Gdx.graphics.getHeight() - 128);
+
             enemies.add(new Enemy("enemy.png", x, y, 100, 128, 128));
         }
 
-        pickups = new Array<>();
-        // spawn some pickups
-        pickups.add(new Pickup("health_pickup.png", 400, 400, Pickup.Type.HEALTH));
-        //pickups.add(new Pickup("speed_pickup.png", 800, 300, Pickup.Type.SPEED));
-        //pickups.add(new Pickup("coin.png", 600, 200, Pickup.Type.COIN));
-
+        System.out.println("Spawned wave " + waveNumber + " with " + enemyCount + " enemies");
     }
 
     private void setupStageAndJoystick() {
@@ -144,7 +155,7 @@ public class MainActivity extends ApplicationAdapter {
         preventOverlapping();
         handlePlayerEnemyCollision();
         handleAttackDamage();
-        cleanupDeadEnemies();
+        cleanupDeadEnemies(delta);
 
         drawGame();
     }
@@ -162,7 +173,6 @@ public class MainActivity extends ApplicationAdapter {
             Pickup p = pickups.get(i);
 
             if (player.bounds.overlaps(p.bounds)) {
-
                 applyPickupEffect(p);
                 pickups.removeIndex(i);
             }
@@ -263,11 +273,40 @@ public class MainActivity extends ApplicationAdapter {
         }
     }
 
-    private void cleanupDeadEnemies() {
+    private void cleanupDeadEnemies(float delta) {
         for (int i = enemies.size - 1; i >= 0; i--) {
             if (!enemies.get(i).alive) {
                 enemies.removeIndex(i);
             }
+        }
+
+        // wave progression logic
+        if (enemies.size == 0 && !waitingForNextWave) {
+            waitingForNextWave = true;
+            waveTimer = timeBetweenWaves;   // start countdown
+        }
+
+        if (waitingForNextWave) {
+            waveTimer -= delta;
+
+            if (waveTimer <= 0) {
+                wave++;
+                spawnWave(wave);
+                spawnWavePickups(wave);   // <-- NEW
+                waitingForNextWave = false;
+            }
+        }
+    }
+
+    private void spawnWavePickups(int wave) {
+        int numPickups = 2 + wave / 2;
+
+        for (int i = 0; i < numPickups; i++) {
+            float x = rnd.nextInt(Gdx.graphics.getWidth() - 64);
+            float y = rnd.nextInt(Gdx.graphics.getHeight() - 64);
+
+            Pickup.Type randomType = Pickup.Type.values()[rnd.nextInt(Pickup.Type.values().length)];
+            pickups.add(new Pickup(randomType, x, y));
         }
     }
 
@@ -292,12 +331,20 @@ public class MainActivity extends ApplicationAdapter {
 
         drawDebugAttackHitbox(); // remove later (change to actual animation)
 
-        font.draw(batch, "HP: " + player.health, 20, Gdx.graphics.getHeight() - 20);
+        drawUI();
 
         batch.end();
 
         stage.act(Gdx.graphics.getDeltaTime());
         stage.draw();
+    }
+
+    private void drawUI() {
+        font.draw(batch, "HP: " + player.health, 20, Gdx.graphics.getHeight() - 20);
+        font.draw(batch, "Wave: " + wave, 20, Gdx.graphics.getHeight() - 80);
+        font.draw(batch, "Damage: " + (10 + player.attackBonus), 20, Gdx.graphics.getHeight() - 130);
+        font.draw(batch, "Speed: " + player.speed, 20, Gdx.graphics.getHeight() - 180);
+        font.draw(batch, "Coins: " + player.coins, 20, Gdx.graphics.getHeight() - 230);
     }
 
     private void drawDebugAttackHitbox() {
@@ -343,12 +390,11 @@ public class MainActivity extends ApplicationAdapter {
     @Override
     public void dispose() {
         batch.dispose();
-
         for (Enemy e : enemies) {
             e.dispose();
         }
-
         player.dispose();
+        font.dispose();
         stage.dispose();
     }
 }

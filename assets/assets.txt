@@ -1,7 +1,10 @@
 attack_icon.png
 enemy.png
-health_pickup.png
 joystick_base.png
 joystick_knob.png
+pickup_coin.png
+pickup_damage.png
+pickup_health.png
+pickup_speed.png
 pixel.png
 player.png

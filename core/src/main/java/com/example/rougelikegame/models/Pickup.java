@@ -18,13 +18,28 @@ public class Pickup {
     public float x, y;
     public Rectangle bounds;
 
-    public Pickup(String texturePath, float x, float y, Type type) {
-        this.texture = new Texture(texturePath);
+    public Pickup(Type type, float x, float y) {
+        this.type = type;
         this.x = x;
         this.y = y;
-        this.type = type;
 
-        this.bounds = new Rectangle(x, y, 64, 64); // size of pickup
+        // Choose texture based on pickup type
+        switch (type) {
+            case HEALTH:
+                texture = new Texture("pickup_health.png");
+                break;
+            case SPEED:
+                texture = new Texture("pickup_speed.png");
+                break;
+            case DAMAGE:
+                texture = new Texture("pickup_damage.png");
+                break;
+            case COIN:
+                texture = new Texture("pickup_coin.png");
+                break;
+        }
+
+        bounds = new Rectangle(x, y, 64, 64); // size of pickup
     }
 
     public void draw(SpriteBatch batch) {
