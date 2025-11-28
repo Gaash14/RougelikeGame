@@ -19,8 +19,14 @@
         android:id="@+id/startGameButton"
         android:text="Start Game"
         android:layout_width="200dp"
+        android:layout_height="wrap_content" />
+
+    <Button
+        android:id="@+id/leaderboardButton"
+        android:layout_width="200dp"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="20dp" />
+        android:layout_marginBottom="20dp"
+        android:text="Leaderboard" />
 
     <Button
         android:id="@+id/exitButton"

@@ -46,6 +46,13 @@
             android:screenOrientation="landscape"
             android:theme="@style/GdxTheme" />
 
+        <!-- LEADERBOARD -->
+        <activity
+            android:name="com.example.rougelikegame.android.screens.LeaderboardActivity"
+            android:exported="true"
+            android:screenOrientation="landscape"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+
         <!-- LOGIN -->
         <activity
             android:name="com.example.rougelikegame.android.screens.LoginActivity"

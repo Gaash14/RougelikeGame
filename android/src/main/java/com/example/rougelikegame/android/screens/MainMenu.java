@@ -14,9 +14,15 @@ public class MainMenu extends AppCompatActivity {
         setContentView(R.layout.activity_main_menu);
 
         Button startGame = findViewById(R.id.startGameButton);
+        Button leaderboard = findViewById(R.id.leaderboardButton);
         Button exitButton = findViewById(R.id.exitButton);
 
         startGame.setOnClickListener(v -> {
+            Intent intent = new Intent(this, AndroidLauncher.class);
+            startActivity(intent);
+        });
+
+        leaderboard.setOnClickListener(v -> {
             Intent intent = new Intent(this, AndroidLauncher.class);
             startActivity(intent);
         });

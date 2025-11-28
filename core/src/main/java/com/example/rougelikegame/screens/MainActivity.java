@@ -40,7 +40,7 @@ public class MainActivity extends ApplicationAdapter {
     Texture attackBtnTexture;
     Rectangle attackBtnBounds;
 
-    int wave = 1;
+    int wave = 20;
     float timeBetweenWaves = 2f;   // seconds delay before next wave
     float waveTimer = 0f;
     boolean waitingForNextWave = false;
@@ -51,7 +51,7 @@ public class MainActivity extends ApplicationAdapter {
 
         setupCamera();
         setupPlayerAndEnemies();
-        setupPickupsAndOstacles();
+        setupPickupsAndObstacles();
         setupStageAndJoystick();
         setupAttackButton();
         setupInput();
@@ -69,10 +69,10 @@ public class MainActivity extends ApplicationAdapter {
         rnd = new Random();
         enemies = new Array<>();
 
-        spawnWave(1);
+        spawnWave(wave);
     }
 
-    private void setupPickupsAndOstacles() {
+    private void setupPickupsAndObstacles() {
         pickups = new Array<>();
 
         obstacles = new Array<>();
@@ -409,12 +409,12 @@ public class MainActivity extends ApplicationAdapter {
                 break;
 
             case SPEED:
-                player.speed += 100;  // temporary buff
+                player.speed += 50;
                 System.out.println("Picked up speed → new speed = " + player.speed);
                 break;
 
             case DAMAGE:
-                player.attackBonus += 5; // you can add attackBonus to player
+                player.attackBonus += 5;
                 System.out.println("Picked up damage → new bonus = " + player.attackBonus);
                 break;
 
