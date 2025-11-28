@@ -7,7 +7,7 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Array;
 
-public class Player {
+public class Player{
 
     // textures
     private final Texture texture;
@@ -23,6 +23,10 @@ public class Player {
     public int speed = 200;
     public int coins = 0;
     public int attackBonus = 0;
+
+    // achievements
+    public int bestTime;
+    public int highestWave = 0;
 
     // collisions
     public final Rectangle bounds;

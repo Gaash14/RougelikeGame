@@ -10,11 +10,13 @@ public class User implements Serializable {
     private String phone;
     private boolean isAdmin;
 
-    public User() {
+    private Player player;
 
+    public User() {
+        this.player = new Player(0,0);
     }
 
-    public User(String uid, String email, String password, String firstName, String lastName, String phone, boolean isAdmin) {
+    public User(String uid, String email, String password, String firstName, String lastName, String phone, boolean isAdmin, Player player) {
         this.uid = uid;
         this.email = email;
         this.password = password;
@@ -22,6 +24,7 @@ public class User implements Serializable {
         this.lastName = lastName;
         this.phone = phone;
         this.isAdmin = isAdmin;
+        this.player = player;
     }
 
     public String getUid() {
@@ -110,5 +113,10 @@ public class User implements Serializable {
     public String getFullName() {
         return firstName + " " + lastName;
     }
+
+    public int GetHighestWave() { return player.highestWave; }
+    public int GetBestTime() { return player.bestTime; }
+    public void setHighestWave(int highestWave) { player.highestWave = highestWave;}
+    public void setBestTime(int bestTime) { player.bestTime = bestTime;}
 
 }

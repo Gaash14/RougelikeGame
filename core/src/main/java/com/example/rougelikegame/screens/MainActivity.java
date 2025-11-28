@@ -40,7 +40,7 @@ public class MainActivity extends ApplicationAdapter {
     Texture attackBtnTexture;
     Rectangle attackBtnBounds;
 
-    int wave = 20;
+    int wave = 1;
     float timeBetweenWaves = 2f;   // seconds delay before next wave
     float waveTimer = 0f;
     boolean waitingForNextWave = false;
