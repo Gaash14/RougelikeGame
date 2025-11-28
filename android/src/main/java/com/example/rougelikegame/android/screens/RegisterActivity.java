@@ -17,6 +17,7 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.example.rougelikegame.R;
 import com.example.rougelikegame.android.screens.MainMenu;
+import com.example.rougelikegame.models.Player;
 import com.example.rougelikegame.models.User;
 import com.example.rougelikegame.android.services.DatabaseService;
 import com.example.rougelikegame.android.utils.SharedPreferencesUtil;
@@ -162,7 +163,7 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
         String uid = databaseService.generateUserId();
 
         /// create a new user object
-        User user = new User(uid, email, password, fName,lName, phone, false);
+        User user = new User(uid, email, password, fName,lName, phone, false, new Player(0, 0));
 
         databaseService.checkIfEmailExists(email, new DatabaseService.DatabaseCallback<>() {
             @Override
