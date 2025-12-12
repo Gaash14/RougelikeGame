@@ -24,10 +24,6 @@ public class Player{
     public int coins = 0;
     public int attackBonus = 0;
 
-    // achievements
-    public int bestTime;
-    public int highestWave = 0;
-
     // collisions
     public final Rectangle bounds;
     public final Rectangle attackHitbox;

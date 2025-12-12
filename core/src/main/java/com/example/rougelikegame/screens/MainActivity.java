@@ -14,6 +14,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import com.example.rougelikegame.ScoreReporter;
 import com.example.rougelikegame.models.Enemy;
 import com.example.rougelikegame.models.Joystick;
 import com.example.rougelikegame.models.Obstacle;
@@ -23,6 +24,15 @@ import com.example.rougelikegame.models.Player;
 import java.util.Random;
 
 public class MainActivity extends ApplicationAdapter {
+
+    private final ScoreReporter scoreReporter;
+    public MainActivity(ScoreReporter scoreReporter) {
+        this.scoreReporter = scoreReporter;
+    }
+    public MainActivity() {
+        this.scoreReporter = null;
+    }
+
     SpriteBatch batch;
 
     Player player;
@@ -40,6 +50,8 @@ public class MainActivity extends ApplicationAdapter {
     Texture attackBtnTexture;
     Rectangle attackBtnBounds;
 
+    private float runTime = 0f;
+    private boolean runEnded = false;
     int wave = 1;
     float timeBetweenWaves = 2f;   // seconds delay before next wave
     float waveTimer = 0f;
@@ -174,6 +186,7 @@ public class MainActivity extends ApplicationAdapter {
     @Override
     public void render() {
         float delta = Gdx.graphics.getDeltaTime();
+        if (!runEnded) runTime += delta;
 
         ScreenUtils.clear(0.3f, 0.3f, 0.3f, 1);
 
@@ -253,6 +266,7 @@ public class MainActivity extends ApplicationAdapter {
 
                     // Apply damage
                     player.health--;
+                    if (player.health <= 0) { onPlayerDied(); }
                     player.damageCooldown = player.damageCooldownTime;
 
                     // Compute knockback direction
@@ -273,6 +287,15 @@ public class MainActivity extends ApplicationAdapter {
                 }
             }
         }
+    }
+
+    private void onPlayerDied() {
+        if (scoreReporter != null) {
+            scoreReporter.saveHighestWave(wave);
+        }
+
+        // 2) Quit the LibGDX game (closes AndroidLauncher and returns to previous Activity)
+        Gdx.app.postRunnable(() -> Gdx.app.exit());
     }
 
     private void handleAttackDamage() {
@@ -422,6 +445,16 @@ public class MainActivity extends ApplicationAdapter {
                 player.coins++;
                 System.out.println("Picked up coin → coins = " + player.coins);
                 break;
+        }
+    }
+
+    private void onBossDefeat() {
+        if (scoreReporter != null) {
+            // final wave reached
+            scoreReporter.saveHighestWave(wave);
+
+            // runTime assumed to be in seconds (float) – cast to int
+            scoreReporter.saveBestTime((int) runTime);
         }
     }
 

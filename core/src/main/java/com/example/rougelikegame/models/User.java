@@ -10,13 +10,24 @@ public class User implements Serializable {
     private String phone;
     private boolean isAdmin;
 
-    private Player player;
+    // 🔹 Scores are stored DIRECTLY on the User
+    private int highestWave;
+    private int bestTime; // in seconds (lower = better)
 
+    // Required empty constructor for Firebase
     public User() {
-        this.player = null;
     }
 
-    public User(String uid, String email, String password, String firstName, String lastName, String phone, boolean isAdmin, Player player) {
+    public User(String uid,
+                String email,
+                String password,
+                String firstName,
+                String lastName,
+                String phone,
+                boolean isAdmin,
+                int highestWave,
+                int bestTime) {
+
         this.uid = uid;
         this.email = email;
         this.password = password;
@@ -24,8 +35,11 @@ public class User implements Serializable {
         this.lastName = lastName;
         this.phone = phone;
         this.isAdmin = isAdmin;
-        this.player = player;
+        this.highestWave = highestWave;
+        this.bestTime = bestTime;
     }
+
+    // --- basic info ---
 
     public String getUid() {
         return uid;
@@ -83,6 +97,34 @@ public class User implements Serializable {
         isAdmin = admin;
     }
 
+    // --- score stuff ---
+
+    // Old-style names you already use in code:
+    public int GetHighestWave() {
+        return highestWave;
+    }
+
+    public int GetBestTime() {
+        return bestTime;
+    }
+
+    public void setHighestWave(int highestWave) {
+        this.highestWave = highestWave;
+    }
+
+    public void setBestTime(int bestTime) {
+        this.bestTime = bestTime;
+    }
+
+    // Also normal Java-style getters (nice for future use)
+    public int getHighestWave() {
+        return highestWave;
+    }
+
+    public int getBestTime() {
+        return bestTime;
+    }
+
     @Override
     public String toString() {
         return "User{" +
@@ -93,6 +135,8 @@ public class User implements Serializable {
             ", LastName='" + lastName + '\'' +
             ", phone='" + phone + '\'' +
             ", isAdmin=" + isAdmin +
+            ", highestWave=" + highestWave +
+            ", bestTime=" + bestTime +
             '}';
     }
 
@@ -113,17 +157,4 @@ public class User implements Serializable {
     public String getFullName() {
         return firstName + " " + lastName;
     }
-
-    public int GetHighestWave() { return player == null ? 0 : player.highestWave; }
-    public int GetBestTime() { return player == null ? 0 : player.bestTime; }
-    public void setHighestWave(int highestWave) {
-        if (player == null) player = new Player(0,0); // (only if you really need it)
-        player.highestWave = highestWave;
-    }
-    public void setBestTime(int bestTime) {
-        if (player == null) player = new Player(0,0);
-        player.bestTime = bestTime;
-    }
-
-
 }

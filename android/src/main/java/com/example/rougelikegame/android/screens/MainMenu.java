@@ -23,7 +23,7 @@ public class MainMenu extends AppCompatActivity {
         });
 
         leaderboard.setOnClickListener(v -> {
-            Intent intent = new Intent(this, AndroidLauncher.class);
+            Intent intent = new Intent(this, LeaderboardActivity.class);
             startActivity(intent);
         });
 
