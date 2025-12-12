@@ -13,7 +13,7 @@ public class User implements Serializable {
     private Player player;
 
     public User() {
-        this.player = new Player(0,0);
+        this.player = null;
     }
 
     public User(String uid, String email, String password, String firstName, String lastName, String phone, boolean isAdmin, Player player) {
@@ -114,9 +114,16 @@ public class User implements Serializable {
         return firstName + " " + lastName;
     }
 
-    public int GetHighestWave() { return player.highestWave; }
-    public int GetBestTime() { return player.bestTime; }
-    public void setHighestWave(int highestWave) { player.highestWave = highestWave;}
-    public void setBestTime(int bestTime) { player.bestTime = bestTime;}
+    public int GetHighestWave() { return player == null ? 0 : player.highestWave; }
+    public int GetBestTime() { return player == null ? 0 : player.bestTime; }
+    public void setHighestWave(int highestWave) {
+        if (player == null) player = new Player(0,0); // (only if you really need it)
+        player.highestWave = highestWave;
+    }
+    public void setBestTime(int bestTime) {
+        if (player == null) player = new Player(0,0);
+        player.bestTime = bestTime;
+    }
+
 
 }
