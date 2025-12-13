@@ -55,7 +55,7 @@ public class MainActivity extends ApplicationAdapter {
     private boolean runEnded = false;
 
     int wave = 1;
-    private final int BOSS_WAVE = 3;
+    private final int BOSS_WAVE = 7;
     float timeBetweenWaves = 2f;   // seconds delay before next wave
     float waveTimer = 0f;
     boolean waitingForNextWave = false;
