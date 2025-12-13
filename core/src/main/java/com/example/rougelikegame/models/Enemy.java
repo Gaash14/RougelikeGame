@@ -13,6 +13,7 @@ public class Enemy {
     private Rectangle bounds;
     public int health;
     public boolean alive = true;
+    public boolean isBoss = false;
     public boolean hitThisSwing = false;
 
     public Enemy(String texture, float startX, float startY, float speed, float width, float height) {

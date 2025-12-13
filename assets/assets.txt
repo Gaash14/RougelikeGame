@@ -1,4 +1,5 @@
 attack_icon.png
+boss.png
 enemy.png
 joystick_base.png
 joystick_knob.png

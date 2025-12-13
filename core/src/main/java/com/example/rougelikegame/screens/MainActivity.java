@@ -15,6 +15,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.example.rougelikegame.ScoreReporter;
+import com.example.rougelikegame.models.BossEnemy;
 import com.example.rougelikegame.models.Enemy;
 import com.example.rougelikegame.models.Joystick;
 import com.example.rougelikegame.models.Obstacle;
@@ -52,7 +53,9 @@ public class MainActivity extends ApplicationAdapter {
 
     private float runTime = 0f;
     private boolean runEnded = false;
+
     int wave = 1;
+    private final int BOSS_WAVE = 3;
     float timeBetweenWaves = 2f;   // seconds delay before next wave
     float waveTimer = 0f;
     boolean waitingForNextWave = false;
@@ -112,6 +115,19 @@ public class MainActivity extends ApplicationAdapter {
     }
 
     private void spawnWave(int waveNumber) {
+        // boss enemy spawn
+        if (wave == BOSS_WAVE) {
+            float bossWidth = 256;
+            float bossHeight = 256;
+
+            float x = Gdx.graphics.getWidth() / 2f - bossWidth / 2f;
+            float y = Gdx.graphics.getHeight() / 2f - bossHeight / 2f;
+
+            enemies.add(new BossEnemy(x, y));
+            return;
+        }
+
+        // normal enemy spawn
         int enemyCount = 3 + (waveNumber - 1) * 2; // wave 1 = 3, wave 2 = 5, wave 3 = 7...
 
         Random rnd = new Random();
@@ -265,8 +281,16 @@ public class MainActivity extends ApplicationAdapter {
                 if (player.damageCooldown <= 0) {
 
                     // Apply damage
-                    player.health--;
+                    int dmg;
+                    if (e.isBoss) {
+                        dmg = 2;
+                    } else {
+                        dmg = 1;
+                    }
+                    player.health -= dmg;
+
                     if (player.health <= 0) { onPlayerDied(); }
+
                     player.damageCooldown = player.damageCooldownTime;
 
                     // Compute knockback direction
@@ -294,7 +318,7 @@ public class MainActivity extends ApplicationAdapter {
             scoreReporter.saveHighestWave(wave);
         }
 
-        // 2) Quit the LibGDX game (closes AndroidLauncher and returns to previous Activity)
+        // Quit the LibGDX game (closes AndroidLauncher and returns to previous Activity)
         Gdx.app.postRunnable(() -> Gdx.app.exit());
     }
 
@@ -332,8 +356,13 @@ public class MainActivity extends ApplicationAdapter {
 
     private void cleanupDeadEnemies(float delta) {
         for (int i = enemies.size - 1; i >= 0; i--) {
-            if (!enemies.get(i).alive) {
+            Enemy dead = enemies.get(i);
+            if (!dead.alive) {
                 enemies.removeIndex(i);
+
+                if (dead.isBoss) {
+                    onBossDefeat();
+                }
             }
         }
 
