@@ -26,6 +26,7 @@ import java.util.Random;
 
 public class MainActivity extends ApplicationAdapter {
 
+    // Constructors (for AndroidLauncher / tests)
     private final ScoreReporter scoreReporter;
     public MainActivity(ScoreReporter scoreReporter) {
         this.scoreReporter = scoreReporter;
@@ -34,35 +35,41 @@ public class MainActivity extends ApplicationAdapter {
         this.scoreReporter = null;
     }
 
+    // LibGDX objects
     SpriteBatch batch;
+    OrthographicCamera camera;
+    Stage stage;
+    Joystick joystick;
+    BitmapFont font;
 
+    // Game objects
     Player player;
     Array<Enemy> enemies;
     Array<Pickup> pickups;
     Array<Obstacle> obstacles;
 
+    // Game state
     Random rnd;
-    BitmapFont font;
-
-    private Stage stage;
-    private Joystick joystick;
-    private OrthographicCamera camera;
-
-    Texture attackBtnTexture;
-    Rectangle attackBtnBounds;
-
-    private float runTime = 0f;
-    private boolean runEnded = false;
 
     int wave = 1;
-    private final int BOSS_WAVE = 7;
-    float timeBetweenWaves = 2f;   // seconds delay before next wave
+    private static final int BOSS_WAVE = 7;
+
+    float timeBetweenWaves = 2f; // seconds delay before next wave
     float waveTimer = 0f;
     boolean waitingForNextWave = false;
 
+    private float runTime = 0f;
+    private boolean bossDefeated = false;
+
+    // Attack button
+    Texture attackBtnTexture;
+    Rectangle attackBtnBounds;
+
+    // LibGDX
     @Override
     public void create() {
         batch = new SpriteBatch();
+        rnd = new Random();
 
         setupCamera();
         setupPlayerAndEnemies();
@@ -70,10 +77,41 @@ public class MainActivity extends ApplicationAdapter {
         setupStageAndJoystick();
         setupAttackButton();
         setupInput();
-        setupHealthbar();
+        setupFont();
     }
 
+    @Override
+    public void render() {
+        float delta = Gdx.graphics.getDeltaTime();
+        if (!bossDefeated) {
+            runTime += delta;
+        }
 
+        ScreenUtils.clear(0.3f, 0.3f, 0.3f, 1);
+
+        update(delta);
+        drawGame();
+    }
+
+    @Override
+    public void dispose() {
+        batch.dispose();
+        for (Enemy e : enemies) {
+            e.dispose();
+        }
+        for (Pickup p : pickups) {
+            p.dispose();
+        }
+        for (Obstacle o : obstacles) {
+            o.dispose();
+        }
+        player.dispose();
+        font.dispose();
+        stage.dispose();
+        attackBtnTexture.dispose();
+    }
+
+    // Setup methods
     private void setupCamera() {
         camera = new OrthographicCamera();
         camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
@@ -81,65 +119,14 @@ public class MainActivity extends ApplicationAdapter {
 
     private void setupPlayerAndEnemies() {
         player = new Player(100, 100);
-        rnd = new Random();
         enemies = new Array<>();
-
         spawnWave(wave);
     }
 
     private void setupPickupsAndObstacles() {
         pickups = new Array<>();
-
         obstacles = new Array<>();
         spawnRandomObstacles();
-    }
-
-    private void spawnRandomObstacles() {
-        obstacles.clear();
-
-        int numObstacles = 5;
-
-        for (int i = 0; i < numObstacles; i++) {
-
-            float x = rnd.nextInt(Gdx.graphics.getWidth() - 128);
-            float y = rnd.nextInt(Gdx.graphics.getHeight() - 128);
-
-            // Make sure they don't spawn on the player
-            if (Math.abs(x - player.x) < 200 && Math.abs(y - player.y) < 200) {
-                i--;
-                continue;
-            }
-
-            obstacles.add(new Obstacle(x, y));
-        }
-    }
-
-    private void spawnWave(int waveNumber) {
-        // boss enemy spawn
-        if (wave == BOSS_WAVE) {
-            float bossWidth = 256;
-            float bossHeight = 256;
-
-            float x = Gdx.graphics.getWidth() / 2f - bossWidth / 2f;
-            float y = Gdx.graphics.getHeight() / 2f - bossHeight / 2f;
-
-            enemies.add(new BossEnemy(x, y));
-            return;
-        }
-
-        // normal enemy spawn
-        int enemyCount = 3 + (waveNumber - 1) * 2; // wave 1 = 3, wave 2 = 5, wave 3 = 7...
-
-        Random rnd = new Random();
-
-        for (int i = 0; i < enemyCount; i++) {
-            float x = rnd.nextInt(Gdx.graphics.getWidth() - 128);
-            float y = rnd.nextInt(Gdx.graphics.getHeight() - 128);
-
-            enemies.add(new Enemy("enemy.png", x, y, 100, 128, 128));
-        }
-
-        System.out.println("Spawned wave " + waveNumber + " with " + enemyCount + " enemies");
     }
 
     private void setupStageAndJoystick() {
@@ -176,7 +163,6 @@ public class MainActivity extends ApplicationAdapter {
                 camera.unproject(touch);
 
                 if (attackBtnBounds.contains(touch.x, touch.y)) {
-
                     player.attack(joystick);
 
                     // Reset hit flags for this swing
@@ -194,36 +180,95 @@ public class MainActivity extends ApplicationAdapter {
         Gdx.input.setInputProcessor(multiplexer);
     }
 
-    private void setupHealthbar() {
-        font = new BitmapFont();               // default white font
-        font.getData().setScale(5.0f);         // make it bigger
+    private void setupFont() {
+        font = new BitmapFont();
+        font.getData().setScale(5.0f);
     }
 
-    @Override
-    public void render() {
-        float delta = Gdx.graphics.getDeltaTime();
-        if (!runEnded) runTime += delta;
-
-        ScreenUtils.clear(0.3f, 0.3f, 0.3f, 1);
-
+    // Update loop
+    private void update(float delta) {
         updateGame(delta);
         checkPickups();
-        preventOverlapping(delta);
+        preventEnemyOverlap();
         handlePlayerEnemyCollision();
         handleAttackDamage();
-        cleanupDeadEnemies(delta);
-
-        drawGame();
+        cleanupDeadEnemiesAndWaves(delta);
     }
 
     private void updateGame(float delta) {
+        // Player
         player.update(joystick, delta);
+        player.handleObstacleCollision(obstacles);
 
+        // Enemies
         for (Enemy e : enemies) {
             e.update(delta, player.x, player.y);
+            e.handleObstacleCollision(obstacles);
         }
     }
 
+    // Spawning & waves
+    private void spawnRandomObstacles() {
+        obstacles.clear();
+
+        int numObstacles = 5;
+
+        for (int i = 0; i < numObstacles; i++) {
+            float x = rnd.nextInt(Gdx.graphics.getWidth() - 128);
+            float y = rnd.nextInt(Gdx.graphics.getHeight() - 128);
+
+            // avoid spawning right on top of player
+            if (Math.abs(x - player.x) < 200 && Math.abs(y - player.y) < 200) {
+                i--;
+                continue;
+            }
+
+            obstacles.add(new Obstacle(x, y));
+        }
+    }
+
+    private void spawnWave(int waveNumber) {
+        // Boss wave
+        if (waveNumber == BOSS_WAVE) {
+            float bossWidth = 256;
+            float bossHeight = 256;
+
+            float x = Gdx.graphics.getWidth() / 2f - bossWidth / 2f;
+            float y = Gdx.graphics.getHeight() / 2f - bossHeight / 2f;
+
+            enemies.add(new BossEnemy(x, y));
+            System.out.println("Spawned boss on wave " + waveNumber);
+            return;
+        }
+
+        // Normal enemies
+        int enemyCount = 3 + (waveNumber - 1) * 2; // wave 1=3, 2=5, 3=7...
+
+        for (int i = 0; i < enemyCount; i++) {
+            float x = rnd.nextInt(Gdx.graphics.getWidth() - 128);
+            float y = rnd.nextInt(Gdx.graphics.getHeight() - 128);
+
+            enemies.add(new Enemy("enemy.png", x, y, 100, 128, 128));
+        }
+
+        System.out.println("Spawned wave " + waveNumber + " with " + enemyCount + " enemies");
+    }
+
+    private void spawnWavePickups(int waveNumber) {
+        int numPickups = 2 + waveNumber / 2;
+
+        for (int i = 0; i < numPickups; i++) {
+            float x = rnd.nextInt(Gdx.graphics.getWidth() - 64);
+            float y = rnd.nextInt(Gdx.graphics.getHeight() - 64);
+
+            Pickup.Type randomType =
+                Pickup.Type.values()[rnd.nextInt(Pickup.Type.values().length)];
+
+            pickups.add(new Pickup(randomType, x, y));
+        }
+    }
+
+    // Pickups & collisions
     private void checkPickups() {
         for (int i = pickups.size - 1; i >= 0; i--) {
             Pickup p = pickups.get(i);
@@ -235,226 +280,8 @@ public class MainActivity extends ApplicationAdapter {
         }
     }
 
-    private void preventOverlapping(float delta) {
-        for (int i = 0; i < enemies.size; i++) {
-            Enemy a = enemies.get(i);
-
-            for (int j = i + 1; j < enemies.size; j++) {
-                Enemy b = enemies.get(j);
-
-                float dx = b.getX() - a.getX();
-                float dy = b.getY() - a.getY();
-
-                float dist = (float)Math.sqrt(dx*dx + dy*dy);
-                float minDist = a.width;
-
-                if (dist < minDist && dist > 0) {
-
-                    float overlap = minDist - dist;
-
-                    // normalize
-                    dx /= dist;
-                    dy /= dist;
-
-                    // push each enemy half the overlap
-                    a.setX(a.getX() - dx * overlap * 0.5f);
-                    a.setY(a.getY() - dy * overlap * 0.5f);
-
-                    b.setX(b.getX() + dx * overlap * 0.5f);
-                    b.setY(b.getY() + dy * overlap * 0.5f);
-                }
-            }
-        }
-
-        player.handleObstacleCollision(obstacles);
-
-        for (Enemy e : enemies) {
-            e.update(delta, player.x, player.y);
-            e.handleObstacleCollision(obstacles);
-        }
-    }
-
-    private void handlePlayerEnemyCollision() {
-        for (Enemy e : enemies) {
-            if (e.getBounds().overlaps(player.bounds)) {
-
-                if (player.damageCooldown <= 0) {
-
-                    // Apply damage
-                    int dmg;
-                    if (e.isBoss) {
-                        dmg = 2;
-                    } else {
-                        dmg = 1;
-                    }
-                    player.health -= dmg;
-
-                    if (player.health <= 0) { onPlayerDied(); }
-
-                    player.damageCooldown = player.damageCooldownTime;
-
-                    // Compute knockback direction
-                    float dx = player.x - e.getX();;
-                    float dy = player.y - e.getY();;
-                    float len = (float)Math.sqrt(dx*dx + dy*dy);
-                    if (len != 0) {
-                        dx /= len;
-                        dy /= len;
-                    }
-
-                    // Apply knockback
-                    player.knockbackX = dx;
-                    player.knockbackY = dy;
-                    player.knockbackTime = player.knockbackDuration;
-
-                    System.out.println("Player hit! HP = " + player.health);
-                }
-            }
-        }
-    }
-
-    private void onPlayerDied() {
-        if (scoreReporter != null) {
-            scoreReporter.saveHighestWave(wave);
-        }
-
-        // Quit the LibGDX game (closes AndroidLauncher and returns to previous Activity)
-        Gdx.app.postRunnable(() -> Gdx.app.exit());
-    }
-
-    private void handleAttackDamage() {
-        if (!player.attacking) return;
-
-        for (Enemy e : enemies) {
-
-            if (!e.hitThisSwing && e.getBounds().overlaps(player.attackHitbox)) {
-
-                e.takeDamage(10 + player.attackBonus);
-                e.hitThisSwing = true;
-
-                // knockback enemy away from player
-                float dx = e.getX() - player.x;
-                float dy = e.getY() - player.y;
-
-                // normalize
-                float length = (float)Math.sqrt(dx*dx + dy*dy);
-                if (length != 0) {
-                    dx /= length;
-                    dy /= length;
-                }
-
-                // knockback strength
-                float knockback = 160f;
-
-                e.setX(e.getX() + dx * knockback);
-                e.setY(e.getY() + dy * knockback);
-
-                System.out.println("HIT! Enemy HP = " + e.health); // debug
-            }
-        }
-    }
-
-    private void cleanupDeadEnemies(float delta) {
-        for (int i = enemies.size - 1; i >= 0; i--) {
-            Enemy dead = enemies.get(i);
-            if (!dead.alive) {
-                enemies.removeIndex(i);
-
-                if (dead.isBoss) {
-                    onBossDefeat();
-                }
-            }
-        }
-
-        // wave progression logic
-        if (enemies.size == 0 && !waitingForNextWave) {
-            waitingForNextWave = true;
-            waveTimer = timeBetweenWaves;   // start countdown
-        }
-
-        if (waitingForNextWave) {
-            waveTimer -= delta;
-
-            if (waveTimer <= 0) {
-                wave++;
-                spawnWave(wave);
-                spawnWavePickups(wave);   // <-- NEW
-                waitingForNextWave = false;
-            }
-        }
-    }
-
-    private void spawnWavePickups(int wave) {
-        int numPickups = 2 + wave / 2;
-
-        for (int i = 0; i < numPickups; i++) {
-            float x = rnd.nextInt(Gdx.graphics.getWidth() - 64);
-            float y = rnd.nextInt(Gdx.graphics.getHeight() - 64);
-
-            Pickup.Type randomType = Pickup.Type.values()[rnd.nextInt(Pickup.Type.values().length)];
-            pickups.add(new Pickup(randomType, x, y));
-        }
-    }
-
-    private void drawGame() {
-        batch.begin();
-
-        player.draw(batch);
-
-        for (Enemy e : enemies) {
-            e.draw(batch);
-        }
-
-        for (Obstacle o : obstacles) {
-            o.draw(batch);
-        }
-
-        for (Pickup p : pickups) {
-            p.draw(batch);
-        }
-
-        batch.draw(
-            attackBtnTexture,
-            attackBtnBounds.x, attackBtnBounds.y,
-            attackBtnBounds.width, attackBtnBounds.height
-        );
-
-        drawDebugAttackHitbox(); // remove later (change to actual animation)
-
-        drawUI();
-
-        batch.end();
-
-        stage.act(Gdx.graphics.getDeltaTime());
-        stage.draw();
-    }
-
-    private void drawUI() {
-        font.draw(batch, "HP: " + player.health, 20, Gdx.graphics.getHeight() - 20);
-        font.draw(batch, "Wave: " + wave, 20, Gdx.graphics.getHeight() - 80);
-        font.draw(batch, "Damage: " + (10 + player.attackBonus), 20, Gdx.graphics.getHeight() - 130);
-        font.draw(batch, "Speed: " + player.speed, 20, Gdx.graphics.getHeight() - 180);
-        font.draw(batch, "Coins: " + player.coins, 20, Gdx.graphics.getHeight() - 230);
-    }
-
-    private void drawDebugAttackHitbox() {
-        if (!player.attacking) return;
-
-        batch.setColor(1, 0, 0, 0.4f);
-        batch.draw(
-            player.debugPixel,
-            player.attackHitbox.x,
-            player.attackHitbox.y,
-            player.attackHitbox.width,
-            player.attackHitbox.height
-        );
-        batch.setColor(1, 1, 1, 1);
-    } // remove later (change to actual animation)
-
     private void applyPickupEffect(Pickup p) {
-
         switch (p.type) {
-
             case HEALTH:
                 player.health += 5;
                 System.out.println("Picked up health → player HP = " + player.health);
@@ -477,24 +304,215 @@ public class MainActivity extends ApplicationAdapter {
         }
     }
 
-    private void onBossDefeat() {
-        if (scoreReporter != null) {
-            // final wave reached
-            scoreReporter.saveHighestWave(wave);
+    private void preventEnemyOverlap() {
+        for (int i = 0; i < enemies.size; i++) {
+            Enemy a = enemies.get(i);
 
-            // runTime assumed to be in seconds (float) – cast to int
-            scoreReporter.saveBestTime((int) runTime);
+            for (int j = i + 1; j < enemies.size; j++) {
+                Enemy b = enemies.get(j);
+
+                float dx = b.getX() - a.getX();
+                float dy = b.getY() - a.getY();
+
+                float dist = (float) Math.sqrt(dx * dx + dy * dy);
+                float minDist = a.width;
+
+                if (dist < minDist && dist > 0) {
+                    float overlap = minDist - dist;
+
+                    // normalize
+                    dx /= dist;
+                    dy /= dist;
+
+                    // push each enemy half the overlap
+                    a.setX(a.getX() - dx * overlap * 0.5f);
+                    a.setY(a.getY() - dy * overlap * 0.5f);
+
+                    b.setX(b.getX() + dx * overlap * 0.5f);
+                    b.setY(b.getY() + dy * overlap * 0.5f);
+                }
+            }
         }
     }
 
-    @Override
-    public void dispose() {
-        batch.dispose();
+    private void handlePlayerEnemyCollision() {
         for (Enemy e : enemies) {
-            e.dispose();
+            if (e.getBounds().overlaps(player.bounds)) {
+
+                if (player.damageCooldown <= 0) {
+
+                    // apply damage
+                    int dmg;
+                    if (e.isBoss) {
+                        dmg = 2;
+                    } else {
+                        dmg = 1;
+                    }
+                    player.health -= dmg;
+
+                    if (player.health <= 0) {
+                        onPlayerDied();
+                    }
+
+                    // start damage cooldown
+                    player.damageCooldown = player.damageCooldownTime;
+
+                    // knockback direction
+                    float dx = player.x - e.getX();
+                    float dy = player.y - e.getY();
+                    float len = (float) Math.sqrt(dx * dx + dy * dy);
+                    if (len != 0) {
+                        dx /= len;
+                        dy /= len;
+                    }
+
+                    // Apply knockback to player
+                    player.knockbackX = dx;
+                    player.knockbackY = dy;
+                    player.knockbackTime = player.knockbackDuration;
+
+                    System.out.println("Player hit! HP = " + player.health);
+                }
+            }
         }
-        player.dispose();
-        font.dispose();
-        stage.dispose();
+    }
+
+    private void handleAttackDamage() {
+        if (!player.attacking) return;
+
+        for (Enemy e : enemies) {
+            if (e.hitThisSwing) continue;
+            if (!e.getBounds().overlaps(player.attackHitbox)) continue;
+
+            e.takeDamage(10 + player.attackBonus);
+            e.hitThisSwing = true;
+
+            // knockback enemy away from player
+            float dx = e.getX() - player.x;
+            float dy = e.getY() - player.y;
+
+            float length = (float) Math.sqrt(dx * dx + dy * dy);
+            if (length != 0) {
+                dx /= length;
+                dy /= length;
+            }
+
+            // knockback strength
+            float knockback = 160f;
+
+            e.setX(e.getX() + dx * knockback);
+            e.setY(e.getY() + dy * knockback);
+
+            System.out.println("HIT! Enemy HP = " + e.health);
+        }
+    }
+
+    private void cleanupDeadEnemiesAndWaves(float delta) {
+        // Remove dead enemies & detect boss death
+        for (int i = enemies.size - 1; i >= 0; i--) {
+            Enemy dead = enemies.get(i);
+            if (!dead.alive) {
+                enemies.removeIndex(i);
+
+                if (dead.isBoss) {
+                    onBossDefeat();
+                }
+            }
+        }
+
+        // Wave progression
+        if (enemies.size == 0 && !waitingForNextWave) {
+            waitingForNextWave = true;
+            waveTimer = timeBetweenWaves; // start countdown
+        }
+
+        if (waitingForNextWave) {
+            waveTimer -= delta;
+
+            if (waveTimer <= 0) {
+                wave++;
+                spawnWave(wave);
+                spawnWavePickups(wave);
+                waitingForNextWave = false;
+            }
+        }
+    }
+
+    // Game over / boss defeat
+    private void onPlayerDied() {
+        if (scoreReporter != null) {
+            scoreReporter.saveHighestWave(wave);
+        }
+
+        // Quit the LibGDX game (closes AndroidLauncher and returns to previous Activity)
+        Gdx.app.postRunnable(() -> Gdx.app.exit());
+    }
+
+    private void onBossDefeat() {
+        bossDefeated = true;
+
+        if (scoreReporter != null) {
+            scoreReporter.saveHighestWave(wave);
+            scoreReporter.saveBestTime((int) runTime);  // runTime in seconds
+        }
+    }
+
+    // Drawing
+    private void drawGame() {
+        batch.begin();
+
+        // world
+        player.draw(batch);
+
+        for (Enemy e : enemies) {
+            e.draw(batch);
+        }
+
+        for (Obstacle o : obstacles) {
+            o.draw(batch);
+        }
+
+        for (Pickup p : pickups) {
+            p.draw(batch);
+        }
+
+        // attack button
+        batch.draw(
+            attackBtnTexture,
+            attackBtnBounds.x, attackBtnBounds.y,
+            attackBtnBounds.width, attackBtnBounds.height
+        );
+
+        drawDebugAttackHitbox(); // remove later/change to actual animation
+        drawUI();
+
+        batch.end();
+
+        stage.act(Gdx.graphics.getDeltaTime());
+        stage.draw();
+    }
+
+    private void drawUI() {
+        float screenH = Gdx.graphics.getHeight();
+
+        font.draw(batch, "HP: " + player.health, 20, screenH - 20);
+        font.draw(batch, "Wave: " + wave, 20, screenH - 80);
+        font.draw(batch, "Damage: " + (10 + player.attackBonus), 20, screenH - 130);
+        font.draw(batch, "Speed: " + player.speed, 20, screenH - 180);
+        font.draw(batch, "Coins: " + player.coins, 20, screenH - 230);
+    }
+
+    private void drawDebugAttackHitbox() { // remove later/change to actual animation
+        if (!player.attacking) return;
+
+        batch.setColor(1, 0, 0, 0.4f);
+        batch.draw(
+            player.debugPixel,
+            player.attackHitbox.x,
+            player.attackHitbox.y,
+            player.attackHitbox.width,
+            player.attackHitbox.height
+        );
+        batch.setColor(1, 1, 1, 1);
     }
 }
