@@ -29,9 +29,7 @@ public class LandingActivity extends AppCompatActivity {
         });
 
         exitButton.setOnClickListener(v -> {
-            //finishAffinity();
-            Intent intent = new Intent(this, AndroidLauncher.class);
-            startActivity(intent);
+            finishAffinity();
         });
     }
 }
