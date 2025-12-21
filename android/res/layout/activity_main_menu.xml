@@ -29,6 +29,18 @@
         android:text="Leaderboard" />
 
     <Button
+        android:id="@+id/updateUserButton"
+        android:text="Update User"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content" />
+
+    <Button
+        android:id="@+id/signOutButton"
+        android:text="Sign Out"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content" />
+
+    <Button
         android:id="@+id/exitButton"
         android:text="Exit"
         android:layout_width="200dp"

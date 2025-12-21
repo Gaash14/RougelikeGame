@@ -10,7 +10,7 @@ public class User implements Serializable {
     private String phone;
     private boolean isAdmin;
 
-    // 🔹 Scores are stored DIRECTLY on the User
+    // Scores are stored DIRECTLY on the User
     private int highestWave;
     private int bestTime; // in seconds (lower = better)
 
