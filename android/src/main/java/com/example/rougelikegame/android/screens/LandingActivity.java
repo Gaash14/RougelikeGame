@@ -6,12 +6,23 @@ import android.widget.Button;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.rougelikegame.R;
+import com.example.rougelikegame.android.utils.SharedPreferencesUtil;
 
 public class LandingActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // auto login
+        if (SharedPreferencesUtil.isUserLoggedIn(this)) {
+            Intent mainIntent = new Intent(LandingActivity.this, MainMenu.class);
+            mainIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(mainIntent);
+            finish();
+            return;
+        }
+
         setContentView(R.layout.activity_landing);
 
         Button registerButton = findViewById(R.id.registerButton);
