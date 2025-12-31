@@ -1,10 +1,11 @@
 package com.example.rougelikegame;
 
 public interface ScoreReporter {
-    void saveHighestWave(int wave);
-    void saveBestTime(int bestTimeSeconds);
-    void addAttempt();
-    void addWin();
-    void addEnemiesKilled(int enemiesKilled);
-    void addPickupsPicked(int pickupsPicked);
+    void reportRun(
+        int wave,
+        int time,
+        int enemiesKilled,
+        int pickupsPicked,
+        boolean win
+    );
 }

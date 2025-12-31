@@ -52,7 +52,7 @@ public class LeaderboardActivity extends AppCompatActivity {
                 // (if you consider "0" wave as "never played")
                 List<User> scoredUsers = new ArrayList<>();
                 for (User u : cleanList) {
-                    if (u.GetHighestWave() > 0) {
+                    if (u.getHighestWave() > 0) {
                         scoredUsers.add(u);
                     }
                 }
@@ -64,15 +64,15 @@ public class LeaderboardActivity extends AppCompatActivity {
                     @Override
                     public int compare(User u1, User u2) {
                         int waveCompare = Integer.compare(
-                            u2.GetHighestWave(),
-                            u1.GetHighestWave()
+                            u2.getHighestWave(),
+                            u1.getHighestWave()
                         );
                         if (waveCompare != 0) return waveCompare;
 
                         // tie-breaker by best time (smaller is better)
                         return Integer.compare(
-                            u1.GetBestTime(),
-                            u2.GetBestTime()
+                            u1.getBestTime(),
+                            u2.getBestTime()
                         );
                     }
                 });
@@ -91,9 +91,9 @@ public class LeaderboardActivity extends AppCompatActivity {
                     }
                     sb.append(name);
 
-                    sb.append("  |  Wave: ").append(u.GetHighestWave());
+                    sb.append("  |  Wave: ").append(u.getHighestWave());
 
-                    int bestTime = u.GetBestTime();
+                    int bestTime = u.getBestTime();
                     if (bestTime > 0 && bestTime < 999999) { // only show if actually set
                         sb.append("  |  Time: ").append(formatTime(bestTime));
                     }

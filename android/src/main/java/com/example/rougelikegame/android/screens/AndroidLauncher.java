@@ -1,6 +1,7 @@
 package com.example.rougelikegame.android.screens;
 
 import android.os.Bundle;
+import android.util.Log;
 
 import com.badlogic.gdx.backends.android.AndroidApplication;
 import com.badlogic.gdx.backends.android.AndroidApplicationConfiguration;
@@ -15,81 +16,65 @@ public class AndroidLauncher extends AndroidApplication {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         AndroidApplicationConfiguration configuration = new AndroidApplicationConfiguration();
         configuration.useImmersiveMode = true;
+
         initialize(new MainActivity(new ScoreReporter() {
             @Override
-            public void saveHighestWave(int wave) {
+            public void reportRun(
+                int wave,
+                int bestTimeSeconds,
+                int enemiesKilled,
+                int pickupsPicked,
+                boolean win )
+            {
                 User user = SharedPreferencesUtil.getUser(AndroidLauncher.this);
                 if (user == null) return;
 
-                // only update if better
-                if (wave > user.GetHighestWave()) {
+                // highest wave
+                if (wave > user.getHighestWave()) {
                     user.setHighestWave(wave);
-                    SharedPreferencesUtil.saveUser(AndroidLauncher.this, user);
-                    DatabaseService.getInstance().updateUser(user, null);
                 }
-            }
 
-            @Override
-            public void saveBestTime(int bestTimeSeconds) {
-                User user = SharedPreferencesUtil.getUser(AndroidLauncher.this);
-                if (user == null) return;
-
-                int currentBest = user.GetBestTime();
-
-                // 0 means "no record yet"
-                if (currentBest == 0 || bestTimeSeconds < currentBest) {
-                    user.setBestTime(bestTimeSeconds);
-                    SharedPreferencesUtil.saveUser(AndroidLauncher.this, user);
-                    DatabaseService.getInstance().updateUser(user, null);
+                // best time (only when boss is defeated)
+                if (win && bestTimeSeconds > 0) {
+                    int currentBest = user.getBestTime();
+                    if (currentBest == 0 || bestTimeSeconds < currentBest) {
+                        user.setBestTime(bestTimeSeconds);
+                    }
                 }
-            }
 
-            @Override
-            public void addAttempt() {
-                User user = SharedPreferencesUtil.getUser(AndroidLauncher.this);
-                if (user == null) return;
+                // attempts & wins
+                user.setNumOfAttempts(user.getNumOfAttempts() + 1);
 
-                user.setNumOfAttempts(user.GetNumOfAttempts() + 1);
+                if (win) {
+                    user.setNumOfWins(user.getNumOfWins() + 1);
+                }
 
-                SharedPreferencesUtil.saveUser(AndroidLauncher.this, user);
-                DatabaseService.getInstance().updateUser(user, null);
-            }
+                // cumulative stats
+                user.setEnemiesKilled(
+                    user.getEnemiesKilled() + enemiesKilled
+                );
 
-            @Override
-            public void addWin() {
-                User user = SharedPreferencesUtil.getUser(AndroidLauncher.this);
-                if (user == null) return;
-
-                user.setNumOfWins(user.GetNumOfWins() + 1);
+                user.setPickupsPicked(
+                    user.getPickupsPicked() + pickupsPicked
+                );
 
                 SharedPreferencesUtil.saveUser(AndroidLauncher.this, user);
-                DatabaseService.getInstance().updateUser(user, null);
+                DatabaseService.getInstance().updateUser(user, new DatabaseService.DatabaseCallback<Void>() {
+                    @Override
+                    public void onCompleted(Void ignored) {
+                        Log.d("DB", "User saved successfully");
+                    }
+
+                    @Override
+                    public void onFailed(Exception e) {
+                        Log.e("DB", "Save failed", e);
+                    }
+                });
             }
 
-            @Override
-            public void addEnemiesKilled(int enemiesKilled) {
-                User user = SharedPreferencesUtil.getUser(AndroidLauncher.this);
-                if (user == null) return;
-
-                user.setEnemiesKilled(user.GetEnemiesKilled() + enemiesKilled);
-
-                SharedPreferencesUtil.saveUser(AndroidLauncher.this, user);
-                DatabaseService.getInstance().updateUser(user, null);
-            }
-
-            @Override
-            public void addPickupsPicked(int pickupsPicked) {
-                User user = SharedPreferencesUtil.getUser(AndroidLauncher.this);
-                if (user == null) return;
-
-                user.setPickupsPicked(user.GetPickupsPicked() + pickupsPicked);
-
-                SharedPreferencesUtil.saveUser(AndroidLauncher.this, user);
-                DatabaseService.getInstance().updateUser(user, null);
-            }
         }), configuration);
-
     }
 }

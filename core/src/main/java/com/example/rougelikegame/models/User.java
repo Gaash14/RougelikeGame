@@ -144,16 +144,16 @@ public class User implements Serializable {
 
     // --- score stuff ---
     // getters
-    public int GetHighestWave() {
+    public int getHighestWave() {
         return highestWave;
     }
-    public int GetBestTime() {
+    public int getBestTime() {
         return bestTime;
     }
-    public int GetNumOfAttempts() { return numOfAttempts; }
-    public int GetNumOfWins() { return numOfWins; }
-    public int GetEnemiesKilled() { return enemiesKilled; }
-    public int GetPickupsPicked() { return pickupsPicked; }
+    public int getNumOfAttempts() { return numOfAttempts; }
+    public int getNumOfWins() { return numOfWins; }
+    public int getEnemiesKilled() { return enemiesKilled; }
+    public int getPickupsPicked() { return pickupsPicked; }
 
     // setters
     public void setHighestWave(int highestWave) {

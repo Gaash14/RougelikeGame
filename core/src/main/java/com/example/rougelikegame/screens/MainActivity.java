@@ -442,28 +442,37 @@ public class MainActivity extends ApplicationAdapter {
 
     // Game over / boss defeat
     private void onPlayerDied() {
-        reportScores();
+        if (scoreReporter != null) {
+            scoreReporter.reportRun(
+                wave,
+                0, // no time on death
+                enemiesKilled,
+                pickupsPicked,
+                false // not a win
+            );
+        }
 
-        // Quit the LibGDX game (closes AndroidLauncher and returns to previous Activity)
-        Gdx.app.postRunnable(() -> Gdx.app.exit());
+        // Give Firebase time to write
+        Gdx.app.postRunnable(() -> {
+            try {
+                Thread.sleep(300);
+            } catch (InterruptedException ignored) {}
+            Gdx.app.exit();
+        });
+        //Gdx.app.postRunnable(() -> Gdx.app.exit());
     }
 
     private void onBossDefeat() {
         bossDefeated = true;
 
-        reportScores();
         if (scoreReporter != null) {
-            scoreReporter.saveBestTime((int) runTime);  // runTime in seconds
-            scoreReporter.addWin();
-        }
-    }
-
-    private void reportScores() {
-        if (scoreReporter != null) {
-            scoreReporter.saveHighestWave(wave);
-            scoreReporter.addAttempt();
-            scoreReporter.addEnemiesKilled(enemiesKilled);
-            scoreReporter.addPickupsPicked(pickupsPicked);
+            scoreReporter.reportRun(
+                wave,
+                (int) runTime, // time only on win
+                enemiesKilled,
+                pickupsPicked,
+                true // win
+            );
         }
     }
 
