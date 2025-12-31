@@ -8,6 +8,7 @@ import com.badlogic.gdx.backends.android.AndroidApplicationConfiguration;
 import com.example.rougelikegame.ScoreReporter;
 import com.example.rougelikegame.android.services.DatabaseService;
 import com.example.rougelikegame.android.utils.SharedPreferencesUtil;
+import com.example.rougelikegame.models.Player;
 import com.example.rougelikegame.models.User;
 import com.example.rougelikegame.screens.MainActivity;
 
@@ -16,6 +17,13 @@ public class AndroidLauncher extends AndroidApplication {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        String cls = getIntent().getStringExtra("PLAYER_CLASS");
+        Player.PlayerClass selectedClass = Player.PlayerClass.MELEE;
+
+        if ("RANGED".equals(cls)) {
+            selectedClass = Player.PlayerClass.RANGED;
+        }
 
         AndroidApplicationConfiguration configuration = new AndroidApplicationConfiguration();
         configuration.useImmersiveMode = true;
@@ -87,6 +95,6 @@ public class AndroidLauncher extends AndroidApplication {
                 }
             }
 
-        }), configuration);
+        }, selectedClass), configuration);
     }
 }

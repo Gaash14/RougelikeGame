@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.Array;
@@ -21,6 +22,7 @@ import com.example.rougelikegame.models.Joystick;
 import com.example.rougelikegame.models.Obstacle;
 import com.example.rougelikegame.models.Pickup;
 import com.example.rougelikegame.models.Player;
+import com.example.rougelikegame.models.Projectile;
 
 import java.util.Random;
 
@@ -28,12 +30,16 @@ public class MainActivity extends ApplicationAdapter {
 
     // Constructors (for AndroidLauncher / tests)
     private final ScoreReporter scoreReporter;
-    public MainActivity(ScoreReporter scoreReporter) {
+    private final Player.PlayerClass selectedClass;
+
+    public MainActivity(ScoreReporter scoreReporter, Player.PlayerClass selectedClass) {
         this.scoreReporter = scoreReporter;
+        this.selectedClass = selectedClass;
     }
+    public MainActivity(ScoreReporter scoreReporter) {
+        this(scoreReporter, Player.PlayerClass.MELEE); }
     public MainActivity() {
-        this.scoreReporter = null;
-    }
+        this(null, Player.PlayerClass.MELEE);}
     private boolean runReported = false;
 
     // LibGDX objects
@@ -48,6 +54,11 @@ public class MainActivity extends ApplicationAdapter {
     Array<Enemy> enemies;
     Array<Pickup> pickups;
     Array<Obstacle> obstacles;
+
+    // Projectiles
+    Array<Projectile> projectiles = new Array<>();
+    private final Vector2 aimDir = new Vector2(1, 0); // default right ->
+
 
     // Game state
     Random rnd;
@@ -121,6 +132,7 @@ public class MainActivity extends ApplicationAdapter {
 
     private void setupPlayerAndEnemies() {
         player = new Player(100, 100);
+        player.playerClass = selectedClass;
         enemies = new Array<>();
         spawnWave(wave);
     }
@@ -165,11 +177,29 @@ public class MainActivity extends ApplicationAdapter {
                 camera.unproject(touch);
 
                 if (attackBtnBounds.contains(touch.x, touch.y)) {
-                    player.attack(joystick);
 
-                    // Reset hit flags for this swing
-                    for (Enemy e : enemies) {
-                        e.hitThisSwing = false;
+                    if (player.playerClass == Player.PlayerClass.MELEE) {
+
+                        player.meleeAttack(joystick);
+
+                        // Reset hit flags for this swing
+                        for (Enemy e : enemies) {
+                            e.hitThisSwing = false;
+                        }
+
+                    } else if (player.playerClass == Player.PlayerClass.RANGED) {
+
+                        if (player.canShoot()) {
+                            Vector2 dir = player.getShootDirection(joystick);
+
+                            spawnProjectile(
+                                player.x + player.width / 2f,
+                                player.y + player.height / 2f,
+                                dir
+                            );
+
+                            player.triggerRangedCooldown();
+                        }
                     }
 
                     return true;
@@ -190,6 +220,10 @@ public class MainActivity extends ApplicationAdapter {
     // Update loop
     private void update(float delta) {
         updateGame(delta);
+
+        updateProjectiles(delta);
+        handleProjectileHits();
+
         checkPickups();
         preventEnemyOverlap();
         handlePlayerEnemyCollision();
@@ -446,6 +480,59 @@ public class MainActivity extends ApplicationAdapter {
         }
     }
 
+    // Projectiles
+    private void fireOneShot() {
+        // aim direction from movement joystick
+        float x = joystick.getPercentX();
+        float y = joystick.getPercentY();
+
+        // default right if joystick not pushed
+        if (Math.abs(x) < 0.15f && Math.abs(y) < 0.15f) {
+            aimDir.set(1, 0);
+        } else {
+            aimDir.set(x, y).nor();
+        }
+
+        spawnProjectile(player.x + player.width / 2f, player.y + player.height / 2f, aimDir);
+    }
+
+    private void spawnProjectile(float x, float y, Vector2 dir) {
+        // copy dir because aimDir changes every frame
+        Projectile p = new Projectile(x, y, dir.x, dir.y);
+        projectiles.add(p);
+    }
+
+    private void updateProjectiles(float delta) {
+        for (int i = projectiles.size - 1; i >= 0; i--) {
+            Projectile p = projectiles.get(i);
+            p.update(delta);
+
+            if (!p.alive) {
+                projectiles.removeIndex(i);
+            }
+        }
+    }
+
+    private void handleProjectileHits() {
+        for (int i = projectiles.size - 1; i >= 0; i--) {
+            Projectile p = projectiles.get(i);
+
+            for (Enemy e : enemies) {
+                if (!e.alive) continue;
+
+                if (p.getBounds().overlaps(e.getBounds())) {
+                    e.takeDamage(p.damage);
+                    p.alive = false; // bullet disappears on hit
+                    break;
+                }
+            }
+
+            if (!p.alive) {
+                projectiles.removeIndex(i);
+            }
+        }
+    }
+
     // Game over / boss defeat
     private void onPlayerDied() {
         finishRun(false);
@@ -495,6 +582,10 @@ public class MainActivity extends ApplicationAdapter {
         }
 
         for (Pickup p : pickups) {
+            p.draw(batch);
+        }
+
+        for (Projectile p : projectiles) {
             p.draw(batch);
         }
 

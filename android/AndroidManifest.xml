@@ -74,5 +74,12 @@
             android:screenOrientation="landscape"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
 
+        <!-- CHOOSE DIFFICULTY -->
+        <activity
+            android:name="com.example.rougelikegame.android.screens.ChooseDifficultyActivity"
+            android:exported="true"
+            android:screenOrientation="landscape"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+
     </application>
 </manifest>

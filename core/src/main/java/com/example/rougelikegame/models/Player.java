@@ -5,9 +5,16 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 
-public class Player{
+public class Player {
+
+    public enum PlayerClass {
+        MELEE,
+        RANGED
+    }
+    public PlayerClass playerClass = PlayerClass.MELEE; // default
 
     // textures
     private final Texture texture;
@@ -20,7 +27,7 @@ public class Player{
 
     // stats
     public int health = 10;
-    public int speed = 200;
+    public int speed = 400;
     public int coins = 0;
     public int attackBonus = 0;
 
@@ -28,20 +35,25 @@ public class Player{
     public final Rectangle bounds;
     public final Rectangle attackHitbox;
 
+    // damage + knockback
     public float damageCooldown = 0f;
     public float damageCooldownTime = 0.5f;
     public float knockbackX = 0;
     public float knockbackY = 0;
     public float knockbackTime = 0;
-    public float knockbackDuration = 0.25f;  // how long knockback lasts
-    public float knockbackStrength = 350f;   // how fast player gets pushed
+    public float knockbackDuration = 0.25f;
+    public float knockbackStrength = 350f;
 
-    // attack system
+    // melee attack
     public boolean attacking = false;
     private float attackTime = 0f;
 
-    public float attackCooldown = 0f;
-    public float attackCooldownTime = 0.5f;   // seconds between attacks
+    public float meleeCooldown = 0f;
+    public float meleeCooldownTime = 0.5f;
+
+    // ranged attack
+    public float rangedCooldown = 0f;
+    public float rangedCooldownTime = 0.8f; // longer cooldown
 
     public Player(float x, float y) {
         this.texture = new Texture("player.png");
@@ -50,73 +62,54 @@ public class Player{
         this.y = y;
 
         this.bounds = new Rectangle(x, y, width, height);
-
-        // size of attack area
         this.attackHitbox = new Rectangle(x, y, 100, 100);
     }
 
     public void update(Joystick joystick, float delta) {
-        // Movement
-        float dx = joystick.getPercentX();
-        float dy = joystick.getPercentY();
 
-        x += dx * speed * delta;
-        y += dy * speed * delta;
-
-        // Clamp screen boundaries
-        x = MathUtils.clamp(x, 0, Gdx.graphics.getWidth() - width);
-        y = MathUtils.clamp(y, 0, Gdx.graphics.getHeight() - height);
-
-        bounds.setPosition(x, y);
-
-        // Attack animation timer
+        // timers
         if (attacking) {
             attackTime -= delta;
             if (attackTime <= 0) attacking = false;
         }
 
-        // Attack cooldown
-        if (attackCooldown > 0) {
-            attackCooldown -= delta;
-        }
+        if (meleeCooldown > 0) meleeCooldown -= delta;
+        if (rangedCooldown > 0) rangedCooldown -= delta;
+        if (damageCooldown > 0) damageCooldown -= delta;
 
-        if (damageCooldown > 0) {
-            damageCooldown -= delta;
-        }
+        float dx = joystick.getPercentX();
+        float dy = joystick.getPercentY();
 
-        // APPLY KNOCKBACK
+        // movement / knockback
         if (knockbackTime > 0) {
             knockbackTime -= delta;
             x += knockbackX * knockbackStrength * delta;
             y += knockbackY * knockbackStrength * delta;
         } else {
-            // Normal joystick movement
-            x += joystick.getPercentX() * speed * delta;
-            y += joystick.getPercentY() * speed * delta;
+            x += dx * speed * delta;
+            y += dy * speed * delta;
         }
+
+        x = MathUtils.clamp(x, 0, Gdx.graphics.getWidth() - width);
+        y = MathUtils.clamp(y, 0, Gdx.graphics.getHeight() - height);
+
+        bounds.setPosition(x, y);
     }
 
     public void handleObstacleCollision(Array<Obstacle> obstacles) {
         for (Obstacle o : obstacles) {
             if (bounds.overlaps(o.bounds)) {
-                float overlapX = Math.min(bounds.x + width - o.x, o.x + o.bounds.width - bounds.x);
-                float overlapY = Math.min(bounds.y + height - o.y, o.y + o.bounds.height - bounds.y);
+
+                float overlapX = Math.min(bounds.x + width - o.bounds.x, o.bounds.x + o.bounds.width - bounds.x);
+                float overlapY = Math.min(bounds.y + height - o.bounds.y, o.bounds.y + o.bounds.height - bounds.y);
 
                 // Push out in the direction of the smallest overlap
                 if (overlapX < overlapY) {
-                    // push left or right
-                    if (x < o.x) {
-                        x -= overlapX;
-                    } else {
-                        x += overlapX;
-                    }
+                    if (bounds.x < o.bounds.x) x -= overlapX;
+                    else x += overlapX;
                 } else {
-                    // push down or up
-                    if (y < o.y) {
-                        y -= overlapY;
-                    } else {
-                        y += overlapY;
-                    }
+                    if (bounds.y < o.bounds.y) y -= overlapY;
+                    else y += overlapY;
                 }
 
                 bounds.setPosition(x, y);
@@ -124,25 +117,51 @@ public class Player{
         }
     }
 
-    public void attack(Joystick joystick) {
-        // if cooldown is active, do nothing
-        if (attackCooldown > 0) return;
+    // ---------- MELEE ----------
+    public boolean canMelee() {
+        return meleeCooldown <= 0f;
+    }
 
-        attackCooldown = attackCooldownTime;
+    public void meleeAttack(Joystick joystick) {
+        if (!canMelee()) return;
+
+        meleeCooldown = meleeCooldownTime;
         attacking = true;
-        attackTime = 0.15f; // attack lasts 0.15 seconds
+        attackTime = 0.15f;
 
         float dx = joystick.getPercentX();
         float dy = joystick.getPercentY();
 
-        // Direction defaults to right if joystick is neutral
-        if (dx == 0 && dy == 0) dx = 1;
+        // default right if neutral
+        if (Math.abs(dx) < 0.15f && Math.abs(dy) < 0.15f) {
+            dx = 1;
+            dy = 0;
+        }
 
-        // Position hitbox in the attack direction
         attackHitbox.setPosition(
             x + dx * width,
             y + dy * height
         );
+    }
+
+    // ---------- RANGED ----------
+    public boolean canShoot() {
+        return rangedCooldown <= 0f;
+    }
+
+    public Vector2 getShootDirection(Joystick joystick) {
+        float dx = joystick.getPercentX();
+        float dy = joystick.getPercentY();
+
+        if (Math.abs(dx) < 0.15f && Math.abs(dy) < 0.15f) {
+            return new Vector2(1, 0); // default right
+        }
+
+        return new Vector2(dx, dy).nor();
+    }
+
+    public void triggerRangedCooldown() {
+        rangedCooldown = rangedCooldownTime;
     }
 
     public void draw(SpriteBatch batch) {

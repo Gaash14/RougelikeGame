@@ -24,7 +24,7 @@ public class MainMenu extends AppCompatActivity {
         Button exitButton = findViewById(R.id.exitButton);
 
         startGame.setOnClickListener(v -> {
-            Intent intent = new Intent(this, AndroidLauncher.class);
+            Intent intent = new Intent(this, ChooseDifficultyActivity.class);
             startActivity(intent);
         });
 

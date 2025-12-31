@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:padding="32dp"
+    android:background="#222222">
+
+    <TextView
+        android:id="@+id/titleText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Roguelike Game"
+        android:textSize="32sp"
+        android:textStyle="bold"
+        android:textColor="#FFFFFF"
+        android:layout_marginBottom="40dp"/>
+
+    <TextView
+        android:id="@+id/classLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Class: MELEE"
+        android:textSize="20sp"
+        android:textColor="#FFFFFF"
+        android:layout_marginBottom="12dp"/>
+
+    <Switch
+        android:id="@+id/classSwitch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Ranged Class"
+        android:textColor="#FFFFFF"
+        android:layout_marginBottom="40dp"/>
+
+    <Button
+        android:id="@+id/startGameButton"
+        android:layout_width="200dp"
+        android:layout_height="60dp"
+        android:text="START GAME"
+        android:textSize="18sp"/>
+</LinearLayout>
