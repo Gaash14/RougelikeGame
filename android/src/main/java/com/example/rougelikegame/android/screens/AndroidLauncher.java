@@ -45,6 +45,28 @@ public class AndroidLauncher extends AndroidApplication {
                     DatabaseService.getInstance().updateUser(user, null);
                 }
             }
+
+            @Override
+            public void addAttempt() {
+                User user = SharedPreferencesUtil.getUser(AndroidLauncher.this);
+                if (user == null) return;
+
+                user.setNumOfAttempts(user.GetNumOfAttempts() + 1);
+
+                SharedPreferencesUtil.saveUser(AndroidLauncher.this, user);
+                DatabaseService.getInstance().updateUser(user, null);
+            }
+
+            @Override
+            public void addWin() {
+                User user = SharedPreferencesUtil.getUser(AndroidLauncher.this);
+                if (user == null) return;
+
+                user.setNumOfWins(user.GetNumOfWins() + 1);
+
+                SharedPreferencesUtil.saveUser(AndroidLauncher.this, user);
+                DatabaseService.getInstance().updateUser(user, null);
+            }
         }), configuration);
 
     }

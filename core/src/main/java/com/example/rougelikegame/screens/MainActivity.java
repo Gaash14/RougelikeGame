@@ -442,6 +442,7 @@ public class MainActivity extends ApplicationAdapter {
     private void onPlayerDied() {
         if (scoreReporter != null) {
             scoreReporter.saveHighestWave(wave);
+            scoreReporter.addAttempt();
         }
 
         // Quit the LibGDX game (closes AndroidLauncher and returns to previous Activity)
@@ -454,6 +455,8 @@ public class MainActivity extends ApplicationAdapter {
         if (scoreReporter != null) {
             scoreReporter.saveHighestWave(wave);
             scoreReporter.saveBestTime((int) runTime);  // runTime in seconds
+            scoreReporter.addAttempt();
+            scoreReporter.addWin();
         }
     }
 

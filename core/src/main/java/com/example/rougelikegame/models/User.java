@@ -13,6 +13,8 @@ public class User implements Serializable {
     // Scores are stored DIRECTLY on the User
     private int highestWave;
     private int bestTime; // in seconds (lower = better)
+    private int numOfAttempts;
+    private int numOfWins;
 
     // Required empty constructor for Firebase
     public User() {
@@ -26,7 +28,9 @@ public class User implements Serializable {
                 String phone,
                 boolean isAdmin,
                 int highestWave,
-                int bestTime) {
+                int bestTime,
+                int numOfAttempts,
+                int numOfWins) {
 
         this.uid = uid;
         this.email = email;
@@ -37,6 +41,8 @@ public class User implements Serializable {
         this.isAdmin = isAdmin;
         this.highestWave = highestWave;
         this.bestTime = bestTime;
+        this.numOfAttempts = numOfAttempts;
+        this.numOfWins = numOfWins;
     }
 
     // --- basic info ---
@@ -97,34 +103,6 @@ public class User implements Serializable {
         isAdmin = admin;
     }
 
-    // --- score stuff ---
-
-    // Old-style names you already use in code:
-    public int GetHighestWave() {
-        return highestWave;
-    }
-
-    public int GetBestTime() {
-        return bestTime;
-    }
-
-    public void setHighestWave(int highestWave) {
-        this.highestWave = highestWave;
-    }
-
-    public void setBestTime(int bestTime) {
-        this.bestTime = bestTime;
-    }
-
-    // Also normal Java-style getters (nice for future use)
-    public int getHighestWave() {
-        return highestWave;
-    }
-
-    public int getBestTime() {
-        return bestTime;
-    }
-
     @Override
     public String toString() {
         return "User{" +
@@ -157,4 +135,30 @@ public class User implements Serializable {
     public String getFullName() {
         return firstName + " " + lastName;
     }
+
+    // --- score stuff ---
+    public int GetHighestWave() {
+        return highestWave;
+    }
+
+    public int GetBestTime() {
+        return bestTime;
+    }
+
+    public int GetNumOfAttempts() { return numOfAttempts; }
+
+    public int GetNumOfWins() { return numOfWins; }
+
+    public void setHighestWave(int highestWave) {
+        this.highestWave = highestWave;
+    }
+
+    public void setBestTime(int bestTime) {
+        this.bestTime = bestTime;
+    }
+
+    public void setNumOfAttempts(int numOfAttempts) { this.numOfAttempts = numOfAttempts;}
+
+    public void setNumOfWins(int numOfWins) { this.numOfWins = numOfWins;}
+
 }
