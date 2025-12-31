@@ -10,11 +10,13 @@ public class User implements Serializable {
     private String phone;
     private boolean isAdmin;
 
-    // Scores are stored DIRECTLY on the User
+    // Scores are stored directly on the User
     private int highestWave;
     private int bestTime; // in seconds (lower = better)
     private int numOfAttempts;
     private int numOfWins;
+    private int enemiesKilled;
+    private int pickupsPicked;
 
     // Required empty constructor for Firebase
     public User() {
@@ -30,7 +32,9 @@ public class User implements Serializable {
                 int highestWave,
                 int bestTime,
                 int numOfAttempts,
-                int numOfWins) {
+                int numOfWins,
+                int enemiesKilled,
+                int pickupsPicked) {
 
         this.uid = uid;
         this.email = email;
@@ -43,6 +47,8 @@ public class User implements Serializable {
         this.bestTime = bestTime;
         this.numOfAttempts = numOfAttempts;
         this.numOfWins = numOfWins;
+        this.enemiesKilled = enemiesKilled;
+        this.pickupsPicked = pickupsPicked;
     }
 
     // --- basic info ---
@@ -137,28 +143,28 @@ public class User implements Serializable {
     }
 
     // --- score stuff ---
+    // getters
     public int GetHighestWave() {
         return highestWave;
     }
-
     public int GetBestTime() {
         return bestTime;
     }
-
     public int GetNumOfAttempts() { return numOfAttempts; }
-
     public int GetNumOfWins() { return numOfWins; }
+    public int GetEnemiesKilled() { return enemiesKilled; }
+    public int GetPickupsPicked() { return pickupsPicked; }
 
+    // setters
     public void setHighestWave(int highestWave) {
         this.highestWave = highestWave;
     }
-
     public void setBestTime(int bestTime) {
         this.bestTime = bestTime;
     }
-
     public void setNumOfAttempts(int numOfAttempts) { this.numOfAttempts = numOfAttempts;}
-
     public void setNumOfWins(int numOfWins) { this.numOfWins = numOfWins;}
+    public void setEnemiesKilled(int enemiesKilled) { this.enemiesKilled = enemiesKilled;}
+    public void setPickupsPicked(int pickupsPicked) { this.pickupsPicked = pickupsPicked;}
 
 }

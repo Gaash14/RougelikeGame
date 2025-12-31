@@ -5,4 +5,6 @@ public interface ScoreReporter {
     void saveBestTime(int bestTimeSeconds);
     void addAttempt();
     void addWin();
+    void addEnemiesKilled(int enemiesKilled);
+    void addPickupsPicked(int pickupsPicked);
 }

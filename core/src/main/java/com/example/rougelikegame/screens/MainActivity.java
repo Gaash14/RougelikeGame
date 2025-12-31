@@ -60,6 +60,7 @@ public class MainActivity extends ApplicationAdapter {
 
     private float runTime = 0f;
     private boolean bossDefeated = false;
+    private int enemiesKilled = 0, pickupsPicked = 0;
 
     // Attack button
     Texture attackBtnTexture;
@@ -276,6 +277,7 @@ public class MainActivity extends ApplicationAdapter {
             if (player.bounds.overlaps(p.bounds)) {
                 applyPickupEffect(p);
                 pickups.removeIndex(i);
+                pickupsPicked++;
             }
         }
     }
@@ -413,7 +415,7 @@ public class MainActivity extends ApplicationAdapter {
             Enemy dead = enemies.get(i);
             if (!dead.alive) {
                 enemies.removeIndex(i);
-
+                enemiesKilled++;
                 if (dead.isBoss) {
                     onBossDefeat();
                 }
@@ -440,10 +442,7 @@ public class MainActivity extends ApplicationAdapter {
 
     // Game over / boss defeat
     private void onPlayerDied() {
-        if (scoreReporter != null) {
-            scoreReporter.saveHighestWave(wave);
-            scoreReporter.addAttempt();
-        }
+        reportScores();
 
         // Quit the LibGDX game (closes AndroidLauncher and returns to previous Activity)
         Gdx.app.postRunnable(() -> Gdx.app.exit());
@@ -452,11 +451,19 @@ public class MainActivity extends ApplicationAdapter {
     private void onBossDefeat() {
         bossDefeated = true;
 
+        reportScores();
+        if (scoreReporter != null) {
+            scoreReporter.saveBestTime((int) runTime);  // runTime in seconds
+            scoreReporter.addWin();
+        }
+    }
+
+    private void reportScores() {
         if (scoreReporter != null) {
             scoreReporter.saveHighestWave(wave);
-            scoreReporter.saveBestTime((int) runTime);  // runTime in seconds
             scoreReporter.addAttempt();
-            scoreReporter.addWin();
+            scoreReporter.addEnemiesKilled(enemiesKilled);
+            scoreReporter.addPickupsPicked(pickupsPicked);
         }
     }
 

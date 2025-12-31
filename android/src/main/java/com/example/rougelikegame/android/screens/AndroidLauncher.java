@@ -67,6 +67,28 @@ public class AndroidLauncher extends AndroidApplication {
                 SharedPreferencesUtil.saveUser(AndroidLauncher.this, user);
                 DatabaseService.getInstance().updateUser(user, null);
             }
+
+            @Override
+            public void addEnemiesKilled(int enemiesKilled) {
+                User user = SharedPreferencesUtil.getUser(AndroidLauncher.this);
+                if (user == null) return;
+
+                user.setEnemiesKilled(user.GetEnemiesKilled() + enemiesKilled);
+
+                SharedPreferencesUtil.saveUser(AndroidLauncher.this, user);
+                DatabaseService.getInstance().updateUser(user, null);
+            }
+
+            @Override
+            public void addPickupsPicked(int pickupsPicked) {
+                User user = SharedPreferencesUtil.getUser(AndroidLauncher.this);
+                if (user == null) return;
+
+                user.setPickupsPicked(user.GetPickupsPicked() + pickupsPicked);
+
+                SharedPreferencesUtil.saveUser(AndroidLauncher.this, user);
+                DatabaseService.getInstance().updateUser(user, null);
+            }
         }), configuration);
 
     }
