@@ -75,6 +75,18 @@ public class AndroidLauncher extends AndroidApplication {
                 });
             }
 
+            @Override
+            public void reportHighestWave(int wave) {
+                User user = SharedPreferencesUtil.getUser(AndroidLauncher.this);
+                if (user == null) return;
+
+                if (wave > user.getHighestWave()) {
+                    user.setHighestWave(wave);
+                    SharedPreferencesUtil.saveUser(AndroidLauncher.this, user);
+                    DatabaseService.getInstance().updateUser(user, null);
+                }
+            }
+
         }), configuration);
     }
 }

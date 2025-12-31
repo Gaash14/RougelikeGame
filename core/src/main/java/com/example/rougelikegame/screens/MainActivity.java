@@ -34,6 +34,7 @@ public class MainActivity extends ApplicationAdapter {
     public MainActivity() {
         this.scoreReporter = null;
     }
+    private boolean runReported = false;
 
     // LibGDX objects
     SpriteBatch batch;
@@ -433,6 +434,11 @@ public class MainActivity extends ApplicationAdapter {
 
             if (waveTimer <= 0) {
                 wave++;
+
+                if (scoreReporter != null) {
+                    scoreReporter.reportHighestWave(wave);
+                }
+
                 spawnWave(wave);
                 spawnWavePickups(wave);
                 waitingForNextWave = false;
@@ -442,36 +448,33 @@ public class MainActivity extends ApplicationAdapter {
 
     // Game over / boss defeat
     private void onPlayerDied() {
-        if (scoreReporter != null) {
-            scoreReporter.reportRun(
-                wave,
-                0, // no time on death
-                enemiesKilled,
-                pickupsPicked,
-                false // not a win
-            );
-        }
+        finishRun(false);
 
         // Give Firebase time to write
         Gdx.app.postRunnable(() -> {
             try {
                 Thread.sleep(300);
             } catch (InterruptedException ignored) {}
-            Gdx.app.exit();
+            Gdx.app.postRunnable(() -> Gdx.app.exit());
         });
-        //Gdx.app.postRunnable(() -> Gdx.app.exit());
     }
 
     private void onBossDefeat() {
         bossDefeated = true;
+        finishRun(true);
+    }
+
+    private void finishRun(boolean win) {
+        if (runReported) return;   // prevent double-save
+        runReported = true;
 
         if (scoreReporter != null) {
             scoreReporter.reportRun(
                 wave,
-                (int) runTime, // time only on win
+                win ? (int) runTime : 0, // if won, time = runtime. else, time = 0
                 enemiesKilled,
                 pickupsPicked,
-                true // win
+                win
             );
         }
     }

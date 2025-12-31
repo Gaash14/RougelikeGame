@@ -8,4 +8,6 @@ public interface ScoreReporter {
         int pickupsPicked,
         boolean win
     );
+
+    void reportHighestWave(int wave);
 }
