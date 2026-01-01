@@ -5,13 +5,15 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:gravity="center_horizontal"
-    android:padding="24dp">
+    android:padding="24dp"
+    android:background="#222222">
 
     <!-- App Title -->
     <TextView
         android:id="@+id/tv_login_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:textColor="#FFFFFF"
         android:text="Login"
         android:textSize="28sp"
         android:textStyle="bold"
@@ -22,6 +24,7 @@
         android:id="@+id/et_login_email"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="#FFFFFF"
         android:hint="Email"
         android:inputType="textEmailAddress"
         android:padding="12dp" />
@@ -33,6 +36,7 @@
         android:layout_height="wrap_content"
         android:hint="Password"
         android:inputType="textPassword"
+        android:background="#FFFFFF"
         android:padding="12dp"
         android:layout_marginTop="12dp" />
 

@@ -4,20 +4,23 @@
     android:orientation="vertical"
     android:padding="16dp"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="#222222">
 
     <TextView
         android:id="@+id/tvTitle"
         android:text="Leaderboard"
         android:textSize="24sp"
         android:textStyle="bold"
+        android:textColor="#FFFFFF"
         android:layout_marginBottom="8dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
 
     <ListView
         android:id="@+id/listLeaderboard"
-        android:divider="@android:color/darker_gray"
+        android:divider="@android:color/white"
+        android:background="#FFFFFF"
         android:dividerHeight="1dp"
         android:layout_width="match_parent"
         android:layout_height="0dp"

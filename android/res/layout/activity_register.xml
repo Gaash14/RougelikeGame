@@ -3,7 +3,8 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="24dp">
+    android:padding="24dp"
+    android:background="#222222">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -14,6 +15,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Create Account"
+            android:textColor="#FFFFFF"
             android:textSize="28sp"
             android:textStyle="bold"
             android:layout_marginBottom="24dp" />
@@ -22,6 +24,8 @@
             android:id="@+id/et_register_first_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="#FFFFFF"
+            android:padding="12dp"
             android:hint="First Name"
             android:inputType="textPersonName"
             android:layout_marginBottom="12dp" />
@@ -30,6 +34,8 @@
             android:id="@+id/et_register_last_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="#FFFFFF"
+            android:padding="12dp"
             android:hint="Last Name"
             android:inputType="textPersonName"
             android:layout_marginBottom="12dp" />
@@ -38,6 +44,8 @@
             android:id="@+id/et_register_phone"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="#FFFFFF"
+            android:padding="12dp"
             android:hint="Phone Number"
             android:inputType="phone"
             android:layout_marginBottom="12dp" />
@@ -46,6 +54,8 @@
             android:id="@+id/et_register_email"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="#FFFFFF"
+            android:padding="12dp"
             android:hint="Email"
             android:inputType="textEmailAddress"
             android:layout_marginBottom="12dp" />
@@ -54,6 +64,8 @@
             android:id="@+id/et_register_password"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="#FFFFFF"
+            android:padding="12dp"
             android:hint="Password"
             android:inputType="textPassword"
             android:layout_marginBottom="24dp" />
