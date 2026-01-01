@@ -37,9 +37,11 @@ public class MainActivity extends ApplicationAdapter {
         this.selectedClass = selectedClass;
     }
     public MainActivity(ScoreReporter scoreReporter) {
-        this(scoreReporter, Player.PlayerClass.MELEE); }
+        this(scoreReporter, Player.PlayerClass.MELEE);
+    }
     public MainActivity() {
-        this(null, Player.PlayerClass.MELEE);}
+        this(null, Player.PlayerClass.MELEE);
+    }
     private boolean runReported = false;
 
     // LibGDX objects
@@ -489,10 +491,6 @@ public class MainActivity extends ApplicationAdapter {
         for (int i = projectiles.size - 1; i >= 0; i--) {
             Projectile p = projectiles.get(i);
             p.update(delta);
-
-            if (!p.alive) {
-                projectiles.removeIndex(i);
-            }
         }
     }
 
