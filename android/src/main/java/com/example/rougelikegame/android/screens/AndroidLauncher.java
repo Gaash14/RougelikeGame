@@ -70,6 +70,11 @@ public class AndroidLauncher extends AndroidApplication {
                 );
 
                 SharedPreferencesUtil.saveUser(AndroidLauncher.this, user);
+
+                User u = SharedPreferencesUtil.getUser(AndroidLauncher.this);
+                Log.e("SAVE_SOURCE", "Saving user UID=" + u.getUid()
+                    + " attempts=" + u.getNumOfAttempts());
+
                 DatabaseService.getInstance().updateUser(user, new DatabaseService.DatabaseCallback<Void>() {
                     @Override
                     public void onCompleted(Void ignored) {

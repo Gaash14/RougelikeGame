@@ -124,6 +124,9 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             @Override
             public void onCompleted(User user) {
                 Log.d(TAG, "onCompleted: User logged in: " + user.toString());
+
+                Log.e("LOGIN_SOURCE", "Loaded user from Firebase UID=" + user.getUid()
+                    + " attempts=" + user.getNumOfAttempts());
                 /// save the user data to shared preferences
                 SharedPreferencesUtil.saveUser(LoginActivity.this, user);
                 /// Redirect to main activity and clear back stack to prevent user from going back to login screen

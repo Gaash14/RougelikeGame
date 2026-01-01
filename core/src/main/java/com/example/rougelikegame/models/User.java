@@ -7,6 +7,7 @@ public class User implements Serializable {
     private String uid;
     private String email, password;
     private String firstName, lastName;
+    private String fullName;
     private String phone;
     private boolean isAdmin;
 
@@ -141,6 +142,7 @@ public class User implements Serializable {
     public String getFullName() {
         return firstName + " " + lastName;
     }
+    public void setFullName(String fullName) { this.fullName = fullName; }
 
     // --- score stuff ---
     // getters

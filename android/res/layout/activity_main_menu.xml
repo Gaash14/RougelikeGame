@@ -9,8 +9,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:gravity="center"
-        android:padding="24dp">
+        android:gravity="center_horizontal"
+        android:padding="16dp">
 
         <!-- Title Card -->
         <LinearLayout
@@ -19,8 +19,8 @@
             android:orientation="vertical"
             android:gravity="center"
             android:background="#1E1E1E"
-            android:padding="24dp"
-            android:layout_marginBottom="24dp">
+            android:padding="14dp"
+            android:layout_marginBottom="14dp">
 
             <TextView
                 android:id="@+id/titleText"
@@ -28,65 +28,85 @@
                 android:layout_height="wrap_content"
                 android:text="Roguelike Game"
                 android:textColor="#FFFFFF"
-                android:textSize="32sp"
-                android:textStyle="bold"
-                android:fontFamily="sans-serif-black" />
+                android:textSize="26sp"
+                android:textStyle="bold" />
         </LinearLayout>
 
-        <!-- Menu Buttons Card -->
+        <!-- Buttons Card -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
+            android:gravity="center_horizontal"
             android:background="#1E1E1E"
-            android:padding="20dp">
+            android:padding="14dp">
 
-            <Button
-                android:id="@+id/startGameButton"
+            <!-- Container with limited width -->
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="56dp"
-                android:text="Start Game"
-                android:textSize="16sp"
-                android:layout_marginBottom="12dp" />
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:maxWidth="520dp">
 
-            <Button
-                android:id="@+id/profileButton"
-                android:layout_width="match_parent"
-                android:layout_height="56dp"
-                android:text="Profile"
-                android:textSize="16sp"
-                android:layout_marginBottom="12dp" />
+                <!-- START GAME (FULL WIDTH) -->
+                <Button
+                    android:id="@+id/startGameButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:text="Start Game"
+                    android:textSize="16sp"
+                    android:layout_marginBottom="12dp" />
 
-            <Button
-                android:id="@+id/leaderboardButton"
-                android:layout_width="match_parent"
-                android:layout_height="56dp"
-                android:text="Leaderboard"
-                android:textSize="16sp"
-                android:layout_marginBottom="12dp" />
+                <!-- ROW 1 -->
+                <Button
+                    android:id="@+id/leaderboardButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="52dp"
+                    android:text="Leaderboard"
+                    android:layout_marginBottom="10dp" />
+                <!-- later add guilds and make it look
+                         like row2-->
 
-            <Button
-                android:id="@+id/updateUserButton"
-                android:layout_width="match_parent"
-                android:layout_height="56dp"
-                android:text="Update User"
-                android:textSize="16sp"
-                android:layout_marginBottom="12dp" />
+                <!-- ROW 2 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="10dp">
 
-            <Button
-                android:id="@+id/signOutButton"
-                android:layout_width="match_parent"
-                android:layout_height="56dp"
-                android:text="Sign Out"
-                android:textSize="16sp"
-                android:layout_marginBottom="12dp" />
+                    <Button
+                        android:id="@+id/profileButton"
+                        android:layout_width="0dp"
+                        android:layout_height="52dp"
+                        android:layout_weight="1"
+                        android:text="Profile" />
 
-            <Button
-                android:id="@+id/exitButton"
-                android:layout_width="match_parent"
-                android:layout_height="56dp"
-                android:text="Exit"
-                android:textSize="16sp" />
+                    <View
+                        android:layout_width="10dp"
+                        android:layout_height="1dp" />
+
+                    <Button
+                        android:id="@+id/updateUserButton"
+                        android:layout_width="0dp"
+                        android:layout_height="52dp"
+                        android:layout_weight="1"
+                        android:text="Update User" />
+                </LinearLayout>
+
+                <Button
+                    android:id="@+id/signOutButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="52dp"
+                    android:text="Sign Out" />
+
+                <!-- EXIT (FULL WIDTH, BOTTOM) -->
+                <Button
+                    android:id="@+id/exitButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="52dp"
+                    android:text="Exit" />
+
+            </LinearLayout>
         </LinearLayout>
 
     </LinearLayout>

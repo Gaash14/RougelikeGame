@@ -315,21 +315,82 @@ public class DatabaseService {
             });
     }
 
-    public void updateUser(@NotNull final User user, @Nullable final DatabaseCallback<Void> callback) {
-        runTransaction(USERS_PATH + "/" + user.getUid(), User.class, currentUser -> user, new DatabaseCallback<User>() {
-            @Override
-            public void onCompleted(User object) {
-                if (callback != null) {
-                    callback.onCompleted(null);
-                }
-            }
+    public void updateUser(
+        @NotNull final User incomingUser,
+        @Nullable final DatabaseCallback<Void> callback
+    ) {
+        runTransaction(
+            USERS_PATH + "/" + incomingUser.getUid(),
+            User.class,
+            currentUser -> {
 
-            @Override
-            public void onFailed(Exception e) {
-                if (callback != null) {
-                    callback.onFailed(e);
+                // If user doesn't exist yet, just save it once
+                if (currentUser == null) {
+                    return incomingUser;
+                }
+
+                if (incomingUser.getNumOfAttempts() < currentUser.getNumOfAttempts()) {
+                    // refuse to overwrite newer data
+                    return currentUser;
+                }
+
+                // ---- MERGE LOGIC ----
+
+                // Highest wave (keep max)
+                currentUser.setHighestWave(
+                    Math.max(
+                        currentUser.getHighestWave(),
+                        incomingUser.getHighestWave()
+                    )
+                );
+
+                // Best time (lower is better, ignore 0)
+                if (incomingUser.getBestTime() > 0) {
+                    int currentBest = currentUser.getBestTime();
+                    if (currentBest == 0 || incomingUser.getBestTime() < currentBest) {
+                        currentUser.setBestTime(incomingUser.getBestTime());
+                    }
+                }
+
+                // Attempts (ALWAYS increment by 1)
+                currentUser.setNumOfAttempts(
+                    currentUser.getNumOfAttempts() + 1
+                );
+
+                // Wins (only increment if this run was a win)
+                if (incomingUser.getNumOfWins() > currentUser.getNumOfWins()) {
+                    currentUser.setNumOfWins(
+                        currentUser.getNumOfWins() + 1
+                    );
+                }
+
+                // Cumulative stats
+                currentUser.setEnemiesKilled(
+                    currentUser.getEnemiesKilled() + incomingUser.getEnemiesKilled()
+                );
+
+                currentUser.setPickupsPicked(
+                    currentUser.getPickupsPicked() + incomingUser.getPickupsPicked()
+                );
+
+                return currentUser;
+            },
+            new DatabaseCallback<User>() {
+                @Override
+                public void onCompleted(User ignored) {
+                    if (callback != null) {
+                        callback.onCompleted(null);
+                    }
+                }
+
+                @Override
+                public void onFailed(Exception e) {
+                    if (callback != null) {
+                        callback.onFailed(e);
+                    }
                 }
             }
-        });
+        );
     }
+
 }
