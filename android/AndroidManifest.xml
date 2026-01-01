@@ -81,5 +81,12 @@
             android:screenOrientation="landscape"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
 
+        <!-- PROFILE -->
+        <activity
+            android:name="com.example.rougelikegame.android.screens.ProfileActivity"
+            android:exported="true"
+            android:screenOrientation="landscape"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+
     </application>
 </manifest>

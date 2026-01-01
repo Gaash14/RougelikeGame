@@ -1,128 +1,165 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="24dp"
-    tools:context=".android.screens.UpdateUserActivity"
-    android:background="#222222">
+    android:fillViewport="true"
+    android:background="#121212">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:padding="20dp">
 
-        <TextView
-            android:id="@+id/tvTitle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Edit Profile"
-            android:textColor="#FFFFFF"
-            android:textSize="28sp"
-            android:textStyle="bold"
-            android:layout_marginBottom="24dp" />
-
-        <ImageView
-            android:id="@+id/iv_profile_icon"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginBottom="16dp"
-            android:src="@mipmap/ic_launcher" />
-
-        <TextView
-            android:id="@+id/tv_user_display_name"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="User Name"
-            android:textColor="#FFFFFF"
-            android:textSize="22sp"
-            android:textStyle="bold"
-            android:layout_gravity="center_horizontal" />
-
-        <TextView
-            android:id="@+id/tv_user_display_email"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="user@example.com"
-            android:textColor="#FFFFFF"
-            android:textSize="14sp"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginBottom="24dp" />
-
-        <TextView
-            android:id="@+id/admin_badge"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Administrator"
-            android:textStyle="bold"
-            android:textColor="#FFFFFF"
-            android:layout_gravity="center_horizontal"
-            android:padding="8dp"
-            android:layout_marginBottom="24dp"
-            android:visibility="gone" />
-
-        <EditText
-            android:id="@+id/et_user_first_name"
+        <!-- Title Card -->
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="First Name"
-            android:background="#FFFFFF"
-            android:padding="10dp"
-            android:inputType="textPersonName"
-            android:layout_marginBottom="12dp" />
+            android:orientation="vertical"
+            android:gravity="center"
+            android:background="#1E1E1E"
+            android:padding="20dp"
+            android:layout_marginBottom="20dp">
 
-        <EditText
-            android:id="@+id/et_user_last_name"
+            <TextView
+                android:id="@+id/tvTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Edit Profile"
+                android:textColor="#FFFFFF"
+                android:textSize="26sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <!-- Profile Info Card -->
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Last Name"
-            android:background="#FFFFFF"
-            android:padding="10dp"
-            android:inputType="textPersonName"
-            android:layout_marginBottom="12dp" />
+            android:orientation="vertical"
+            android:gravity="center_horizontal"
+            android:background="#1E1E1E"
+            android:padding="16dp"
+            android:layout_marginBottom="16dp">
 
-        <EditText
-            android:id="@+id/et_user_email"
+            <ImageView
+                android:id="@+id/iv_profile_icon"
+                android:layout_width="96dp"
+                android:layout_height="96dp"
+                android:src="@mipmap/ic_launcher"
+                android:layout_marginBottom="12dp" />
+
+            <TextView
+                android:id="@+id/tv_user_display_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="User Name"
+                android:textColor="#FFFFFF"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tv_user_display_email"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="user@example.com"
+                android:textColor="#BBBBBB"
+                android:textSize="14sp"
+                android:layout_marginBottom="8dp" />
+
+            <TextView
+                android:id="@+id/admin_badge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Administrator"
+                android:textStyle="bold"
+                android:textColor="#FFFFFF"
+                android:padding="8dp"
+                android:background="#2A2A2A"
+                android:visibility="gone" />
+        </LinearLayout>
+
+        <!-- Edit Fields Card -->
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Email"
-            android:background="#FFFFFF"
-            android:padding="10dp"
-            android:inputType="textEmailAddress"
-            android:layout_marginBottom="12dp" />
+            android:orientation="vertical"
+            android:background="#1E1E1E"
+            android:padding="16dp">
 
-        <EditText
-            android:id="@+id/et_user_phone"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="#FFFFFF"
-            android:padding="10dp"
-            android:hint="Phone Number"
-            android:inputType="phone"
-            android:layout_marginBottom="12dp" />
+            <EditText
+                android:id="@+id/et_user_first_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="First Name"
+                android:inputType="textPersonName"
+                android:textColor="#FFFFFF"
+                android:textColorHint="#BBBBBB"
+                android:background="#2A2A2A"
+                android:padding="12dp"
+                android:layout_marginBottom="12dp" />
 
-        <EditText
-            android:id="@+id/et_user_password"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="#FFFFFF"
-            android:padding="10dp"
-            android:hint="New Password"
-            android:inputType="textPassword"
-            android:layout_marginBottom="24dp" />
+            <EditText
+                android:id="@+id/et_user_last_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Last Name"
+                android:inputType="textPersonName"
+                android:textColor="#FFFFFF"
+                android:textColorHint="#BBBBBB"
+                android:background="#2A2A2A"
+                android:padding="12dp"
+                android:layout_marginBottom="12dp" />
 
-        <Button
-            android:id="@+id/btn_edit_profile"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Save Changes" />
+            <EditText
+                android:id="@+id/et_user_email"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Email"
+                android:inputType="textEmailAddress"
+                android:textColor="#FFFFFF"
+                android:textColorHint="#BBBBBB"
+                android:background="#2A2A2A"
+                android:padding="12dp"
+                android:layout_marginBottom="12dp" />
 
+            <EditText
+                android:id="@+id/et_user_phone"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Phone Number"
+                android:inputType="phone"
+                android:textColor="#FFFFFF"
+                android:textColorHint="#BBBBBB"
+                android:background="#2A2A2A"
+                android:padding="12dp"
+                android:layout_marginBottom="12dp" />
+
+            <EditText
+                android:id="@+id/et_user_password"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="New Password"
+                android:inputType="textPassword"
+                android:textColor="#FFFFFF"
+                android:textColorHint="#BBBBBB"
+                android:background="#2A2A2A"
+                android:padding="12dp"
+                android:layout_marginBottom="20dp" />
+
+            <Button
+                android:id="@+id/btn_edit_profile"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Save Changes" />
+        </LinearLayout>
+
+        <!-- Spacer -->
         <View
             android:layout_width="match_parent"
-            android:layout_height="24dp" />
+            android:layout_height="20dp" />
 
+        <!-- Sign Out -->
         <Button
             android:id="@+id/btn_sign_out"
             android:layout_width="match_parent"
@@ -130,5 +167,4 @@
             android:text="Sign Out" />
 
     </LinearLayout>
-
 </ScrollView>

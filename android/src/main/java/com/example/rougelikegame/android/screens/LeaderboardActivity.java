@@ -110,7 +110,8 @@ public class LeaderboardActivity extends AppCompatActivity {
                 // Put in ListView
                 ArrayAdapter<String> adapter = new ArrayAdapter<>(
                     LeaderboardActivity.this,
-                    android.R.layout.simple_list_item_1,
+                    R.layout.leaderboard_item,
+                    R.id.tvItem,
                     lines
                 );
                 listLeaderboard.setAdapter(adapter);

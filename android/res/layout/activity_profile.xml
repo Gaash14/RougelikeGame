@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/profileScroll"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    android:background="#121212">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <!-- Header -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:padding="12dp"
+            android:background="#1E1E1E">
+
+            <ImageView
+                android:id="@+id/imgAvatar"
+                android:layout_width="72dp"
+                android:layout_height="72dp"
+                android:src="@android:drawable/ic_menu_myplaces"
+                android:contentDescription="Profile picture"
+                android:scaleType="centerCrop"
+                android:background="#2A2A2A"
+                android:padding="10dp" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:paddingStart="14dp">
+
+                <TextView
+                    android:id="@+id/txtName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Player Name"
+                    android:textColor="#FFFFFF"
+                    android:textSize="22sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/txtSubtitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Profile"
+                    android:textColor="#BBBBBB"
+                    android:textSize="14sp" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Stats -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Stats"
+            android:textColor="#FFFFFF"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_marginTop="18dp"
+            android:layout_marginBottom="10dp" />
+
+        <!-- Runs / Wins / Win Rate -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="#1E1E1E"
+            android:padding="14dp">
+
+            <TextView
+                android:id="@+id/txtRuns"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Runs: 0"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/txtWinsLosses"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Wins: 0 | Losses: 0"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                android:layout_marginTop="6dp" />
+
+            <TextView
+                android:id="@+id/txtWinRate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Win Rate: 0%"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                android:layout_marginTop="6dp" />
+        </LinearLayout>
+
+        <!-- Kills / Pickups -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="#1E1E1E"
+            android:padding="14dp"
+            android:layout_marginTop="12dp">
+
+            <TextView
+                android:id="@+id/txtKills"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Enemies Killed: 0 (0.00 / run)"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/txtPickups"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Pickups: 0 (0.00 / run)"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                android:layout_marginTop="6dp" />
+        </LinearLayout>
+
+        <!-- Bests -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="#1E1E1E"
+            android:padding="14dp"
+            android:layout_marginTop="12dp">
+
+            <TextView
+                android:id="@+id/txtHighestWave"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Highest Wave: 0"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/txtBestTime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Best Time: —"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                android:layout_marginTop="6dp" />
+        </LinearLayout>
+
+    </LinearLayout>
+</ScrollView>

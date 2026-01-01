@@ -1,48 +1,93 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:gravity="center"
-    android:background="#222222">
+    android:fillViewport="true"
+    android:background="#121212">
 
-    <TextView
-        android:text="Roguelike Game"
-        android:textSize="32sp"
-        android:textColor="#FFFFFF"
-        android:layout_marginBottom="40dp"
-        android:fontFamily="sans-serif-black"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
-
-    <Button
-        android:id="@+id/startGameButton"
-        android:text="Start Game"
-        android:layout_width="200dp"
-        android:layout_height="wrap_content" />
-
-    <Button
-        android:id="@+id/leaderboardButton"
-        android:layout_width="200dp"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="20dp"
-        android:text="Leaderboard" />
+        android:orientation="vertical"
+        android:gravity="center"
+        android:padding="24dp">
 
-    <Button
-        android:id="@+id/updateUserButton"
-        android:text="Update User"
-        android:layout_width="200dp"
-        android:layout_height="wrap_content" />
+        <!-- Title Card -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:background="#1E1E1E"
+            android:padding="24dp"
+            android:layout_marginBottom="24dp">
 
-    <Button
-        android:id="@+id/signOutButton"
-        android:text="Sign Out"
-        android:layout_width="200dp"
-        android:layout_height="wrap_content" />
+            <TextView
+                android:id="@+id/titleText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Roguelike Game"
+                android:textColor="#FFFFFF"
+                android:textSize="32sp"
+                android:textStyle="bold"
+                android:fontFamily="sans-serif-black" />
+        </LinearLayout>
 
-    <Button
-        android:id="@+id/exitButton"
-        android:text="Exit"
-        android:layout_width="200dp"
-        android:layout_height="wrap_content" />
-</LinearLayout>
+        <!-- Menu Buttons Card -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="#1E1E1E"
+            android:padding="20dp">
+
+            <Button
+                android:id="@+id/startGameButton"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:text="Start Game"
+                android:textSize="16sp"
+                android:layout_marginBottom="12dp" />
+
+            <Button
+                android:id="@+id/profileButton"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:text="Profile"
+                android:textSize="16sp"
+                android:layout_marginBottom="12dp" />
+
+            <Button
+                android:id="@+id/leaderboardButton"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:text="Leaderboard"
+                android:textSize="16sp"
+                android:layout_marginBottom="12dp" />
+
+            <Button
+                android:id="@+id/updateUserButton"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:text="Update User"
+                android:textSize="16sp"
+                android:layout_marginBottom="12dp" />
+
+            <Button
+                android:id="@+id/signOutButton"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:text="Sign Out"
+                android:textSize="16sp"
+                android:layout_marginBottom="12dp" />
+
+            <Button
+                android:id="@+id/exitButton"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:text="Exit"
+                android:textSize="16sp" />
+        </LinearLayout>
+
+    </LinearLayout>
+</ScrollView>
