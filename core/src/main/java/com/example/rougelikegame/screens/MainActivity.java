@@ -54,11 +54,7 @@ public class MainActivity extends ApplicationAdapter {
     Array<Enemy> enemies;
     Array<Pickup> pickups;
     Array<Obstacle> obstacles;
-
-    // Projectiles
     Array<Projectile> projectiles = new Array<>();
-    private final Vector2 aimDir = new Vector2(1, 0); // default right ->
-
 
     // Game state
     Random rnd;
@@ -118,6 +114,8 @@ public class MainActivity extends ApplicationAdapter {
         for (Obstacle o : obstacles) {
             o.dispose();
         }
+        Projectile.disposeTexture();
+
         player.dispose();
         font.dispose();
         stage.dispose();
@@ -195,7 +193,8 @@ public class MainActivity extends ApplicationAdapter {
                             spawnProjectile(
                                 player.x + player.width / 2f,
                                 player.y + player.height / 2f,
-                                dir
+                                dir,
+                                player.getCurrentDamage()
                             );
 
                             player.triggerRangedCooldown();
@@ -421,7 +420,7 @@ public class MainActivity extends ApplicationAdapter {
             if (e.hitThisSwing) continue;
             if (!e.getBounds().overlaps(player.attackHitbox)) continue;
 
-            e.takeDamage(10 + player.attackBonus);
+            e.takeDamage(player.getCurrentDamage());
             e.hitThisSwing = true;
 
             // knockback enemy away from player
@@ -481,24 +480,8 @@ public class MainActivity extends ApplicationAdapter {
     }
 
     // Projectiles
-    private void fireOneShot() {
-        // aim direction from movement joystick
-        float x = joystick.getPercentX();
-        float y = joystick.getPercentY();
-
-        // default right if joystick not pushed
-        if (Math.abs(x) < 0.15f && Math.abs(y) < 0.15f) {
-            aimDir.set(1, 0);
-        } else {
-            aimDir.set(x, y).nor();
-        }
-
-        spawnProjectile(player.x + player.width / 2f, player.y + player.height / 2f, aimDir);
-    }
-
-    private void spawnProjectile(float x, float y, Vector2 dir) {
-        // copy dir because aimDir changes every frame
-        Projectile p = new Projectile(x, y, dir.x, dir.y);
+    private void spawnProjectile(float x, float y, Vector2 dir, int damage) {
+        Projectile p = new Projectile(x, y, dir.x, dir.y, damage);
         projectiles.add(p);
     }
 
@@ -610,7 +593,7 @@ public class MainActivity extends ApplicationAdapter {
 
         font.draw(batch, "HP: " + player.health, 20, screenH - 20);
         font.draw(batch, "Wave: " + wave, 20, screenH - 80);
-        font.draw(batch, "Damage: " + (10 + player.attackBonus), 20, screenH - 130);
+        font.draw(batch, "Damage: " + player.getCurrentDamage(), 20, screenH - 130);
         font.draw(batch, "Speed: " + player.speed, 20, screenH - 180);
         font.draw(batch, "Coins: " + player.coins, 20, screenH - 230);
     }

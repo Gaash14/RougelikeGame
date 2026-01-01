@@ -8,7 +8,7 @@ import com.badlogic.gdx.math.Vector2;
 public class Projectile {
     public float x, y;
     public float speed = 800f;
-    public int damage = 10;
+    public int damage;
     public boolean alive = true;
 
     private float life = 1.2f; // seconds
@@ -17,12 +17,13 @@ public class Projectile {
 
     private static Texture tex; // shared texture
 
-    public Projectile(float x, float y, float dirX, float dirY) {
+    public Projectile(float x, float y, float dirX, float dirY, int damage) {
+        this.damage = damage;
         this.x = x;
         this.y = y;
         this.dir.set(dirX, dirY).nor();
 
-        if (tex == null) tex = new Texture("pixel.png"); // add bullet.png in assets
+        if (tex == null) tex = new Texture("pixel.png");
 
         bounds.set(x, y, 16, 16);
     }
@@ -43,5 +44,12 @@ public class Projectile {
 
     public Rectangle getBounds() {
         return bounds;
+    }
+
+    public static void disposeTexture() {
+        if (tex != null) {
+            tex.dispose();
+            tex = null;
+        }
     }
 }

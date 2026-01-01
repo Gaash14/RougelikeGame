@@ -35,7 +35,7 @@ public class Player {
     public final Rectangle bounds;
     public final Rectangle attackHitbox;
 
-    // damage + knockback
+    // damage + knockback (knockback is enemy -> player)
     public float damageCooldown = 0f;
     public float damageCooldownTime = 0.5f;
     public float knockbackX = 0;
@@ -43,6 +43,10 @@ public class Player {
     public float knockbackTime = 0;
     public float knockbackDuration = 0.25f;
     public float knockbackStrength = 350f;
+
+    // base damage values
+    public int meleeBaseDamage = 10;
+    public int rangedBaseDamage = 6; // weaker than melee
 
     // melee attack
     public boolean attacking = false;
@@ -94,6 +98,14 @@ public class Player {
         y = MathUtils.clamp(y, 0, Gdx.graphics.getHeight() - height);
 
         bounds.setPosition(x, y);
+    }
+
+    public int getCurrentDamage() {
+        if (playerClass == PlayerClass.MELEE) {
+            return meleeBaseDamage + attackBonus;
+        } else {
+            return rangedBaseDamage + (attackBonus / 2);
+        }
     }
 
     public void handleObstacleCollision(Array<Obstacle> obstacles) {
