@@ -24,6 +24,7 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.ViewHo
         void onUserClick(User user);
         void onLongUserClick(User user);
         void onDeleteClick(User user);
+        void onResetStatsClick(User user);
     }
 
     private final List<User> userList;
@@ -70,6 +71,11 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.ViewHo
             }
         });
 
+        holder.btnReset.setOnClickListener(v -> {
+            if (onUserClickListener != null) {
+                onUserClickListener.onResetStatsClick(user);
+            }
+        });
     }
 
     @Override
@@ -108,13 +114,14 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.ViewHo
     public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView tvName, tvEmail;
         Button btnDelete;
-
+        Button btnReset;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             tvName = itemView.findViewById(R.id.tv_item_user_name);
             tvEmail = itemView.findViewById(R.id.tv_item_user_email);
             btnDelete = itemView.findViewById(R.id.btn_item_user_delete);
+            btnReset = itemView.findViewById(R.id.btn_item_user_reset);
         }
     }
     public void filter(String text) {

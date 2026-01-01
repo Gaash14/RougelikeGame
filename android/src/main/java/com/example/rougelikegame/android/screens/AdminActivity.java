@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.util.Log;
 
 import androidx.activity.EdgeToEdge;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -21,7 +22,9 @@ import com.example.rougelikegame.android.utils.SharedPreferencesUtil;
 import com.example.rougelikegame.models.User;
 import com.google.firebase.database.FirebaseDatabase;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class AdminActivity extends AppCompatActivity {
 
@@ -110,6 +113,47 @@ public class AdminActivity extends AppCompatActivity {
                     .show();
             }
 
+            @Override
+            public void onResetStatsClick(User user) {
+                new AlertDialog.Builder(AdminActivity.this)
+                    .setTitle("Reset user stats")
+                    .setMessage(
+                        "This will permanently reset all game stats for:\n\n"
+                            + user.getFullName()
+                    )
+                    .setIcon(android.R.drawable.ic_dialog_alert)
+                    .setNegativeButton("Cancel", null)
+                    .setPositiveButton("Reset", (dialog, which) -> {
+
+                        Map<String, Object> updates = new HashMap<>();
+                        updates.put("highestWave", 0);
+                        updates.put("bestTime", 0);
+                        updates.put("enemiesKilled", 0);
+                        updates.put("pickupsPicked", 0);
+                        updates.put("numOfAttempts", 0);
+                        updates.put("numOfWins", 0);
+
+                        FirebaseDatabase.getInstance()
+                            .getReference("users")
+                            .child(user.getUid())
+                            .updateChildren(updates)
+                            .addOnSuccessListener(aVoid -> {
+
+                                // Update local object
+                                user.setHighestWave(0);
+                                user.setBestTime(0);
+                                user.setEnemiesKilled(0);
+                                user.setPickupsPicked(0);
+                                user.setNumOfAttempts(0);
+                                user.setNumOfWins(0);
+
+                                userAdapter.updateUser(user);
+                            })
+                            .addOnFailureListener(e ->
+                                Log.e(TAG, "Reset stats failed", e));
+                    })
+                    .show();
+            }
         });
 
         usersList.setAdapter(userAdapter);
