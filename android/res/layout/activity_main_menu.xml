@@ -93,6 +93,15 @@
                         android:text="Update User" />
                 </LinearLayout>
 
+                <!-- ADMIN PANEL (HIDDEN BY DEFAULT) -->
+                <Button
+                    android:id="@+id/adminPanelButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="52dp"
+                    android:text="Admin Panel"
+                    android:visibility="gone"
+                    android:layout_marginBottom="10dp" />
+
                 <Button
                     android:id="@+id/signOutButton"
                     android:layout_width="match_parent"

@@ -52,8 +52,35 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     private void loadUserToUI() {
-        User user = SharedPreferencesUtil.getUser(this);
+        // Check if admin passed a user UID
+        String userUid = getIntent().getStringExtra("USER_UID");
 
+        if (userUid != null && !userUid.isEmpty()) {
+            // ---------- ADMIN VIEW ----------
+            loadUserFromDatabase(userUid);
+            return;
+        }
+
+        // ---------- NORMAL USER ----------
+        User user = SharedPreferencesUtil.getUser(this);
+        showUser(user);
+    }
+
+    private void loadUserFromDatabase(String uid) {
+        com.google.firebase.database.FirebaseDatabase.getInstance()
+            .getReference("users")
+            .child(uid)
+            .get()
+            .addOnSuccessListener(snapshot -> {
+                User user = snapshot.getValue(User.class);
+                showUser(user);
+            })
+            .addOnFailureListener(e -> {
+                showUser(null);
+            });
+    }
+
+    private void showUser(User user) {
         // ---------- GUEST ----------
         if (user == null) {
             txtName.setText("Guest");

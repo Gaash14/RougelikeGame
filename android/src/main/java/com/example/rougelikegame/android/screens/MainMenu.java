@@ -3,11 +3,13 @@ package com.example.rougelikegame.android.screens;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.rougelikegame.R;
 import com.example.rougelikegame.android.utils.SharedPreferencesUtil;
+import com.example.rougelikegame.models.User;
 
 public class MainMenu extends AppCompatActivity {
     private static final String TAG = "MainMenu";
@@ -23,6 +25,20 @@ public class MainMenu extends AppCompatActivity {
         Button updateUser = findViewById(R.id.updateUserButton);
         Button signOut = findViewById(R.id.signOutButton);
         Button exitButton = findViewById(R.id.exitButton);
+        Button adminPanel = findViewById(R.id.adminPanelButton);
+
+        User currentUser = SharedPreferencesUtil.getUser(this);
+
+        if (currentUser != null && currentUser.isAdmin()) {
+            adminPanel.setVisibility(View.VISIBLE);
+
+            adminPanel.setOnClickListener(v -> {
+                Intent intent = new Intent(MainMenu.this, AdminActivity.class);
+                startActivity(intent);
+            });
+        } else {
+            adminPanel.setVisibility(View.GONE);
+        }
 
         startGame.setOnClickListener(v -> {
             Intent intent = new Intent(this, ChooseDifficultyActivity.class);
