@@ -298,14 +298,41 @@ public class MainActivity extends ApplicationAdapter {
             float x = rnd.nextInt(Gdx.graphics.getWidth() - 64);
             float y = rnd.nextInt(Gdx.graphics.getHeight() - 64);
 
-            Pickup.Type randomType =
-                Pickup.Type.values()[rnd.nextInt(Pickup.Type.values().length)];
+            Pickup.Type randomType = getRandomPickupType(player.speed);
 
             pickups.add(new Pickup(randomType, x, y));
         }
     }
 
     // Pickups & collisions
+    private Pickup.Type getRandomPickupType(float currentPlayerSpeed) {
+
+        boolean allowSpeed = currentPlayerSpeed < player.maxSpeed;
+
+        Array<Pickup.Type> pool = new Array<>();
+
+        // Add types (duplicates = higher chance)
+        pool.add(Pickup.Type.HEALTH);
+        pool.add(Pickup.Type.HEALTH);
+
+        pool.add(Pickup.Type.DAMAGE);
+        pool.add(Pickup.Type.DAMAGE);
+
+        if (allowSpeed) {
+            pool.add(Pickup.Type.SPEED);
+        }
+
+        // Make coins rarer by adding fewer of them
+        pool.add(Pickup.Type.COIN);  // 1 coin vs 2+ of others
+
+        // example odds:
+        // HEALTH : DAMAGE : SPEED : COIN
+        //    1   :    1   :   1   :  0.5 (conceptually)
+        // because coin only appears once in pool
+
+        return pool.random();
+    }
+
     private void checkPickups() {
         for (int i = pickups.size - 1; i >= 0; i--) {
             Pickup p = pickups.get(i);
