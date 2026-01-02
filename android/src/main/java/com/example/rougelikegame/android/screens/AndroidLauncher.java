@@ -86,6 +86,14 @@ public class AndroidLauncher extends AndroidApplication {
                         Log.e("DB", "Save failed", e);
                     }
                 });
+
+                if (user.getGuildId() != null) {
+                    DatabaseService.getInstance().addGuildRunStats(
+                        user,
+                        enemiesKilled,
+                        win
+                    );
+                }
             }
 
             @Override

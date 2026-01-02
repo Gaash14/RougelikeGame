@@ -11,6 +11,8 @@ public class User implements Serializable {
     private String phone;
     private boolean isAdmin;
 
+    private String guildId;
+
     // Scores are stored directly on the User
     private int highestWave;
     private int bestTime; // in seconds (lower = better)
@@ -143,6 +145,13 @@ public class User implements Serializable {
         return firstName + " " + lastName;
     }
     public void setFullName(String fullName) { this.fullName = fullName; }
+
+    public String getGuildId() {
+        return guildId;
+    }
+    public void setGuildId(String guildId) {
+        this.guildId = guildId;
+    }
 
     // --- score stuff ---
     // getters

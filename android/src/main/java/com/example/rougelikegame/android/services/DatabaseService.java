@@ -5,6 +5,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.example.rougelikegame.android.models.Guild;
 import com.example.rougelikegame.models.User;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -16,7 +17,9 @@ import com.google.firebase.database.Transaction;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.function.UnaryOperator;
 
@@ -393,4 +396,61 @@ public class DatabaseService {
         );
     }
 
+    public void createGuild(String guildName, User user) {
+        DatabaseReference rootRef = FirebaseDatabase.getInstance().getReference();
+
+        String guildId = rootRef.child("guilds").push().getKey();
+
+        Guild guild = new Guild();
+        guild.setGuildId(guildId);
+        guild.setName(guildName);
+        guild.setOwnerUid(user.getUid());
+
+        Map<String, Boolean> members = new HashMap<>();
+        members.put(user.getUid(), true);
+        guild.setMembers(members);
+
+        // save guild
+        rootRef.child("guilds").child(guildId).setValue(guild);
+
+        // link user to guild
+        rootRef.child("users")
+            .child(user.getUid())
+            .child("guildId")
+            .setValue(guildId);
+    }
+
+    public void addGuildRunStats(User user, int enemiesKilled, boolean won) {
+        if (user.getGuildId() == null) return;
+
+        DatabaseReference guildRef =
+            FirebaseDatabase.getInstance()
+                .getReference("guilds")
+                .child(user.getGuildId());
+
+        incrementStat(guildRef.child("totalEnemiesKilled"), enemiesKilled);
+        incrementStat(guildRef.child("totalAttempts"), 1);
+
+        if (won) {
+            incrementStat(guildRef.child("totalWins"), 1);
+        }
+    }
+
+    private void incrementStat(DatabaseReference ref, int amount) {
+        ref.runTransaction(new Transaction.Handler() {
+            @Override
+            public Transaction.Result doTransaction(MutableData currentData) {
+                Integer value = currentData.getValue(Integer.class);
+                currentData.setValue((value == null ? 0 : value) + amount);
+                return Transaction.success(currentData);
+            }
+
+            @Override
+            public void onComplete(
+                DatabaseError error,
+                boolean committed,
+                DataSnapshot snapshot
+            ) {}
+        });
+    }
 }
