@@ -81,6 +81,23 @@
                     android:text="Attempts: 0"
                     android:textColor="#FFFFFF"
                     android:textSize="16sp" />
+
+                <Button
+                    android:id="@+id/btnLeaveGuild"
+                    android:layout_width="match_parent"
+                    android:layout_height="52dp"
+                    android:text="Leave Guild"
+                    android:layout_marginTop="16dp" />
+
+                <Button
+                    android:id="@+id/btnDeleteGuild"
+                    android:layout_width="match_parent"
+                    android:layout_height="52dp"
+                    android:text="Delete Guild"
+                    android:layout_marginTop="10dp"
+                    android:textColor="#FFFFFF"
+                    android:backgroundTint="#B00020"
+                    android:visibility="gone" />
             </LinearLayout>
         </LinearLayout>
 

@@ -51,7 +51,13 @@ public class CreateGuildActivity extends AppCompatActivity {
             return;
         }
 
-        DatabaseService.getInstance().createGuild(guildName, currentUser);
+        String guildId = DatabaseService
+            .getInstance()
+            .createGuild(guildName, currentUser);
+
+        // update local user
+        currentUser.setGuildId(guildId);
+        SharedPreferencesUtil.saveUser(this, currentUser);
 
         Toast.makeText(this, "Guild created!", Toast.LENGTH_SHORT).show();
         finish();

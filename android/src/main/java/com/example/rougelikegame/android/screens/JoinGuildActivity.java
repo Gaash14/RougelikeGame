@@ -89,6 +89,11 @@ public class JoinGuildActivity extends AppCompatActivity {
         User user = SharedPreferencesUtil.getUser(this);
         if (user == null) return;
 
+        if (user.getGuildId() != null) {
+            Toast.makeText(this, "You are already in a guild", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         // update user locally
         user.setGuildId(guildId);
         SharedPreferencesUtil.saveUser(this, user);

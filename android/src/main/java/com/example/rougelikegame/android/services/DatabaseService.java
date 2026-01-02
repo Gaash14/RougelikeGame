@@ -396,7 +396,7 @@ public class DatabaseService {
         );
     }
 
-    public void createGuild(String guildName, User user) {
+    public String createGuild(String guildName, User user) {
         DatabaseReference rootRef = FirebaseDatabase.getInstance().getReference();
 
         String guildId = rootRef.child("guilds").push().getKey();
@@ -413,11 +413,13 @@ public class DatabaseService {
         // save guild
         rootRef.child("guilds").child(guildId).setValue(guild);
 
-        // link user to guild
+        // link user --> guild
         rootRef.child("users")
             .child(user.getUid())
             .child("guildId")
             .setValue(guildId);
+
+        return guildId;
     }
 
     public void addGuildRunStats(User user, int enemiesKilled, boolean won) {

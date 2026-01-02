@@ -6,6 +6,9 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.Button;
+import android.app.AlertDialog;
+import android.widget.Button;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -27,6 +30,12 @@ public class GuildInfoActivity extends AppCompatActivity {
     private TextView txtWins;
     private TextView txtAttempts;
 
+    private Button btnLeaveGuild;
+    private Button btnDeleteGuild;
+
+    private Button btnCreateGuild;
+    private Button btnJoinGuild;
+
     private LinearLayout layoutGuildInfo;
     private LinearLayout layoutNoGuild;
 
@@ -40,28 +49,27 @@ public class GuildInfoActivity extends AppCompatActivity {
         txtEnemiesKilled = findViewById(R.id.txtEnemiesKilled);
         txtWins = findViewById(R.id.txtWins);
         txtAttempts = findViewById(R.id.txtAttempts);
+
+        btnLeaveGuild = findViewById(R.id.btnLeaveGuild);
+        btnDeleteGuild = findViewById(R.id.btnDeleteGuild);
+
+        btnCreateGuild = findViewById(R.id.btnCreateGuild);
+        btnJoinGuild = findViewById(R.id.btnJoinGuild);
+
         layoutGuildInfo = findViewById(R.id.layoutGuildInfo);
         layoutNoGuild = findViewById(R.id.layoutNoGuild);
 
-        User user = SharedPreferencesUtil.getUser(this);
+        btnLeaveGuild.setOnClickListener(v -> leaveGuild());
+        btnDeleteGuild.setOnClickListener(v -> confirmDeleteGuild());
 
-        if (user == null || user.getGuildId() == null) {
-            layoutGuildInfo.setVisibility(View.GONE);
-            layoutNoGuild.setVisibility(View.VISIBLE);
+        btnCreateGuild.setOnClickListener(v ->
+            startActivity(new Intent(this, CreateGuildActivity.class))
+        );
+        btnJoinGuild.setOnClickListener(v ->
+            startActivity(new Intent(this, JoinGuildActivity.class))
+        );
 
-            findViewById(R.id.btnCreateGuild).setOnClickListener(v ->
-                startActivity(new Intent(this, CreateGuildActivity.class))
-            );
-
-            findViewById(R.id.btnJoinGuild).setOnClickListener(v ->
-                startActivity(new Intent(this, JoinGuildActivity.class))
-            );
-
-            return;
-        }
-
-
-        loadGuild(user.getGuildId());
+        refreshGuildState();
     }
 
     private void loadGuild(String guildId) {
@@ -107,6 +115,15 @@ public class GuildInfoActivity extends AppCompatActivity {
                     txtAttempts.setText(
                         "Attempts: " + (attempts != null ? attempts : 0)
                     );
+
+                    String ownerUid = snapshot.child("ownerUid").getValue(String.class);
+
+                    User user = SharedPreferencesUtil.getUser(GuildInfoActivity.this);
+                    if (user != null && ownerUid != null && ownerUid.equals(user.getUid())) {
+                        btnDeleteGuild.setVisibility(View.VISIBLE);
+                    } else {
+                        btnDeleteGuild.setVisibility(View.GONE);
+                    }
                 }
 
                 @Override
@@ -118,5 +135,152 @@ public class GuildInfoActivity extends AppCompatActivity {
                     ).show();
                 }
             });
+    }
+
+    private void leaveGuild() {
+        User user = SharedPreferencesUtil.getUser(this);
+        if (user == null || user.getGuildId() == null) return;
+
+        String guildId = user.getGuildId();
+        String uid = user.getUid();
+
+        FirebaseDatabase.getInstance()
+            .getReference("guilds")
+            .child(guildId)
+            .addListenerForSingleValueEvent(new ValueEventListener() {
+
+                @Override
+                public void onDataChange(DataSnapshot snapshot) {
+                    String ownerUid = snapshot.child("ownerUid").getValue(String.class);
+
+                    // Remove user from members
+                    FirebaseDatabase.getInstance()
+                        .getReference("guilds")
+                        .child(guildId)
+                        .child("members")
+                        .child(uid)
+                        .removeValue();
+
+                    // Remove guildId from user
+                    FirebaseDatabase.getInstance()
+                        .getReference("users")
+                        .child(uid)
+                        .child("guildId")
+                        .removeValue();
+
+                    // If owner is leaving --> transfer ownership
+                    if (uid.equals(ownerUid)) {
+                        boolean transferred = false;
+
+                        for (DataSnapshot member : snapshot.child("members").getChildren()) {
+                            String newOwnerUid = member.getKey();
+
+                            if (!newOwnerUid.equals(uid)) {
+                                FirebaseDatabase.getInstance()
+                                    .getReference("guilds")
+                                    .child(guildId)
+                                    .child("ownerUid")
+                                    .setValue(newOwnerUid);
+
+                                transferred = true;
+                                break;
+                            }
+                        }
+
+                        // if owner is the last member --> delete guild
+                        if (!transferred) {
+                            FirebaseDatabase.getInstance()
+                                .getReference("guilds")
+                                .child(guildId)
+                                .removeValue();
+                        }
+                    }
+
+
+                    // Update local user
+                    user.setGuildId(null);
+                    SharedPreferencesUtil.saveUser(GuildInfoActivity.this, user);
+
+                    layoutGuildInfo.setVisibility(View.GONE);
+                    layoutNoGuild.setVisibility(View.VISIBLE);
+                    txtGuildName.setText("Guild");
+                }
+
+                @Override
+                public void onCancelled(DatabaseError error) {}
+            });
+    }
+
+    private void confirmDeleteGuild() {
+        new AlertDialog.Builder(this)
+            .setTitle("Delete Guild")
+            .setMessage("This will permanently delete the guild for all members. Continue?")
+            .setPositiveButton("Delete", (d, w) -> deleteGuild())
+            .setNegativeButton("Cancel", null)
+            .show();
+    }
+
+    private void deleteGuild() {
+        User user = SharedPreferencesUtil.getUser(this);
+        if (user == null || user.getGuildId() == null) return;
+
+        String guildId = user.getGuildId();
+
+        FirebaseDatabase.getInstance()
+            .getReference("guilds")
+            .child(guildId)
+            .addListenerForSingleValueEvent(new ValueEventListener() {
+
+                @Override
+                public void onDataChange(DataSnapshot snapshot) {
+                    // Remove guildId from all members
+                    for (DataSnapshot member : snapshot.child("members").getChildren()) {
+                        FirebaseDatabase.getInstance()
+                            .getReference("users")
+                            .child(member.getKey())
+                            .child("guildId")
+                            .removeValue();
+                    }
+
+                    // Delete the guild
+                    FirebaseDatabase.getInstance()
+                        .getReference("guilds")
+                        .child(guildId)
+                        .removeValue();
+
+                    // Update local user
+                    user.setGuildId(null);
+                    SharedPreferencesUtil.saveUser(GuildInfoActivity.this, user);
+
+                    layoutGuildInfo.setVisibility(View.GONE);
+                    layoutNoGuild.setVisibility(View.VISIBLE);
+                }
+
+                @Override
+                public void onCancelled(DatabaseError error) {}
+            });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        refreshGuildState();
+    }
+
+    private void refreshGuildState() {
+        User user = SharedPreferencesUtil.getUser(this);
+
+        if (user == null || user.getGuildId() == null) {
+            layoutGuildInfo.setVisibility(View.GONE);
+            layoutNoGuild.setVisibility(View.VISIBLE);
+
+            txtGuildName.setText("Guild");
+
+            return;
+        }
+
+        layoutNoGuild.setVisibility(View.GONE);
+        layoutGuildInfo.setVisibility(View.VISIBLE);
+        loadGuild(user.getGuildId());
     }
 }
