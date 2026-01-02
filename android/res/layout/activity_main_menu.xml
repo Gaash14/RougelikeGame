@@ -58,14 +58,30 @@
                     android:layout_marginBottom="12dp" />
 
                 <!-- ROW 1 -->
-                <Button
-                    android:id="@+id/leaderboardButton"
+                <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="52dp"
-                    android:text="Leaderboard"
-                    android:layout_marginBottom="10dp" />
-                <!-- later add guilds and make it look
-                         like row2-->
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="10dp">
+
+                    <Button
+                        android:id="@+id/leaderboardButton"
+                        android:layout_width="0dp"
+                        android:layout_height="52dp"
+                        android:layout_weight="1"
+                        android:text="Leaderboard" />
+
+                    <View
+                        android:layout_width="10dp"
+                        android:layout_height="1dp" />
+
+                    <Button
+                        android:id="@+id/guildsButton"
+                        android:layout_width="0dp"
+                        android:layout_height="52dp"
+                        android:layout_weight="1"
+                        android:text="Guilds" />
+                </LinearLayout>
 
                 <!-- ROW 2 -->
                 <LinearLayout

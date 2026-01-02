@@ -109,5 +109,12 @@
             android:screenOrientation="landscape"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
 
+        <!-- GUILD INFO -->
+        <activity
+            android:name="com.example.rougelikegame.android.screens.GuildInfoActivity"
+            android:exported="true"
+            android:screenOrientation="landscape"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+
     </application>
 </manifest>

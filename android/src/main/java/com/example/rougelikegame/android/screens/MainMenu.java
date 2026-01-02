@@ -21,6 +21,7 @@ public class MainMenu extends AppCompatActivity {
 
         Button startGame = findViewById(R.id.startGameButton);
         Button leaderboard = findViewById(R.id.leaderboardButton);
+        Button guilds = findViewById(R.id.guildsButton);
         Button profile = findViewById(R.id.profileButton);
         Button updateUser = findViewById(R.id.updateUserButton);
         Button signOut = findViewById(R.id.signOutButton);
@@ -47,6 +48,11 @@ public class MainMenu extends AppCompatActivity {
 
         leaderboard.setOnClickListener(v -> {
             Intent intent = new Intent(this, LeaderboardActivity.class);
+            startActivity(intent);
+        });
+
+        guilds.setOnClickListener(v -> {
+            Intent intent = new Intent(this, GuildInfoActivity.class);
             startActivity(intent);
         });
 
