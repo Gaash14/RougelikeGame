@@ -13,6 +13,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.MutableData;
 import com.google.firebase.database.Transaction;
+import com.google.firebase.database.ValueEventListener;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -454,5 +455,40 @@ public class DatabaseService {
                 DataSnapshot snapshot
             ) {}
         });
+    }
+
+    public void getGuildList(DatabaseCallback<List<Guild>> callback) {
+
+        FirebaseDatabase.getInstance()
+            .getReference("guilds")
+            .addListenerForSingleValueEvent(new ValueEventListener() {
+
+                @Override
+                public void onDataChange(DataSnapshot snapshot) {
+
+                    List<Guild> guilds = new ArrayList<>();
+
+                    for (DataSnapshot guildSnap : snapshot.getChildren()) {
+                        Guild guild = guildSnap.getValue(Guild.class);
+
+                        if (guild != null) {
+                            // IMPORTANT: make sure guildId is set
+                            guild.setGuildId(guildSnap.getKey());
+                            guilds.add(guild);
+                        }
+                    }
+
+                    if (callback != null) {
+                        callback.onCompleted(guilds);
+                    }
+                }
+
+                @Override
+                public void onCancelled(DatabaseError error) {
+                    if (callback != null) {
+                        callback.onFailed(error.toException());
+                    }
+                }
+            });
     }
 }

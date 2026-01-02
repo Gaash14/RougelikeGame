@@ -3,6 +3,9 @@ package com.example.rougelikegame.android.screens;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Button;
+import android.widget.SearchView;
+import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AlertDialog;
@@ -13,14 +16,17 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.widget.SearchView;
-
 import com.example.rougelikegame.R;
+import com.example.rougelikegame.android.adapters.GuildListAdapter;
 import com.example.rougelikegame.android.adapters.UserListAdapter;
 import com.example.rougelikegame.android.services.DatabaseService;
 import com.example.rougelikegame.android.utils.SharedPreferencesUtil;
+import com.example.rougelikegame.android.models.Guild;
 import com.example.rougelikegame.models.User;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.HashMap;
 import java.util.List;
@@ -30,8 +36,20 @@ public class AdminActivity extends AppCompatActivity {
 
     private static final String TAG = "AdminActivity";
 
-    private UserListAdapter userAdapter;
     private DatabaseService databaseService;
+
+    private UserListAdapter userAdapter;
+    private GuildListAdapter guildAdapter;
+
+    private RecyclerView recyclerView;
+    private SearchView searchView;
+
+    private TextView titleText;
+    private TextView hintText;
+    private Button btnUsers;
+    private Button btnGuilds;
+
+    private boolean showingUsers = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,9 +57,9 @@ public class AdminActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_admin);
 
-        User user = SharedPreferencesUtil.getUser(this);
-
-        if (user == null || !user.isAdmin()) {
+        // admin check
+        User admin = SharedPreferencesUtil.getUser(this);
+        if (admin == null || !admin.isAdmin()) {
             finish();
             return;
         }
@@ -52,63 +70,56 @@ public class AdminActivity extends AppCompatActivity {
             return insets;
         });
 
+        // views
+        titleText = findViewById(R.id.titleText);
+        hintText = findViewById(R.id.textView2);
+        btnUsers = findViewById(R.id.btnUsers);
+        btnGuilds = findViewById(R.id.btnGuilds);
+        searchView = findViewById(R.id.searchView);
+
+        recyclerView = findViewById(R.id.rv_users_list);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+
         databaseService = DatabaseService.getInstance();
 
-        // Search
-        SearchView searchView = findViewById(R.id.searchView);
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-                userAdapter.filter(query);
-                return true;
-            }
+        setupAdapters();
+        setupSearch();
+        setupButtons();
 
-            @Override
-            public boolean onQueryTextChange(String newText) {
-                userAdapter.filter(newText);
-                return true;
-            }
-        });
+        // Default mode
+        showUsers();
+    }
 
-        // RecyclerView
-        RecyclerView usersList = findViewById(R.id.rv_users_list);
-        usersList.setLayoutManager(new LinearLayoutManager(this));
+    // Setup
+    private void setupAdapters() {
 
+        // ---------- USER ADAPTER ----------
         userAdapter = new UserListAdapter(new UserListAdapter.OnUserClickListener() {
             @Override
             public void onUserClick(User user) {
-                Log.d(TAG, "User clicked: " + user.getUid());
                 Intent intent = new Intent(AdminActivity.this, ProfileActivity.class);
                 intent.putExtra("USER_UID", user.getUid());
                 startActivity(intent);
             }
 
             @Override
-            public void onLongUserClick(User user) {
-                Log.d(TAG, "User long clicked: " + user.getUid());
-            }
+            public void onLongUserClick(User user) {}
 
             @Override
             public void onDeleteClick(User user) {
-
-                new androidx.appcompat.app.AlertDialog.Builder(AdminActivity.this)
+                new AlertDialog.Builder(AdminActivity.this)
                     .setTitle("Delete user")
-                    .setMessage("Are you sure you want to delete this user?\n\n" +
-                        user.getFullName())
-                    .setIcon(android.R.drawable.ic_dialog_alert)
-                    .setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss())
-                    .setPositiveButton("Delete", (dialog, which) -> {
+                    .setMessage("Delete this user?\n\n" + user.getFullName())
+                    .setNegativeButton("Cancel", null)
+                    .setPositiveButton("Delete", (d, w) -> {
 
                         FirebaseDatabase.getInstance()
                             .getReference("users")
                             .child(user.getUid())
                             .removeValue()
-                            .addOnSuccessListener(aVoid -> {
-                                userAdapter.removeUser(user);
-                            })
-                            .addOnFailureListener(e -> {
-                                Log.e(TAG, "Delete failed", e);
-                            });
+                            .addOnSuccessListener(v ->
+                                userAdapter.removeUser(user)
+                            );
                     })
                     .show();
             }
@@ -117,13 +128,9 @@ public class AdminActivity extends AppCompatActivity {
             public void onResetStatsClick(User user) {
                 new AlertDialog.Builder(AdminActivity.this)
                     .setTitle("Reset user stats")
-                    .setMessage(
-                        "This will permanently reset all game stats for:\n\n"
-                            + user.getFullName()
-                    )
-                    .setIcon(android.R.drawable.ic_dialog_alert)
+                    .setMessage("Reset all stats for:\n\n" + user.getFullName())
                     .setNegativeButton("Cancel", null)
-                    .setPositiveButton("Reset", (dialog, which) -> {
+                    .setPositiveButton("Reset", (d, w) -> {
 
                         Map<String, Object> updates = new HashMap<>();
                         updates.put("highestWave", 0);
@@ -137,31 +144,74 @@ public class AdminActivity extends AppCompatActivity {
                             .getReference("users")
                             .child(user.getUid())
                             .updateChildren(updates)
-                            .addOnSuccessListener(aVoid -> {
-
-                                // Update local object
+                            .addOnSuccessListener(v -> {
                                 user.setHighestWave(0);
                                 user.setBestTime(0);
                                 user.setEnemiesKilled(0);
                                 user.setPickupsPicked(0);
                                 user.setNumOfAttempts(0);
                                 user.setNumOfWins(0);
-
                                 userAdapter.updateUser(user);
-                            })
-                            .addOnFailureListener(e ->
-                                Log.e(TAG, "Reset stats failed", e));
+                            });
                     })
                     .show();
             }
         });
 
-        usersList.setAdapter(userAdapter);
+        // ---------- GUILD ADAPTER ----------
+        guildAdapter = new GuildListAdapter(new GuildListAdapter.OnGuildClickListener() {
+            @Override
+            public void onDeleteClick(Guild guild) {
+                new AlertDialog.Builder(AdminActivity.this)
+                    .setTitle("Delete guild")
+                    .setMessage("Delete this guild?\n\n" + guild.getName())
+                    .setNegativeButton("Cancel", null)
+                    .setPositiveButton("Delete", (d, w) -> deleteGuild(guild))
+                    .show();
+            }
+
+            @Override
+            public void onResetStatsClick(Guild guild) {
+                new AlertDialog.Builder(AdminActivity.this)
+                    .setTitle("Reset guild stats")
+                    .setMessage("Reset all stats for:\n\n" + guild.getName())
+                    .setNegativeButton("Cancel", null)
+                    .setPositiveButton("Reset", (d, w) -> resetGuildStats(guild))
+                    .show();
+            }
+        });
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
+    private void setupButtons() {
+        btnUsers.setOnClickListener(v -> showUsers());
+        btnGuilds.setOnClickListener(v -> showGuilds());
+    }
+
+    private void setupSearch() {
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String q) {
+                filter(q);
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String q) {
+                filter(q);
+                return true;
+            }
+        });
+    }
+
+    // mode switching
+
+    private void showUsers() {
+        showingUsers = true;
+        titleText.setText("User Management");
+        hintText.setText("Users will appear here");
+
+        recyclerView.setAdapter(userAdapter);
+
         databaseService.getUserList(new DatabaseService.DatabaseCallback<List<User>>() {
             @Override
             public void onCompleted(List<User> users) {
@@ -173,5 +223,86 @@ public class AdminActivity extends AppCompatActivity {
                 Log.e(TAG, "Failed to load users", e);
             }
         });
+    }
+
+    private void showGuilds() {
+        showingUsers = false;
+        titleText.setText("Guild Management");
+        hintText.setText("Guilds will appear here");
+
+        recyclerView.setAdapter(guildAdapter);
+
+        databaseService.getGuildList(new DatabaseService.DatabaseCallback<List<Guild>>() {
+            @Override
+            public void onCompleted(List<Guild> guilds) {
+                guildAdapter.setGuildList(guilds);
+            }
+
+            @Override
+            public void onFailed(Exception e) {
+                Log.e(TAG, "Failed to load guilds", e);
+            }
+        });
+    }
+
+    private void filter(String text) {
+        if (showingUsers) {
+            userAdapter.filter(text);
+        } else {
+            guildAdapter.filter(text);
+        }
+    }
+
+    // guild admin actions
+
+    private void resetGuildStats(Guild guild) {
+        Map<String, Object> updates = new HashMap<>();
+        updates.put("totalEnemiesKilled", 0);
+        updates.put("totalWins", 0);
+        updates.put("totalAttempts", 0);
+
+        FirebaseDatabase.getInstance()
+            .getReference("guilds")
+            .child(guild.getGuildId())
+            .updateChildren(updates)
+            .addOnSuccessListener(v -> {
+                guild.setTotalEnemiesKilled(0);
+                guild.setTotalWins(0);
+                guild.setTotalAttempts(0);
+                guildAdapter.updateGuild(guild);
+            });
+    }
+
+    private void deleteGuild(Guild guild) {
+        FirebaseDatabase.getInstance()
+            .getReference("guilds")
+            .child(guild.getGuildId())
+            .addListenerForSingleValueEvent(new ValueEventListener() {
+
+                @Override
+                public void onDataChange(DataSnapshot snapshot) {
+
+                    for (DataSnapshot member : snapshot.child("members").getChildren()) {
+                        FirebaseDatabase.getInstance()
+                            .getReference("users")
+                            .child(member.getKey())
+                            .child("guildId")
+                            .removeValue();
+                    }
+
+                    FirebaseDatabase.getInstance()
+                        .getReference("guilds")
+                        .child(guild.getGuildId())
+                        .removeValue()
+                        .addOnSuccessListener(v ->
+                            guildAdapter.removeGuild(guild)
+                        );
+                }
+
+                @Override
+                public void onCancelled(DatabaseError error) {
+                    Log.e(TAG, "Delete guild cancelled", error.toException());
+                }
+            });
     }
 }
