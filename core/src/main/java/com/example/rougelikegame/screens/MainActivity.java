@@ -278,7 +278,7 @@ public class MainActivity extends ApplicationAdapter {
             float x = Gdx.graphics.getWidth() / 2f - bossWidth / 2f;
             float y = Gdx.graphics.getHeight() / 2f - bossHeight / 2f;
 
-            enemies.add(new BossEnemy(x, y));
+            enemies.add(new BossEnemy(x, y, 5));
             System.out.println("Spawned boss on wave " + waveNumber);
             return;
         }
@@ -296,7 +296,7 @@ public class MainActivity extends ApplicationAdapter {
             if (rnd.nextFloat() < rangedChance) {
                 enemies.add(new GhostEnemy(x, y, enemyProjectiles, 1 + bonusEnemyDamage));
             } else {
-                enemies.add(new Enemy("enemy.png", x, y, 100, 128, 128));
+                enemies.add(new Enemy("enemy.png", x, y, 100, 128, 128, 1 + bonusEnemyDamage));
             }
 
         }
@@ -414,13 +414,7 @@ public class MainActivity extends ApplicationAdapter {
                 if (player.damageCooldown <= 0) {
 
                     // apply damage
-                    int dmg;
-                    if (e.isBoss) {
-                        dmg = 2;
-                    } else {
-                        dmg = 1;
-                    }
-                    player.health -= dmg;
+                    player.health -= e.damage;
 
                     if (player.health <= 0) {
                         onPlayerDied();
@@ -566,6 +560,7 @@ public class MainActivity extends ApplicationAdapter {
             if (p.getBounds().overlaps(player.bounds)) {
                 player.health -= p.damage;
                 p.alive = false;
+                System.out.println("Player hit! HP = " + player.health);
 
                 if (player.health <= 0) {
                     onPlayerDied();

@@ -17,8 +17,9 @@ public class Enemy {
     public boolean alive = true;
     public boolean isBoss = false;
     public boolean hitThisSwing = false;
+    public int damage;
 
-    public Enemy(String texture, float startX, float startY, float speed, float width, float height) {
+    public Enemy(String texture, float startX, float startY, float speed, float width, float height, int damage) {
         this.texture = new Texture(texture);
         this.x = startX;
         this.y = startY;
@@ -26,6 +27,7 @@ public class Enemy {
         this.width = width;
         this.height = height;
         this.health = 30;
+        this.damage = damage;
 
         this.bounds = new Rectangle(x, y, width, height);
     }
