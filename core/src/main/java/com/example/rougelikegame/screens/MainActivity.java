@@ -32,16 +32,22 @@ public class MainActivity extends ApplicationAdapter {
     // Constructors (for AndroidLauncher / tests)
     private final ScoreReporter scoreReporter;
     private final Player.PlayerClass selectedClass;
+    private final Player.Difficulty difficulty;
 
-    public MainActivity(ScoreReporter scoreReporter, Player.PlayerClass selectedClass) {
+    public MainActivity(
+            ScoreReporter scoreReporter,
+            Player.PlayerClass selectedClass,
+            Player.Difficulty difficulty
+    ) {
         this.scoreReporter = scoreReporter;
         this.selectedClass = selectedClass;
+        this.difficulty = difficulty;
     }
     public MainActivity(ScoreReporter scoreReporter) {
-        this(scoreReporter, Player.PlayerClass.MELEE);
+        this(scoreReporter, Player.PlayerClass.MELEE,Player.Difficulty.NORMAL);
     }
     public MainActivity() {
-        this(null, Player.PlayerClass.MELEE);
+        this(null, Player.PlayerClass.MELEE, Player.Difficulty.NORMAL);
     }
     private boolean runReported = false;
 
@@ -62,6 +68,7 @@ public class MainActivity extends ApplicationAdapter {
 
     // Game state
     Random rnd;
+    public Player.Difficulty getDifficulty() { return difficulty; }
 
     int wave = 1;
     private static final int BOSS_WAVE = 7;
@@ -284,7 +291,7 @@ public class MainActivity extends ApplicationAdapter {
         }
 
         // Normal enemies
-        int enemyCount = 3 + (waveNumber - 1) * 2; // wave 1=3, 2=5, 3=7...
+        int enemyCount = calculateEnemyCount(waveNumber);
 
         float rangedChance = 0.15f;
         int bonusEnemyDamage = wave / 10; // +1 enemy dmg every 10 waves
@@ -302,6 +309,26 @@ public class MainActivity extends ApplicationAdapter {
         }
 
         System.out.println("Spawned wave " + waveNumber + " with " + enemyCount + " enemies");
+    }
+
+    private int calculateEnemyCount(int waveNumber) {
+        int baseEnemyCount = 3 + (waveNumber - 1) * 2; // wave 1=3, 2=5, 3=7...
+
+        float multiplier = 1f;
+        switch (this.getDifficulty()) {
+            case EASY:
+                multiplier = 0.75f; // EASY: wave 1=2, 2=4, 3=5...
+                break;
+            case HARD:
+                multiplier = 1.4f; // HARD: wave 1=4 2=7 3=10...
+                break;
+            case NORMAL:
+            default:
+                multiplier = 1.0f; // NORMAL: wave 1=3, 2=5, 3=7...
+                break;
+        }
+
+        return Math.round(baseEnemyCount * multiplier);
     }
 
     private void spawnWavePickups(int waveNumber) {

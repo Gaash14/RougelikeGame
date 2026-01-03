@@ -3,6 +3,7 @@ package com.example.rougelikegame.android.screens;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
+import android.widget.RadioGroup;
 import android.widget.Switch;
 import android.widget.TextView;
 
@@ -16,7 +17,9 @@ public class ChooseDifficultyActivity extends AppCompatActivity {
     private Switch classSwitch;
     private TextView classLabel;
     private Button startGameButton;
+    private RadioGroup difficultyGroup;
 
+    private Player.Difficulty selectedDifficulty = Player.Difficulty.NORMAL;
     private Player.PlayerClass selectedClass = Player.PlayerClass.MELEE;
 
     @Override
@@ -26,7 +29,6 @@ public class ChooseDifficultyActivity extends AppCompatActivity {
 
         classSwitch = findViewById(R.id.classSwitch);
         classLabel = findViewById(R.id.classLabel);
-        startGameButton = findViewById(R.id.startGameButton);
 
         // Toggle between MELEE / RANGED
         classSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
@@ -39,10 +41,23 @@ public class ChooseDifficultyActivity extends AppCompatActivity {
             }
         });
 
+        difficultyGroup = findViewById(R.id.difficultyGroup);
+        difficultyGroup.setOnCheckedChangeListener((group, checkedId) -> {
+            if (checkedId == R.id.diffEasy) {
+                selectedDifficulty = Player.Difficulty.EASY;
+            } else if (checkedId == R.id.diffNormal) {
+                selectedDifficulty = Player.Difficulty.NORMAL;
+            } else if (checkedId == R.id.diffHard) {
+                selectedDifficulty = Player.Difficulty.HARD;
+            }
+        });
+
+        startGameButton = findViewById(R.id.startGameButton);
         // Start game
         startGameButton.setOnClickListener(v -> {
             Intent intent = new Intent(ChooseDifficultyActivity.this, AndroidLauncher.class);
             intent.putExtra("PLAYER_CLASS", selectedClass.name());
+            intent.putExtra("DIFFICULTY", selectedDifficulty.name());
             startActivity(intent);
         });
     }

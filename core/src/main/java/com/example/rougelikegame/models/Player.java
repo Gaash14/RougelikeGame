@@ -16,6 +16,13 @@ public class Player {
     }
     public PlayerClass playerClass = PlayerClass.MELEE; // default
 
+    public enum Difficulty {
+        EASY,
+        NORMAL,
+        HARD
+    }
+    public Difficulty difficulty = Difficulty.NORMAL; // default
+
     // textures
     private final Texture texture;
     public final Texture debugPixel = new Texture("pixel.png");

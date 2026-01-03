@@ -25,6 +25,9 @@ public class AndroidLauncher extends AndroidApplication {
             selectedClass = Player.PlayerClass.RANGED;
         }
 
+        String difficultyName = getIntent().getStringExtra("DIFFICULTY");
+        Player.Difficulty difficulty = Player.Difficulty.valueOf(difficultyName);
+
         AndroidApplicationConfiguration configuration = new AndroidApplicationConfiguration();
         configuration.useImmersiveMode = true;
 
@@ -108,6 +111,7 @@ public class AndroidLauncher extends AndroidApplication {
                 }
             }
 
-        }, selectedClass), configuration);
+        },
+        selectedClass, difficulty), configuration);
     }
 }
