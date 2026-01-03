@@ -2,11 +2,12 @@ package com.example.rougelikegame.models;
 
 public class BossEnemy extends Enemy {
 
-    public BossEnemy(float startX, float startY, int damage) {
-        super("boss.png", startX, startY, 70f,   256f,   256f, damage);
+    public BossEnemy(float startX, float startY, int health, int damage) {
+        super("boss.png", startX, startY,70f,
+            256f,256f, health, damage);
 
         this.isBoss = true;
-        this.health = 200;
+        this.health = health;
     }
 
     @Override

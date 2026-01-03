@@ -19,14 +19,14 @@ public class Enemy {
     public boolean hitThisSwing = false;
     public int damage;
 
-    public Enemy(String texture, float startX, float startY, float speed, float width, float height, int damage) {
+    public Enemy(String texture, float startX, float startY, float speed, float width, float height, int health, int damage) {
         this.texture = new Texture(texture);
         this.x = startX;
         this.y = startY;
         this.speed = speed;
         this.width = width;
         this.height = height;
-        this.health = 30;
+        this.health = health;
         this.damage = damage;
 
         this.bounds = new Rectangle(x, y, width, height);

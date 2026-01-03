@@ -13,10 +13,10 @@ public class GhostEnemy extends Enemy {
 
     private Array<Projectile> projectiles;
 
-    public GhostEnemy(float x, float y, Array<Projectile> projectiles, int damage) {
-        super("ghost_enemy.png", x, y, 120f, 128, 128, damage);
+    public GhostEnemy(float x, float y, Array<Projectile> projectiles, int health, int damage) {
+        super("ghost_enemy.png", x, y, 120f, 128, 128, health, damage);
         this.projectiles = projectiles;
-        this.health = 20;
+        this.health = health;
         this.damage = damage;
     }
 

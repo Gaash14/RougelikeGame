@@ -285,7 +285,7 @@ public class MainActivity extends ApplicationAdapter {
             float x = Gdx.graphics.getWidth() / 2f - bossWidth / 2f;
             float y = Gdx.graphics.getHeight() / 2f - bossHeight / 2f;
 
-            enemies.add(new BossEnemy(x, y, 5));
+            enemies.add(new BossEnemy(x, y,200,5));
             System.out.println("Spawned boss on wave " + waveNumber);
             return;
         }
@@ -301,9 +301,11 @@ public class MainActivity extends ApplicationAdapter {
             float y = rnd.nextInt(Gdx.graphics.getHeight() - 128);
 
             if (rnd.nextFloat() < rangedChance) {
-                enemies.add(new GhostEnemy(x, y, enemyProjectiles, 1 + bonusEnemyDamage));
+                enemies.add(new GhostEnemy(x, y, enemyProjectiles,
+                    calculateEnemyHP(20),1 + bonusEnemyDamage));
             } else {
-                enemies.add(new Enemy("enemy.png", x, y, 100, 128, 128, 1 + bonusEnemyDamage));
+                enemies.add(new Enemy("enemy.png", x, y, 100, 128, 128,
+                    calculateEnemyHP(30), 1 + bonusEnemyDamage));
             }
 
         }
@@ -329,6 +331,29 @@ public class MainActivity extends ApplicationAdapter {
         }
 
         return Math.round(baseEnemyCount * multiplier);
+    }
+
+    public int calculateEnemyHP(int baseHP) {
+        float hpMultiplier = 1f;
+
+        switch (this.getDifficulty()) {
+            case EASY:
+                hpMultiplier = 0.8f;
+                break;
+            case HARD:
+                hpMultiplier = 1.35f;
+                break;
+            case NORMAL:
+            default:
+                hpMultiplier = 1.0f;
+                break;
+        }
+
+        int waveBonus = (wave * 2) - 2; // wave based scaling (wave 1=+0)
+        int finalHp = Math.round((baseHP + waveBonus) * hpMultiplier);
+
+        // in case of 0 or negative hp
+        return Math.max(1, finalHp);
     }
 
     private void spawnWavePickups(int waveNumber) {
