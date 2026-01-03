@@ -18,6 +18,7 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.example.rougelikegame.ScoreReporter;
 import com.example.rougelikegame.models.BossEnemy;
 import com.example.rougelikegame.models.Enemy;
+import com.example.rougelikegame.models.GhostEnemy;
 import com.example.rougelikegame.models.Joystick;
 import com.example.rougelikegame.models.Obstacle;
 import com.example.rougelikegame.models.Pickup;
@@ -56,7 +57,8 @@ public class MainActivity extends ApplicationAdapter {
     Array<Enemy> enemies;
     Array<Pickup> pickups;
     Array<Obstacle> obstacles;
-    Array<Projectile> projectiles = new Array<>();
+    Array<Projectile> playerProjectiles = new Array<>();
+    Array<Projectile> enemyProjectiles = new Array<>();
 
     // Game state
     Random rnd;
@@ -222,8 +224,11 @@ public class MainActivity extends ApplicationAdapter {
     private void update(float delta) {
         updateGame(delta);
 
-        updateProjectiles(delta);
-        handleProjectileHits();
+        updatePlayerProjectiles(delta);
+        handlePlayerProjectileHits();
+
+        updateEnemyProjectiles(delta);
+        handleEnemyProjectileHits();
 
         checkPickups();
         preventEnemyOverlap();
@@ -281,11 +286,19 @@ public class MainActivity extends ApplicationAdapter {
         // Normal enemies
         int enemyCount = 3 + (waveNumber - 1) * 2; // wave 1=3, 2=5, 3=7...
 
+        float rangedChance = 0.15f;
+        int bonusEnemyDamage = wave / 10; // +1 enemy dmg every 10 waves
+
         for (int i = 0; i < enemyCount; i++) {
             float x = rnd.nextInt(Gdx.graphics.getWidth() - 128);
             float y = rnd.nextInt(Gdx.graphics.getHeight() - 128);
 
-            enemies.add(new Enemy("enemy.png", x, y, 100, 128, 128));
+            if (rnd.nextFloat() < rangedChance) {
+                enemies.add(new GhostEnemy(x, y, enemyProjectiles, 1 + bonusEnemyDamage));
+            } else {
+                enemies.add(new Enemy("enemy.png", x, y, 100, 128, 128));
+            }
+
         }
 
         System.out.println("Spawned wave " + waveNumber + " with " + enemyCount + " enemies");
@@ -311,7 +324,7 @@ public class MainActivity extends ApplicationAdapter {
 
         Array<Pickup.Type> pool = new Array<>();
 
-        // Add types (duplicates = higher chance)
+        // (duplicates = higher chance)
         pool.add(Pickup.Type.HEALTH);
         pool.add(Pickup.Type.HEALTH);
 
@@ -322,13 +335,7 @@ public class MainActivity extends ApplicationAdapter {
             pool.add(Pickup.Type.SPEED);
         }
 
-        // Make coins rarer by adding fewer of them
         pool.add(Pickup.Type.COIN);  // 1 coin vs 2+ of others
-
-        // example odds:
-        // HEALTH : DAMAGE : SPEED : COIN
-        //    1   :    1   :   1   :  0.5 (conceptually)
-        // because coin only appears once in pool
 
         return pool.random();
     }
@@ -511,32 +518,59 @@ public class MainActivity extends ApplicationAdapter {
     // Projectiles
     private void spawnProjectile(float x, float y, Vector2 dir, int damage) {
         Projectile p = new Projectile(x, y, dir.x, dir.y, damage);
-        projectiles.add(p);
+        playerProjectiles.add(p);
     }
 
-    private void updateProjectiles(float delta) {
-        for (int i = projectiles.size - 1; i >= 0; i--) {
-            Projectile p = projectiles.get(i);
+    private void updatePlayerProjectiles(float delta) {
+        for (int i = playerProjectiles.size - 1; i >= 0; i--) {
+            Projectile p = playerProjectiles.get(i);
             p.update(delta);
+
+            if (!p.alive) {
+                playerProjectiles.removeIndex(i);
+            }
         }
     }
 
-    private void handleProjectileHits() {
-        for (int i = projectiles.size - 1; i >= 0; i--) {
-            Projectile p = projectiles.get(i);
+    private void handlePlayerProjectileHits() {
+        for (Projectile p : playerProjectiles) {
+            if (!p.alive) continue;
 
             for (Enemy e : enemies) {
                 if (!e.alive) continue;
 
                 if (p.getBounds().overlaps(e.getBounds())) {
                     e.takeDamage(p.damage);
-                    p.alive = false; // bullet disappears on hit
+                    p.alive = false;
                     break;
                 }
             }
+        }
+    }
+
+    private void updateEnemyProjectiles(float delta) {
+        for (int i = enemyProjectiles.size - 1; i >= 0; i--) {
+            Projectile p = enemyProjectiles.get(i);
+            p.update(delta);
 
             if (!p.alive) {
-                projectiles.removeIndex(i);
+                enemyProjectiles.removeIndex(i);
+            }
+        }
+    }
+
+    private void handleEnemyProjectileHits() {
+        for (Projectile p : enemyProjectiles) {
+            if (!p.alive) continue;
+
+            if (p.getBounds().overlaps(player.bounds)) {
+                player.health -= p.damage;
+                p.alive = false;
+
+                if (player.health <= 0) {
+                    onPlayerDied();
+                    return;
+                }
             }
         }
     }
@@ -593,7 +627,11 @@ public class MainActivity extends ApplicationAdapter {
             p.draw(batch);
         }
 
-        for (Projectile p : projectiles) {
+        for (Projectile p : playerProjectiles) {
+            p.draw(batch);
+        }
+
+        for (Projectile p : enemyProjectiles) {
             p.draw(batch);
         }
 

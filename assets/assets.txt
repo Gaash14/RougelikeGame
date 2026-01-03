@@ -1,6 +1,7 @@
 attack_icon.png
 boss.png
 enemy.png
+ghost_enemy.png
 joystick_base.png
 joystick_knob.png
 obstacle.png

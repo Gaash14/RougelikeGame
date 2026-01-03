@@ -1,16 +1,18 @@
 package com.example.rougelikegame.models;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Array;
 
 public class Enemy {
-    private Texture texture;
-    private float x, y;
-    private float speed;
+    protected Texture texture;
+    protected float x, y;
+    protected float speed;
     public float width, height;
-    private Rectangle bounds;
+    protected Rectangle bounds;
     public int health;
     public boolean alive = true;
     public boolean isBoss = false;
@@ -33,7 +35,7 @@ public class Enemy {
         batch.draw(texture, x, y, width, height);
     }
 
-    // Update enemy position (basic AI: moves toward player)
+    // Update enemy position
     public void update(float delta, float playerX, float playerY) {
         float dx = playerX - x;
         float dy = playerY - y;
@@ -48,7 +50,9 @@ public class Enemy {
         x += dx * speed * delta;
         y += dy * speed * delta;
 
-        // Update collision bounds
+        x = MathUtils.clamp(x, 0, Gdx.graphics.getWidth() - width);
+        y = MathUtils.clamp(y, 0, Gdx.graphics.getHeight() - height);
+
         bounds.setPosition(x, y);
     }
 
