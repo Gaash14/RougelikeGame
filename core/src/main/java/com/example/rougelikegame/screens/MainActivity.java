@@ -300,6 +300,12 @@ public class MainActivity extends ApplicationAdapter {
             float x = rnd.nextInt(Gdx.graphics.getWidth() - 128);
             float y = rnd.nextInt(Gdx.graphics.getHeight() - 128);
 
+            // avoid spawning right on top of player
+            if (Math.abs(x - player.x) < 200 && Math.abs(y - player.y) < 200) {
+                i--;
+                continue;
+            }
+
             if (rnd.nextFloat() < rangedChance) {
                 enemies.add(new GhostEnemy(x, y, enemyProjectiles,
                     calculateEnemyHP(20),1 + bonusEnemyDamage));

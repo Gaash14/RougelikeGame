@@ -139,6 +139,9 @@ public class AdminActivity extends AppCompatActivity {
                         updates.put("pickupsPicked", 0);
                         updates.put("numOfAttempts", 0);
                         updates.put("numOfWins", 0);
+                        updates.put("bestStreak", 0);
+                        updates.put("currentStreak", 0);
+                        updates.put("pickedRanged", 0);
 
                         FirebaseDatabase.getInstance()
                             .getReference("users")
@@ -151,6 +154,9 @@ public class AdminActivity extends AppCompatActivity {
                                 user.setPickupsPicked(0);
                                 user.setNumOfAttempts(0);
                                 user.setNumOfWins(0);
+                                user.setPickedRanged(0);
+                                user.setCurrentStreak(0);
+                                user.setBestStreak(0);
                                 userAdapter.updateUser(user);
                             });
                     })
