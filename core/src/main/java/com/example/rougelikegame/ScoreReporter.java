@@ -6,7 +6,8 @@ public interface ScoreReporter {
         int time,
         int enemiesKilled,
         int pickupsPicked,
-        boolean win
+        boolean win,
+        boolean rangedChosen
     );
 
     void reportHighestWave(int wave);

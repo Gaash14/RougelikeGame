@@ -18,6 +18,9 @@ public class User implements Serializable {
     private int bestTime; // in seconds (lower = better)
     private int numOfAttempts;
     private int numOfWins;
+    private int currentStreak;
+    private int bestStreak;
+    private int pickedRanged;
     private int enemiesKilled;
     private int pickupsPicked;
 
@@ -36,6 +39,9 @@ public class User implements Serializable {
                 int bestTime,
                 int numOfAttempts,
                 int numOfWins,
+                int currentStreak,
+                int bestStreak,
+                int pickedRanged,
                 int enemiesKilled,
                 int pickupsPicked) {
 
@@ -50,6 +56,9 @@ public class User implements Serializable {
         this.bestTime = bestTime;
         this.numOfAttempts = numOfAttempts;
         this.numOfWins = numOfWins;
+        this.currentStreak = currentStreak;
+        this.bestStreak = bestStreak;
+        this.pickedRanged = pickedRanged;
         this.enemiesKilled = enemiesKilled;
         this.pickupsPicked = pickupsPicked;
     }
@@ -163,6 +172,9 @@ public class User implements Serializable {
     }
     public int getNumOfAttempts() { return numOfAttempts; }
     public int getNumOfWins() { return numOfWins; }
+    public int getCurrentStreak() {return currentStreak;}
+    public int getBestStreak() {return bestStreak;}
+    public int getPickedRanged() { return pickedRanged; }
     public int getEnemiesKilled() { return enemiesKilled; }
     public int getPickupsPicked() { return pickupsPicked; }
 
@@ -175,6 +187,9 @@ public class User implements Serializable {
     }
     public void setNumOfAttempts(int numOfAttempts) { this.numOfAttempts = numOfAttempts;}
     public void setNumOfWins(int numOfWins) { this.numOfWins = numOfWins;}
+    public void setCurrentStreak(int currentStreak) {this.currentStreak = currentStreak;}
+    public void setBestStreak(int bestStreak) {this.bestStreak = bestStreak;}
+    public void setPickedRanged(int pickedRanged) { this.pickedRanged = pickedRanged;}
     public void setEnemiesKilled(int enemiesKilled) { this.enemiesKilled = enemiesKilled;}
     public void setPickupsPicked(int pickupsPicked) { this.pickupsPicked = pickupsPicked;}
 

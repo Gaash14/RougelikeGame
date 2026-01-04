@@ -368,6 +368,24 @@ public class DatabaseService {
                     );
                 }
 
+                if (incomingUser.getPickedRanged() > currentUser.getPickedRanged()) {
+                    currentUser.setPickedRanged(
+                        currentUser.getPickedRanged() + 1
+                    );
+                }
+
+                //  streaks (already calculated locally)
+                currentUser.setCurrentStreak(
+                    incomingUser.getCurrentStreak()
+                );
+
+                currentUser.setBestStreak(
+                    Math.max(
+                        currentUser.getBestStreak(),
+                        incomingUser.getBestStreak()
+                    )
+                );
+
                 // Cumulative stats
                 currentUser.setEnemiesKilled(
                     currentUser.getEnemiesKilled() + incomingUser.getEnemiesKilled()

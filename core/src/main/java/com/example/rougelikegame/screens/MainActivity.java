@@ -645,12 +645,14 @@ public class MainActivity extends ApplicationAdapter {
         runReported = true;
 
         if (scoreReporter != null) {
+            boolean rangedChosen = player.playerClass == Player.PlayerClass.RANGED;
             scoreReporter.reportRun(
                 wave,
                 win ? (int) runTime : 0, // if won, time = runtime. else, time = 0
                 enemiesKilled,
                 pickupsPicked,
-                win
+                win,
+                rangedChosen
             );
         }
     }

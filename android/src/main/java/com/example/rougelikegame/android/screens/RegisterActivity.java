@@ -161,9 +161,25 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
         String uid = databaseService.generateUserId();
 
         /// create a new user object
-        User user = new User(
-            uid, email, password, fName,lName, phone, false,
-            0, 0, 0 , 0, 0 , 0);
+        User user = new User();
+        user.setUid(uid);
+        user.setEmail(email);
+        user.setPassword(password);
+        user.setFirstName(fName);
+        user.setLastName(lName);
+        user.setPhone(phone);
+        user.setAdmin(false);
+
+        // defaults
+        user.setHighestWave(0);
+        user.setBestTime(0);
+        user.setNumOfAttempts(0);
+        user.setNumOfWins(0);
+        user.setCurrentStreak(0);
+        user.setBestStreak(0);
+        user.setPickedRanged(0);
+        user.setEnemiesKilled(0);
+        user.setPickupsPicked(0);
 
         databaseService.checkIfEmailExists(email, new DatabaseService.DatabaseCallback<>() {
             @Override

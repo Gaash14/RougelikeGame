@@ -38,7 +38,8 @@ public class AndroidLauncher extends AndroidApplication {
                 int bestTimeSeconds,
                 int enemiesKilled,
                 int pickupsPicked,
-                boolean win )
+                boolean win,
+                boolean rangedChosen )
             {
                 User user = SharedPreferencesUtil.getUser(AndroidLauncher.this);
                 if (user == null) return;
@@ -56,11 +57,27 @@ public class AndroidLauncher extends AndroidApplication {
                     }
                 }
 
-                // attempts & wins
+                // attempts
                 user.setNumOfAttempts(user.getNumOfAttempts() + 1);
 
                 if (win) {
+                    // wins
                     user.setNumOfWins(user.getNumOfWins() + 1);
+
+                    // streak logic
+                    int newStreak = user.getCurrentStreak() + 1;
+                    user.setCurrentStreak(newStreak);
+
+                    user.setBestStreak(
+                        Math.max(user.getBestStreak(), newStreak)
+                    );
+                } else {
+                    // loss resets streak
+                    user.setCurrentStreak(0);
+                }
+
+                if (rangedChosen) {
+                    user.setPickedRanged(user.getPickedRanged() + 1);
                 }
 
                 // cumulative stats

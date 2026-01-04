@@ -22,6 +22,8 @@ public class ProfileActivity extends AppCompatActivity {
     private TextView txtRuns, txtWinsLosses, txtWinRate;
     private TextView txtKills, txtPickups;
     private TextView txtHighestWave, txtBestTime;
+    private TextView txtRangedPicks, txtMeleePicks;
+    private TextView txtCurrentStreak, txtBestStreak;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,6 +48,12 @@ public class ProfileActivity extends AppCompatActivity {
 
         txtHighestWave = findViewById(R.id.txtHighestWave);
         txtBestTime = findViewById(R.id.txtBestTime);
+
+        txtRangedPicks = findViewById(R.id.txtRangedPicks);
+        txtMeleePicks = findViewById(R.id.txtMeleePicks);
+
+        txtCurrentStreak = findViewById(R.id.txtCurrentStreak);
+        txtBestStreak = findViewById(R.id.txtBestStreak);
 
         // Placeholder avatar (until image upload is added)
         imgAvatar.setImageResource(android.R.drawable.ic_menu_myplaces);
@@ -95,6 +103,12 @@ public class ProfileActivity extends AppCompatActivity {
 
             txtHighestWave.setText("Highest Wave: 0");
             txtBestTime.setText("Best Time: —");
+
+            txtRangedPicks.setText("Ranged: 0 (0%)");
+            txtMeleePicks.setText("Melee: 0 (0%)");
+
+            txtCurrentStreak.setText("Current Streak: 0");
+            txtBestStreak.setText("Best Streak: 0");
             return;
         }
 
@@ -114,6 +128,43 @@ public class ProfileActivity extends AppCompatActivity {
         txtRuns.setText("Runs: " + runs);
         txtWinsLosses.setText("Wins: " + wins + " | Losses: " + losses);
         txtWinRate.setText(String.format(Locale.US, "Win Rate: %.1f%%", winRate));
+
+        // ---------- STREAKS ----------
+        int currentStreak = user.getCurrentStreak();
+        int bestStreak = user.getBestStreak();
+
+        txtCurrentStreak.setText("Current Streak: " + currentStreak);
+        txtBestStreak.setText("Best Streak: " + bestStreak);
+
+        // ---------- CLASS PICKS ----------
+        int rangedPicks = user.getPickedRanged();
+        int totalRuns = runs;
+
+        // Safety clamp (in case of bad data)
+        rangedPicks = Math.max(0, Math.min(rangedPicks, totalRuns));
+        int meleePicks = Math.max(0, totalRuns - rangedPicks);
+
+        double rangedPercent = (totalRuns > 0)
+            ? (rangedPicks * 100.0 / totalRuns)
+            : 0.0;
+
+        double meleePercent = (totalRuns > 0)
+            ? (meleePicks * 100.0 / totalRuns)
+            : 0.0;
+
+        txtRangedPicks.setText(String.format(
+            Locale.US,
+            "Ranged: %d (%.1f%%)",
+            rangedPicks,
+            rangedPercent
+        ));
+
+        txtMeleePicks.setText(String.format(
+            Locale.US,
+            "Melee: %d (%.1f%%)",
+            meleePicks,
+            meleePercent
+        ));
 
         // ---------- KILLS / PICKUPS ----------
         int enemiesKilled = user.getEnemiesKilled();

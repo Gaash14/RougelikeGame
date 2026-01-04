@@ -3,14 +3,14 @@
     android:id="@+id/profileScroll"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fillViewport="true"
-    android:background="#121212">
+    android:background="#121212"
+    android:fillViewport="true">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="20dp">
+        android:padding="16dp">
 
         <!-- Header -->
         <LinearLayout
@@ -23,20 +23,20 @@
 
             <ImageView
                 android:id="@+id/imgAvatar"
-                android:layout_width="72dp"
-                android:layout_height="72dp"
+                android:layout_width="64dp"
+                android:layout_height="64dp"
                 android:src="@android:drawable/ic_menu_myplaces"
                 android:contentDescription="Profile picture"
                 android:scaleType="centerCrop"
                 android:background="#2A2A2A"
-                android:padding="10dp" />
+                android:padding="8dp" />
 
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:orientation="vertical"
-                android:paddingStart="14dp">
+                android:paddingStart="12dp">
 
                 <TextView
                     android:id="@+id/txtName"
@@ -44,7 +44,7 @@
                     android:layout_height="wrap_content"
                     android:text="Player Name"
                     android:textColor="#FFFFFF"
-                    android:textSize="22sp"
+                    android:textSize="20sp"
                     android:textStyle="bold" />
 
                 <TextView
@@ -57,104 +57,174 @@
             </LinearLayout>
         </LinearLayout>
 
-        <!-- Stats -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Stats"
-            android:textColor="#FFFFFF"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:layout_marginTop="18dp"
-            android:layout_marginBottom="10dp" />
-
-        <!-- Runs / Wins / Win Rate -->
+        <!-- Two columns -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:background="#1E1E1E"
-            android:padding="14dp">
-
-            <TextView
-                android:id="@+id/txtRuns"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Runs: 0"
-                android:textColor="#FFFFFF"
-                android:textSize="16sp" />
-
-            <TextView
-                android:id="@+id/txtWinsLosses"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Wins: 0 | Losses: 0"
-                android:textColor="#FFFFFF"
-                android:textSize="16sp"
-                android:layout_marginTop="6dp" />
-
-            <TextView
-                android:id="@+id/txtWinRate"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Win Rate: 0%"
-                android:textColor="#FFFFFF"
-                android:textSize="16sp"
-                android:layout_marginTop="6dp" />
-        </LinearLayout>
-
-        <!-- Kills / Pickups -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:background="#1E1E1E"
-            android:padding="14dp"
+            android:orientation="horizontal"
             android:layout_marginTop="12dp">
 
-            <TextView
-                android:id="@+id/txtKills"
-                android:layout_width="wrap_content"
+            <!-- LEFT COLUMN -->
+            <LinearLayout
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="Enemies Killed: 0 (0.00 / run)"
-                android:textColor="#FFFFFF"
-                android:textSize="16sp" />
+                android:layout_weight="1"
+                android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/txtPickups"
-                android:layout_width="wrap_content"
+                <!-- Runs / Wins / Win Rate -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:background="#1E1E1E"
+                    android:padding="12dp">
+
+                    <TextView
+                        android:id="@+id/txtRuns"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Runs: 0"
+                        android:textColor="#FFFFFF"
+                        android:textSize="16sp" />
+
+                    <TextView
+                        android:id="@+id/txtWinsLosses"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Wins: 0 | Losses: 0"
+                        android:textColor="#FFFFFF"
+                        android:textSize="16sp"
+                        android:layout_marginTop="4dp" />
+
+                    <TextView
+                        android:id="@+id/txtWinRate"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Win Rate: 0%"
+                        android:textColor="#FFFFFF"
+                        android:textSize="16sp"
+                        android:layout_marginTop="4dp" />
+                </LinearLayout>
+
+                <!-- Streaks -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:background="#1E1E1E"
+                    android:padding="12dp"
+                    android:layout_marginTop="10dp">
+
+                    <TextView
+                        android:id="@+id/txtCurrentStreak"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Current Streak: 0"
+                        android:textColor="#FFFFFF"
+                        android:textSize="15sp" />
+
+                    <TextView
+                        android:id="@+id/txtBestStreak"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Best Streak: 0"
+                        android:textColor="#FFFFFF"
+                        android:textSize="15sp"
+                        android:layout_marginTop="4dp" />
+                </LinearLayout>
+
+                <!-- Bests -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:background="#1E1E1E"
+                    android:padding="12dp"
+                    android:layout_marginTop="10dp">
+
+                    <TextView
+                        android:id="@+id/txtHighestWave"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Highest Wave: 0"
+                        android:textColor="#FFFFFF"
+                        android:textSize="16sp" />
+
+                    <TextView
+                        android:id="@+id/txtBestTime"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Best Time: —"
+                        android:textColor="#FFFFFF"
+                        android:textSize="16sp"
+                        android:layout_marginTop="4dp" />
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <!-- RIGHT COLUMN -->
+            <LinearLayout
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="Pickups: 0 (0.00 / run)"
-                android:textColor="#FFFFFF"
-                android:textSize="16sp"
-                android:layout_marginTop="6dp" />
-        </LinearLayout>
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:layout_marginStart="12dp">
 
-        <!-- Bests -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:background="#1E1E1E"
-            android:padding="14dp"
-            android:layout_marginTop="12dp">
+                <!-- Kills / Pickups -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:background="#1E1E1E"
+                    android:padding="12dp">
 
-            <TextView
-                android:id="@+id/txtHighestWave"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Highest Wave: 0"
-                android:textColor="#FFFFFF"
-                android:textSize="16sp" />
+                    <TextView
+                        android:id="@+id/txtKills"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Enemies Killed: 0 (0.00 / run)"
+                        android:textColor="#FFFFFF"
+                        android:textSize="16sp" />
 
-            <TextView
-                android:id="@+id/txtBestTime"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Best Time: —"
-                android:textColor="#FFFFFF"
-                android:textSize="16sp"
-                android:layout_marginTop="6dp" />
+                    <TextView
+                        android:id="@+id/txtPickups"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Pickups: 0 (0.00 / run)"
+                        android:textColor="#FFFFFF"
+                        android:textSize="16sp"
+                        android:layout_marginTop="4dp" />
+                </LinearLayout>
+
+                <!-- Class Picks -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:background="#1E1E1E"
+                    android:padding="12dp"
+                    android:layout_marginTop="10dp">
+
+                    <TextView
+                        android:id="@+id/txtRangedPicks"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Ranged: 0 (0%)"
+                        android:textColor="#FFFFFF"
+                        android:textSize="15sp" />
+
+                    <TextView
+                        android:id="@+id/txtMeleePicks"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Melee: 0 (0%)"
+                        android:textColor="#FFFFFF"
+                        android:textSize="15sp"
+                        android:layout_marginTop="4dp" />
+                </LinearLayout>
+
+            </LinearLayout>
+
         </LinearLayout>
 
     </LinearLayout>
