@@ -180,6 +180,7 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
         user.setPickedRanged(0);
         user.setEnemiesKilled(0);
         user.setPickupsPicked(0);
+        user.setNumOfCoins(0);
 
         databaseService.checkIfEmailExists(email, new DatabaseService.DatabaseCallback<>() {
             @Override

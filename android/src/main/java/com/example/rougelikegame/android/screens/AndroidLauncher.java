@@ -38,6 +38,7 @@ public class AndroidLauncher extends AndroidApplication {
                 int bestTimeSeconds,
                 int enemiesKilled,
                 int pickupsPicked,
+                int coinsPicked,
                 boolean win,
                 boolean rangedChosen )
             {
@@ -87,6 +88,10 @@ public class AndroidLauncher extends AndroidApplication {
 
                 user.setPickupsPicked(
                     user.getPickupsPicked() + pickupsPicked
+                );
+
+                user.setNumOfCoins(
+                    user.getNumOfCoins() + coinsPicked
                 );
 
                 SharedPreferencesUtil.saveUser(AndroidLauncher.this, user);

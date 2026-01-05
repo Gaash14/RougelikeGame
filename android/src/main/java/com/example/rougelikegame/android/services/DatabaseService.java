@@ -388,11 +388,25 @@ public class DatabaseService {
 
                 // Cumulative stats
                 currentUser.setEnemiesKilled(
-                    currentUser.getEnemiesKilled() + incomingUser.getEnemiesKilled()
+                    Math.max(
+                        currentUser.getEnemiesKilled(),
+                        incomingUser.getEnemiesKilled()
+                    )
                 );
 
+
                 currentUser.setPickupsPicked(
-                    currentUser.getPickupsPicked() + incomingUser.getPickupsPicked()
+                    Math.max(
+                        currentUser.getPickupsPicked(),
+                        incomingUser.getPickupsPicked()
+                    )
+                );
+
+                currentUser.setNumOfCoins(
+                    Math.max(
+                        currentUser.getNumOfCoins(),
+                        incomingUser.getNumOfCoins()
+                    )
                 );
 
                 return currentUser;

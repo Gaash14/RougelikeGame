@@ -6,6 +6,7 @@ public interface ScoreReporter {
         int time,
         int enemiesKilled,
         int pickupsPicked,
+        int coinsPicked,
         boolean win,
         boolean rangedChosen
     );
