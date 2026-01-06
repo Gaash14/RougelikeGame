@@ -684,6 +684,8 @@ public class MainActivity extends ApplicationAdapter {
             e.draw(batch);
         }
 
+        drawBossHealthBar();
+
         for (Obstacle o : obstacles) {
             o.draw(batch);
         }
@@ -724,6 +726,40 @@ public class MainActivity extends ApplicationAdapter {
         font.draw(batch, "Damage: " + player.getCurrentDamage(), 20, screenH - 140);
         font.draw(batch, "Speed: " + player.speed, 20, screenH - 190);
         font.draw(batch, "Coins: " + player.coins, 20, screenH - 240);
+    }
+
+    private void drawBossHealthBar() {
+        BossEnemy boss = getBoss();
+        if (boss == null) return;
+
+        float barWidth = Gdx.graphics.getWidth() * 0.7f;
+        float barHeight = 30f;
+
+        float x = (Gdx.graphics.getWidth() - barWidth) / 2f;
+        float y = Gdx.graphics.getHeight() - 60f;
+
+        float healthPercent =
+            (float) boss.getHealth() / boss.getMaxHealth();
+
+        // Background (dark red)
+        batch.setColor(0.3f, 0f, 0f, 1f);
+        batch.draw(player.debugPixel, x, y, barWidth, barHeight);
+
+        // Health (bright red)
+        batch.setColor(1f, 0f, 0f, 1f);
+        batch.draw(player.debugPixel, x, y, barWidth * healthPercent, barHeight);
+
+        // Reset color
+        batch.setColor(1, 1, 1, 1);
+    }
+
+    private BossEnemy getBoss() {
+        for (Enemy e : enemies) {
+            if (e instanceof BossEnemy) {
+                return (BossEnemy) e;
+            }
+        }
+        return null;
     }
 
     private void drawDebugAttackHitbox() { // remove later/change to actual animation

@@ -62,4 +62,12 @@ public class BossEnemy extends Enemy {
         y = MathUtils.clamp(y, 0, Gdx.graphics.getHeight() - height);
         bounds.setPosition(x, y);
     }
+
+    public int getHealth() {
+        return health;
+    }
+
+    public int getMaxHealth() {
+        return maxHealth;
+    }
 }
