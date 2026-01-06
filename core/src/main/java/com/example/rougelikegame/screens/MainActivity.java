@@ -33,21 +33,24 @@ public class MainActivity extends ApplicationAdapter {
     private final ScoreReporter scoreReporter;
     private final Player.PlayerClass selectedClass;
     private final Player.Difficulty difficulty;
+    private final String skinId;
 
     public MainActivity(
             ScoreReporter scoreReporter,
             Player.PlayerClass selectedClass,
-            Player.Difficulty difficulty
+            Player.Difficulty difficulty,
+            String skinId
     ) {
         this.scoreReporter = scoreReporter;
         this.selectedClass = selectedClass;
         this.difficulty = difficulty;
+        this.skinId = skinId;
     }
     public MainActivity(ScoreReporter scoreReporter) {
-        this(scoreReporter, Player.PlayerClass.MELEE,Player.Difficulty.NORMAL);
+        this(scoreReporter, Player.PlayerClass.MELEE, Player.Difficulty.NORMAL, "default");
     }
     public MainActivity() {
-        this(null, Player.PlayerClass.MELEE, Player.Difficulty.NORMAL);
+        this(null, Player.PlayerClass.MELEE, Player.Difficulty.NORMAL, "default");
     }
     private boolean runReported = false;
 
@@ -70,7 +73,7 @@ public class MainActivity extends ApplicationAdapter {
     Random rnd;
     public Player.Difficulty getDifficulty() { return difficulty; }
 
-    int wave = 7;
+    int wave = 1;
     private static final int BOSS_WAVE = 7;
 
     float timeBetweenWaves = 2f; // seconds delay before next wave
@@ -141,9 +144,23 @@ public class MainActivity extends ApplicationAdapter {
 
     private void setupPlayerAndEnemies() {
         player = new Player(100, 100);
+        player.setTexture(getPlayerTextureForSkin());
         player.playerClass = selectedClass;
         enemies = new Array<>();
         spawnWave(wave);
+    }
+
+    private Texture getPlayerTextureForSkin() {
+        switch (skinId) {
+            case "red_knight":
+                return new Texture("player_red.png");
+
+            case "shadow":
+                return new Texture("player_shadow.png");
+
+            default:
+                return new Texture("player_default.png");
+        }
     }
 
     private void setupPickupsAndObstacles() {
@@ -286,7 +303,7 @@ public class MainActivity extends ApplicationAdapter {
             float y = Gdx.graphics.getHeight() / 2f - bossHeight / 2f;
 
             enemies.add(new BossEnemy(x, y, enemyProjectiles,
-                200,5, this));
+                calculateEnemyHP(250, true),5, this));
             System.out.println("Spawned boss on wave " + waveNumber);
             return;
         }
@@ -309,10 +326,10 @@ public class MainActivity extends ApplicationAdapter {
 
             if (rnd.nextFloat() < rangedChance) {
                 enemies.add(new GhostEnemy(x, y, enemyProjectiles,
-                    calculateEnemyHP(20),1 + bonusEnemyDamage));
+                    calculateEnemyHP(20, false),1 + bonusEnemyDamage));
             } else {
                 enemies.add(new Enemy("enemy.png", x, y, 100, 128, 128,
-                    calculateEnemyHP(30), 1 + bonusEnemyDamage));
+                    calculateEnemyHP(30, false), 1 + bonusEnemyDamage));
             }
 
         }
@@ -336,14 +353,14 @@ public class MainActivity extends ApplicationAdapter {
                 break;
             case NORMAL:
             default:
-                multiplier = 1.0f; // NORMAL: wave 1=3, 2=5, 3=7...
+                // NORMAL: wave 1=3, 2=5, 3=7...
                 break;
         }
 
         return Math.round(baseEnemyCount * multiplier);
     }
 
-    public int calculateEnemyHP(int baseHP) {
+    public int calculateEnemyHP(int baseHP, boolean isBoss) {
         float hpMultiplier = 1f;
 
         switch (this.getDifficulty()) {
@@ -355,11 +372,14 @@ public class MainActivity extends ApplicationAdapter {
                 break;
             case NORMAL:
             default:
-                hpMultiplier = 1.0f;
                 break;
         }
 
-        int waveBonus = (wave * 2) - 2; // wave based scaling (wave 1=+0)
+        int waveBonus = 0;
+        if (!isBoss) {
+            waveBonus = (wave * 2) - 2; // wave based scaling (wave 1=+0)
+        }
+
         int finalHp = Math.round((baseHP + waveBonus) * hpMultiplier);
 
         // in case of 0 or negative hp

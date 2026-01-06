@@ -116,5 +116,12 @@
             android:screenOrientation="landscape"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
 
+        <!-- SHOP -->
+        <activity
+            android:name="com.example.rougelikegame.android.screens.ShopActivity"
+            android:exported="true"
+            android:screenOrientation="landscape"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+
     </application>
 </manifest>

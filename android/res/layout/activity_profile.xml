@@ -64,7 +64,7 @@
             android:orientation="horizontal"
             android:layout_marginTop="12dp">
 
-            <!-- LEFT COLUMN -->
+        <!-- LEFT COLUMN -->
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -195,14 +195,36 @@
                         android:textSize="16sp"
                         android:layout_marginTop="4dp"/>
 
-                    <TextView
-                        android:id="@+id/txtCoins"
-                        android:layout_width="wrap_content"
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Coins: 0"
-                        android:textColor="#FFFFFF"
-                        android:textSize="16sp"
-                        android:layout_marginTop="4dp" />
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginTop="4dp">
+
+                        <TextView
+                            android:id="@+id/txtCoins"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Coins: 0"
+                            android:textColor="#FFFFFF"
+                            android:textSize="16sp" />
+
+                        <TextView
+                            android:id="@+id/btnOpenShop"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="SHOP"
+                            android:textColor="#BBBBBB"
+                            android:textSize="14sp"
+                            android:paddingStart="8dp"
+                            android:paddingEnd="0dp"
+                            android:minHeight="0dp"
+                            android:minWidth="0dp"
+                            android:clickable="true"
+                            android:focusable="true"/>
+                    </LinearLayout>
                 </LinearLayout>
 
                 <!-- Class Picks -->

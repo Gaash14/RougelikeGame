@@ -1,6 +1,8 @@
 package com.example.rougelikegame.models;
 
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 
 public class User implements Serializable {
 
@@ -12,6 +14,9 @@ public class User implements Serializable {
     private boolean isAdmin;
 
     private String guildId;
+
+    private Map<String, Boolean> ownedSkins = new HashMap<>();
+    private String equippedSkinId = "default";
 
     // Scores are stored directly on the User
     private int highestWave;
@@ -54,6 +59,7 @@ public class User implements Serializable {
         this.lastName = lastName;
         this.phone = phone;
         this.isAdmin = isAdmin;
+
         this.highestWave = highestWave;
         this.bestTime = bestTime;
         this.numOfAttempts = numOfAttempts;
@@ -64,6 +70,10 @@ public class User implements Serializable {
         this.enemiesKilled = enemiesKilled;
         this.pickupsPicked = pickupsPicked;
         this.numOfCoins = numOfCoins;
+
+        this.ownedSkins = new HashMap<>();
+        this.ownedSkins.put("default", true);
+        this.equippedSkinId = "default";
     }
 
     // --- basic info ---
@@ -165,6 +175,19 @@ public class User implements Serializable {
         this.guildId = guildId;
     }
 
+    // --- shop/skin related ---
+    public Map<String, Boolean> getOwnedSkins() {
+        if (ownedSkins == null) {
+            ownedSkins = new HashMap<>();
+        }
+        return ownedSkins;
+    }
+    public void setOwnedSkins(Map<String, Boolean> ownedSkins) { this.ownedSkins = ownedSkins;}
+    public String getEquippedSkinId() { return equippedSkinId == null ? "default" : equippedSkinId;}
+    public void setEquippedSkinId(String equippedSkinId) { this.equippedSkinId = equippedSkinId;}
+
+    public int getNumOfCoins() { return numOfCoins;}
+    public void setNumOfCoins(int numOfCoins) { this.numOfCoins = numOfCoins;}
     // --- score stuff ---
     // getters
     public int getHighestWave() {
@@ -180,7 +203,6 @@ public class User implements Serializable {
     public int getPickedRanged() { return pickedRanged; }
     public int getEnemiesKilled() { return enemiesKilled; }
     public int getPickupsPicked() { return pickupsPicked; }
-    public int getNumOfCoins() { return numOfCoins;}
 
     // setters
     public void setHighestWave(int highestWave) {
@@ -196,5 +218,4 @@ public class User implements Serializable {
     public void setPickedRanged(int pickedRanged) { this.pickedRanged = pickedRanged;}
     public void setEnemiesKilled(int enemiesKilled) { this.enemiesKilled = enemiesKilled;}
     public void setPickupsPicked(int pickupsPicked) { this.pickupsPicked = pickupsPicked;}
-    public void setNumOfCoins(int numOfCoins) { this.numOfCoins = numOfCoins;}
 }

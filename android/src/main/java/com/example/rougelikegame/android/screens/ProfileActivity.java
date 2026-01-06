@@ -1,6 +1,8 @@
 package com.example.rougelikegame.android.screens;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -24,6 +26,8 @@ public class ProfileActivity extends AppCompatActivity {
     private TextView txtHighestWave, txtBestTime;
     private TextView txtRangedPicks, txtMeleePicks;
     private TextView txtCurrentStreak, txtBestStreak;
+
+    private Button btnOpenShop;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,6 +62,10 @@ public class ProfileActivity extends AppCompatActivity {
 
         // Placeholder avatar (until image upload is added)
         imgAvatar.setImageResource(android.R.drawable.ic_menu_myplaces);
+
+        findViewById(R.id.btnOpenShop).setOnClickListener(v -> {
+            startActivity(new Intent(this, ShopActivity.class));
+        });
     }
 
     private void loadUserToUI() {
@@ -195,7 +203,7 @@ public class ProfileActivity extends AppCompatActivity {
             pickupsPerRun
         ));
 
-        txtCoins.setText("Coins: " + user.getNumOfCoins());
+        txtCoins.setText("Coins: " + numOfCoins);
 
         // ---------- BESTS ----------
         txtHighestWave.setText("Highest Wave: " + user.getHighestWave());

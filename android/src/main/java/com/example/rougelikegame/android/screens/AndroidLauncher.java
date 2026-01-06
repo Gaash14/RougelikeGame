@@ -28,6 +28,13 @@ public class AndroidLauncher extends AndroidApplication {
         String difficultyName = getIntent().getStringExtra("DIFFICULTY");
         Player.Difficulty difficulty = Player.Difficulty.valueOf(difficultyName);
 
+        User user = SharedPreferencesUtil.getUser(this);
+
+        String equippedSkinId = "default";
+        if (user != null) {
+            equippedSkinId = user.getEquippedSkinId();
+        }
+
         AndroidApplicationConfiguration configuration = new AndroidApplicationConfiguration();
         configuration.useImmersiveMode = true;
 
@@ -134,6 +141,6 @@ public class AndroidLauncher extends AndroidApplication {
             }
 
         },
-        selectedClass, difficulty), configuration);
+        selectedClass, difficulty, equippedSkinId), configuration);
     }
 }

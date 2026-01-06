@@ -24,7 +24,7 @@ public class Player {
     public Difficulty difficulty = Difficulty.NORMAL; // default
 
     // textures
-    private final Texture texture;
+    private Texture texture;
     public final Texture debugPixel = new Texture("pixel.png");
 
     // position & size
@@ -68,7 +68,7 @@ public class Player {
     public float rangedCooldownTime = 0.8f; // longer cooldown
 
     public Player(float x, float y) {
-        this.texture = new Texture("player.png");
+        this.texture = new Texture("player_default.png");
 
         this.x = x;
         this.y = y;
@@ -186,6 +186,17 @@ public class Player {
 
     public void draw(SpriteBatch batch) {
         batch.draw(texture, x, y, width, height);
+    }
+
+    public void setTexture(Texture newTexture) {
+        if (this.texture != null) {
+            this.texture.dispose();
+        }
+        this.texture = newTexture;
+    }
+
+    public Texture getTexture() {
+        return texture;
     }
 
     public void dispose() {

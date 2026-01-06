@@ -10,4 +10,4 @@ pickup_damage.png
 pickup_health.png
 pickup_speed.png
 pixel.png
-player.png
+player_default.png
