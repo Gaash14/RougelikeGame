@@ -193,6 +193,15 @@
                         android:text="Pickups: 0 (0.00 / run)"
                         android:textColor="#FFFFFF"
                         android:textSize="16sp"
+                        android:layout_marginTop="4dp"/>
+
+                    <TextView
+                        android:id="@+id/txtCoins"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Coins: 0"
+                        android:textColor="#FFFFFF"
+                        android:textSize="16sp"
                         android:layout_marginTop="4dp" />
                 </LinearLayout>
 

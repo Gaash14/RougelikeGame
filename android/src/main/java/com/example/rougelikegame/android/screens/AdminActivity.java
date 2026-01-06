@@ -142,6 +142,7 @@ public class AdminActivity extends AppCompatActivity {
                         updates.put("bestStreak", 0);
                         updates.put("currentStreak", 0);
                         updates.put("pickedRanged", 0);
+                        updates.put("numOfCoins", 0);
 
                         FirebaseDatabase.getInstance()
                             .getReference("users")
@@ -157,6 +158,7 @@ public class AdminActivity extends AppCompatActivity {
                                 user.setPickedRanged(0);
                                 user.setCurrentStreak(0);
                                 user.setBestStreak(0);
+                                user.setNumOfCoins(0);
                                 userAdapter.updateUser(user);
                             });
                     })

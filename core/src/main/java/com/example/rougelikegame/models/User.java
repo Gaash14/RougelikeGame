@@ -23,6 +23,7 @@ public class User implements Serializable {
     private int pickedRanged;
     private int enemiesKilled;
     private int pickupsPicked;
+    private int numOfCoins;
 
     // Required empty constructor for Firebase
     public User() {
@@ -43,7 +44,8 @@ public class User implements Serializable {
                 int bestStreak,
                 int pickedRanged,
                 int enemiesKilled,
-                int pickupsPicked) {
+                int pickupsPicked,
+                int numOfCoins) {
 
         this.uid = uid;
         this.email = email;
@@ -61,6 +63,7 @@ public class User implements Serializable {
         this.pickedRanged = pickedRanged;
         this.enemiesKilled = enemiesKilled;
         this.pickupsPicked = pickupsPicked;
+        this.numOfCoins = numOfCoins;
     }
 
     // --- basic info ---
@@ -177,6 +180,7 @@ public class User implements Serializable {
     public int getPickedRanged() { return pickedRanged; }
     public int getEnemiesKilled() { return enemiesKilled; }
     public int getPickupsPicked() { return pickupsPicked; }
+    public int getNumOfCoins() { return numOfCoins;}
 
     // setters
     public void setHighestWave(int highestWave) {
@@ -192,5 +196,5 @@ public class User implements Serializable {
     public void setPickedRanged(int pickedRanged) { this.pickedRanged = pickedRanged;}
     public void setEnemiesKilled(int enemiesKilled) { this.enemiesKilled = enemiesKilled;}
     public void setPickupsPicked(int pickupsPicked) { this.pickupsPicked = pickupsPicked;}
-
+    public void setNumOfCoins(int numOfCoins) { this.numOfCoins = numOfCoins;}
 }

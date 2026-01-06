@@ -70,7 +70,7 @@ public class MainActivity extends ApplicationAdapter {
     Random rnd;
     public Player.Difficulty getDifficulty() { return difficulty; }
 
-    int wave = 1;
+    int wave = 7;
     private static final int BOSS_WAVE = 7;
 
     float timeBetweenWaves = 2f; // seconds delay before next wave
@@ -285,7 +285,8 @@ public class MainActivity extends ApplicationAdapter {
             float x = Gdx.graphics.getWidth() / 2f - bossWidth / 2f;
             float y = Gdx.graphics.getHeight() / 2f - bossHeight / 2f;
 
-            enemies.add(new BossEnemy(x, y,200,5));
+            enemies.add(new BossEnemy(x, y, enemyProjectiles,
+                200,5, this));
             System.out.println("Spawned boss on wave " + waveNumber);
             return;
         }
@@ -294,7 +295,7 @@ public class MainActivity extends ApplicationAdapter {
         int enemyCount = calculateEnemyCount(waveNumber);
 
         float rangedChance = 0.15f;
-        int bonusEnemyDamage = wave / 10; // +1 enemy dmg every 10 waves
+        int bonusEnemyDamage = wave / 5; // +1 enemy dmg every 5 waves
 
         for (int i = 0; i < enemyCount; i++) {
             float x = rnd.nextInt(Gdx.graphics.getWidth() - 128);
@@ -321,6 +322,9 @@ public class MainActivity extends ApplicationAdapter {
 
     private int calculateEnemyCount(int waveNumber) {
         int baseEnemyCount = 3 + (waveNumber - 1) * 2; // wave 1=3, 2=5, 3=7...
+        if (waveNumber > 15) {
+            baseEnemyCount = 31; // don't increase enemy count after wave 15
+        }
 
         float multiplier = 1f;
         switch (this.getDifficulty()) {
@@ -360,6 +364,11 @@ public class MainActivity extends ApplicationAdapter {
 
         // in case of 0 or negative hp
         return Math.max(1, finalHp);
+    }
+
+    public void spawnBossReinforcements() {
+        int reinforcementWave = Math.max(1, wave - 1); // scale with current wave
+        spawnWave(reinforcementWave);
     }
 
     private void spawnWavePickups(int waveNumber) {
@@ -657,6 +666,7 @@ public class MainActivity extends ApplicationAdapter {
                 win ? (int) runTime : 0, // if won, time = runtime. else, time = 0
                 enemiesKilled,
                 pickupsPicked,
+                player.coins,
                 win,
                 rangedChosen
             );
@@ -710,10 +720,10 @@ public class MainActivity extends ApplicationAdapter {
         float screenH = Gdx.graphics.getHeight();
 
         font.draw(batch, "HP: " + player.health, 20, screenH - 20);
-        font.draw(batch, "Wave: " + wave, 20, screenH - 80);
-        font.draw(batch, "Damage: " + player.getCurrentDamage(), 20, screenH - 130);
-        font.draw(batch, "Speed: " + player.speed, 20, screenH - 180);
-        font.draw(batch, "Coins: " + player.coins, 20, screenH - 230);
+        font.draw(batch, "Wave: " + wave, 20, screenH - 90);
+        font.draw(batch, "Damage: " + player.getCurrentDamage(), 20, screenH - 140);
+        font.draw(batch, "Speed: " + player.speed, 20, screenH - 190);
+        font.draw(batch, "Coins: " + player.coins, 20, screenH - 240);
     }
 
     private void drawDebugAttackHitbox() { // remove later/change to actual animation
