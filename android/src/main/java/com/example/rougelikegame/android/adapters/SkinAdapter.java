@@ -11,7 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.rougelikegame.R;
-import com.example.rougelikegame.android.models.Skin;
+import com.example.rougelikegame.android.models.game.Skin;
 import com.example.rougelikegame.android.models.User;
 
 import java.util.List;

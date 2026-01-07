@@ -55,21 +55,21 @@
 
         <!-- LOGIN -->
         <activity
-            android:name="com.example.rougelikegame.android.screens.LoginActivity"
+            android:name="com.example.rougelikegame.android.screens.clients.LoginActivity"
             android:exported="true"
             android:screenOrientation="landscape"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
 
         <!-- REGISTER -->
         <activity
-            android:name="com.example.rougelikegame.android.screens.RegisterActivity"
+            android:name="com.example.rougelikegame.android.screens.clients.RegisterActivity"
             android:exported="true"
             android:screenOrientation="landscape"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
 
         <!-- UPDATE USER -->
         <activity
-            android:name="com.example.rougelikegame.android.screens.UpdateUserActivity"
+            android:name="com.example.rougelikegame.android.screens.clients.UpdateUserActivity"
             android:exported="true"
             android:screenOrientation="landscape"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
@@ -90,28 +90,28 @@
 
         <!-- ADMIN -->
         <activity
-            android:name="com.example.rougelikegame.android.screens.AdminActivity"
+            android:name="com.example.rougelikegame.android.screens.clients.AdminActivity"
             android:exported="true"
             android:screenOrientation="landscape"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
 
         <!-- CREATE GUILD -->
         <activity
-            android:name="com.example.rougelikegame.android.screens.CreateGuildActivity"
+            android:name="com.example.rougelikegame.android.screens.guilds.CreateGuildActivity"
             android:exported="true"
             android:screenOrientation="landscape"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
 
         <!-- JOIN GUILD -->
         <activity
-            android:name="com.example.rougelikegame.android.screens.JoinGuildActivity"
+            android:name="com.example.rougelikegame.android.screens.guilds.JoinGuildActivity"
             android:exported="true"
             android:screenOrientation="landscape"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
 
         <!-- GUILD INFO -->
         <activity
-            android:name="com.example.rougelikegame.android.screens.GuildInfoActivity"
+            android:name="com.example.rougelikegame.android.screens.guilds.GuildInfoActivity"
             android:exported="true"
             android:screenOrientation="landscape"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />

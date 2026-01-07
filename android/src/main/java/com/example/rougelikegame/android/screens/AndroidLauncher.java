@@ -8,7 +8,7 @@ import com.badlogic.gdx.backends.android.AndroidApplicationConfiguration;
 import com.example.rougelikegame.android.models.ScoreReporter;
 import com.example.rougelikegame.android.services.DatabaseService;
 import com.example.rougelikegame.android.utils.SharedPreferencesUtil;
-import com.example.rougelikegame.android.models.Player;
+import com.example.rougelikegame.android.models.game.Player;
 import com.example.rougelikegame.android.models.User;
 
 /** Launches the Android application. */

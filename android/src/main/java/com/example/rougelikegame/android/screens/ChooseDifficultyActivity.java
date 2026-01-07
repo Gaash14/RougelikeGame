@@ -10,7 +10,7 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.rougelikegame.R;
-import com.example.rougelikegame.android.models.Player;
+import com.example.rougelikegame.android.models.game.Player;
 
 public class ChooseDifficultyActivity extends AppCompatActivity {
 

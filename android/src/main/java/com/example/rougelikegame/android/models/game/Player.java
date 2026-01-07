@@ -1,4 +1,4 @@
-package com.example.rougelikegame.android.models;
+package com.example.rougelikegame.android.models.game;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
@@ -68,7 +68,7 @@ public class Player {
     public float rangedCooldownTime = 0.8f; // longer cooldown
 
     public Player(float x, float y) {
-        this.texture = new Texture("player_default.png");
+        this.texture = new Texture("skins/player_default.png");
 
         this.x = x;
         this.y = y;

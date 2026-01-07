@@ -16,14 +16,14 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.example.rougelikegame.android.models.ScoreReporter;
-import com.example.rougelikegame.android.models.BossEnemy;
-import com.example.rougelikegame.android.models.Enemy;
-import com.example.rougelikegame.android.models.GhostEnemy;
-import com.example.rougelikegame.android.models.Joystick;
-import com.example.rougelikegame.android.models.Obstacle;
-import com.example.rougelikegame.android.models.Pickup;
-import com.example.rougelikegame.android.models.Player;
-import com.example.rougelikegame.android.models.Projectile;
+import com.example.rougelikegame.android.models.enemies.BossEnemy;
+import com.example.rougelikegame.android.models.enemies.Enemy;
+import com.example.rougelikegame.android.models.enemies.GhostEnemy;
+import com.example.rougelikegame.android.models.game.Joystick;
+import com.example.rougelikegame.android.models.game.Obstacle;
+import com.example.rougelikegame.android.models.game.Pickup;
+import com.example.rougelikegame.android.models.game.Player;
+import com.example.rougelikegame.android.models.game.Projectile;
 
 import java.util.Random;
 
@@ -153,13 +153,13 @@ public class MainActivity extends ApplicationAdapter {
     private Texture getPlayerTextureForSkin() {
         switch (skinId) {
             case "red_knight":
-                return new Texture("player_red.png");
+                return new Texture("skins/player_red.png");
 
             case "shadow":
-                return new Texture("player_shadow.png");
+                return new Texture("skins/player_shadow.png");
 
             default:
-                return new Texture("player_default.png");
+                return new Texture("skins/player_default.png");
         }
     }
 
@@ -173,8 +173,8 @@ public class MainActivity extends ApplicationAdapter {
         stage = new Stage(new ScreenViewport());
 
         joystick = new Joystick(
-            "joystick_base.png",
-            "joystick_knob.png",
+            "inputs/joystick_base.png",
+            "inputs/joystick_knob.png",
             150, 150,
             100
         );
@@ -183,7 +183,7 @@ public class MainActivity extends ApplicationAdapter {
     }
 
     private void setupAttackButton() {
-        attackBtnTexture = new Texture("attack_icon.png");
+        attackBtnTexture = new Texture("inputs/attack_icon.png");
         attackBtnBounds = new Rectangle(
             Gdx.graphics.getWidth() - 250,
             50,
@@ -328,7 +328,7 @@ public class MainActivity extends ApplicationAdapter {
                 enemies.add(new GhostEnemy(x, y, enemyProjectiles,
                     calculateEnemyHP(20, false),1 + bonusEnemyDamage));
             } else {
-                enemies.add(new Enemy("enemy.png", x, y, 100, 128, 128,
+                enemies.add(new Enemy("enemies/enemy.png", x, y, 100, 128, 128,
                     calculateEnemyHP(30, false), 1 + bonusEnemyDamage));
             }
 

@@ -1,4 +1,4 @@
-package com.example.rougelikegame.android.screens;
+package com.example.rougelikegame.android.screens.clients;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -19,6 +19,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.rougelikegame.R;
 import com.example.rougelikegame.android.adapters.GuildListAdapter;
 import com.example.rougelikegame.android.adapters.UserListAdapter;
+import com.example.rougelikegame.android.screens.ProfileActivity;
 import com.example.rougelikegame.android.services.DatabaseService;
 import com.example.rougelikegame.android.utils.SharedPreferencesUtil;
 import com.example.rougelikegame.android.models.Guild;

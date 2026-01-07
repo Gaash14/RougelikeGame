@@ -1,4 +1,4 @@
-package com.example.rougelikegame.android.models;
+package com.example.rougelikegame.android.models.game;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -26,16 +26,16 @@ public class Pickup {
         // Choose texture based on pickup type
         switch (type) {
             case HEALTH:
-                texture = new Texture("pickup_health.png");
+                texture = new Texture("pickups/pickup_health.png");
                 break;
             case SPEED:
-                texture = new Texture("pickup_speed.png");
+                texture = new Texture("pickups/pickup_speed.png");
                 break;
             case DAMAGE:
-                texture = new Texture("pickup_damage.png");
+                texture = new Texture("pickups/pickup_damage.png");
                 break;
             case COIN:
-                texture = new Texture("pickup_coin.png");
+                texture = new Texture("pickups/pickup_coin.png");
                 break;
         }
 

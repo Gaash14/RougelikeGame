@@ -6,6 +6,8 @@ import android.widget.Button;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.rougelikegame.R;
+import com.example.rougelikegame.android.screens.clients.LoginActivity;
+import com.example.rougelikegame.android.screens.clients.RegisterActivity;
 import com.example.rougelikegame.android.utils.SharedPreferencesUtil;
 
 public class LandingActivity extends AppCompatActivity {

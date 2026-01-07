@@ -1,4 +1,4 @@
-package com.example.rougelikegame.android.screens;
+package com.example.rougelikegame.android.screens.guilds;
 
 import android.content.Intent;
 import android.os.Bundle;

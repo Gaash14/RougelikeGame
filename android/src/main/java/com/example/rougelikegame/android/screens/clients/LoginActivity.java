@@ -1,4 +1,4 @@
-package com.example.rougelikegame.android.screens;
+package com.example.rougelikegame.android.screens.clients;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -16,6 +16,7 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.example.rougelikegame.R;
 import com.example.rougelikegame.android.models.User;
+import com.example.rougelikegame.android.screens.MainMenu;
 import com.example.rougelikegame.android.services.DatabaseService;
 import com.example.rougelikegame.android.utils.SharedPreferencesUtil;
 import com.example.rougelikegame.android.utils.Validator;

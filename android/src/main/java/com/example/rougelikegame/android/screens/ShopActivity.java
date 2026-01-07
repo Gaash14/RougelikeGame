@@ -11,7 +11,7 @@ import com.example.rougelikegame.R;
 import com.example.rougelikegame.android.adapters.SkinAdapter;
 import com.example.rougelikegame.android.services.DatabaseService;
 import com.example.rougelikegame.android.utils.SharedPreferencesUtil;
-import com.example.rougelikegame.android.models.Skin;
+import com.example.rougelikegame.android.models.game.Skin;
 import com.example.rougelikegame.android.models.User;
 
 import java.util.ArrayList;
