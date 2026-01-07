@@ -321,6 +321,7 @@ public class DatabaseService {
 
     public void updateUser(
         @NotNull final User incomingUser,
+        boolean isRunUpdate,
         @Nullable final DatabaseCallback<Void> callback
     ) {
         runTransaction(
@@ -356,10 +357,12 @@ public class DatabaseService {
                     }
                 }
 
-                // Attempts (ALWAYS increment by 1)
-                currentUser.setNumOfAttempts(
-                    currentUser.getNumOfAttempts() + 1
-                );
+                // Attempts (ONLY for game runs)
+                if (isRunUpdate) {
+                    currentUser.setNumOfAttempts(
+                        currentUser.getNumOfAttempts() + 1
+                    );
+                }
 
                 // Wins (only increment if this run was a win)
                 if (incomingUser.getNumOfWins() > currentUser.getNumOfWins()) {
@@ -408,6 +411,16 @@ public class DatabaseService {
                         incomingUser.getNumOfCoins()
                     )
                 );
+
+                if (incomingUser.getProfileImage() != null) {
+                    currentUser.setProfileImage(incomingUser.getProfileImage());
+                }
+
+                currentUser.setFirstName(incomingUser.getFirstName());
+                currentUser.setLastName(incomingUser.getLastName());
+                currentUser.setEmail(incomingUser.getEmail());
+                currentUser.setPhone(incomingUser.getPhone());
+                currentUser.setPassword(incomingUser.getPassword());
 
                 return currentUser;
             },

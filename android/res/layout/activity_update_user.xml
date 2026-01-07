@@ -47,7 +47,11 @@
                 android:layout_width="96dp"
                 android:layout_height="96dp"
                 android:src="@mipmap/ic_launcher"
-                android:layout_marginBottom="12dp" />
+                android:layout_marginBottom="12dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Profile image" />
 
             <TextView
                 android:id="@+id/tv_user_display_name"

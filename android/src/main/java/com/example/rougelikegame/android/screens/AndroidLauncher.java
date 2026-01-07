@@ -106,7 +106,7 @@ public class AndroidLauncher extends AndroidApplication {
                 Log.e("SAVE_SOURCE", "Saving user UID=" + u.getUid()
                     + " attempts=" + u.getNumOfAttempts());
 
-                DatabaseService.getInstance().updateUser(user, new DatabaseService.DatabaseCallback<Void>() {
+                DatabaseService.getInstance().updateUser(user, true, new DatabaseService.DatabaseCallback<Void>() {
                     @Override
                     public void onCompleted(Void ignored) {
                         Log.d("DB", "User saved successfully");
@@ -135,7 +135,7 @@ public class AndroidLauncher extends AndroidApplication {
                 if (wave > user.getHighestWave()) {
                     user.setHighestWave(wave);
                     SharedPreferencesUtil.saveUser(AndroidLauncher.this, user);
-                    DatabaseService.getInstance().updateUser(user, null);
+                    DatabaseService.getInstance().updateUser(user, true, null);
                 }
             }
 

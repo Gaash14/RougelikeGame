@@ -18,6 +18,8 @@ public class User implements Serializable {
     private Map<String, Boolean> ownedSkins = new HashMap<>();
     private String equippedSkinId = "default";
 
+    private String profileImage;
+
     // Scores are stored directly on the User
     private int highestWave;
     private int bestTime; // in seconds (lower = better)
@@ -133,6 +135,9 @@ public class User implements Serializable {
     public void setAdmin(boolean admin) {
         isAdmin = admin;
     }
+
+    public String getProfileImage() {return profileImage;}
+    public void setProfileImage(String profileImage) {this.profileImage = profileImage;}
 
     @Override
     public String toString() {

@@ -48,7 +48,7 @@
 
         <!-- LEADERBOARD -->
         <activity
-            android:name="com.example.rougelikegame.android.screens.LeaderboardActivity"
+            android:name="com.example.rougelikegame.android.screens.stats.LeaderboardActivity"
             android:exported="true"
             android:screenOrientation="landscape"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
@@ -83,7 +83,7 @@
 
         <!-- PROFILE -->
         <activity
-            android:name="com.example.rougelikegame.android.screens.ProfileActivity"
+            android:name="com.example.rougelikegame.android.screens.stats.ProfileActivity"
             android:exported="true"
             android:screenOrientation="landscape"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />

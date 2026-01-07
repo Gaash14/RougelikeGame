@@ -1,4 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">RougelikeGame</string>
+
+    <!-- Image Selection -->
+    <string name="image_source_title">Choose Image Source</string>
+    <string name="image_source_subtitle">Select how you want to add an image</string>
+    <string name="gallery_title">Gallery</string>
+    <string name="gallery_description">Choose from your photo library</string>
+    <string name="camera_title">Camera</string>
+    <string name="camera_description">Take a new photo</string>
 </resources>

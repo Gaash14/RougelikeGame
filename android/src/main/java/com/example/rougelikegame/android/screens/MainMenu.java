@@ -11,6 +11,8 @@ import com.example.rougelikegame.R;
 import com.example.rougelikegame.android.screens.clients.AdminActivity;
 import com.example.rougelikegame.android.screens.clients.UpdateUserActivity;
 import com.example.rougelikegame.android.screens.guilds.GuildInfoActivity;
+import com.example.rougelikegame.android.screens.stats.LeaderboardActivity;
+import com.example.rougelikegame.android.screens.stats.ProfileActivity;
 import com.example.rougelikegame.android.utils.SharedPreferencesUtil;
 import com.example.rougelikegame.android.models.User;
 

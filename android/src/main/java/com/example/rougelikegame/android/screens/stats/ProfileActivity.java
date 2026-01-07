@@ -1,6 +1,7 @@
-package com.example.rougelikegame.android.screens;
+package com.example.rougelikegame.android.screens.stats;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -9,6 +10,8 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.rougelikegame.R;
+import com.example.rougelikegame.android.screens.ShopActivity;
+import com.example.rougelikegame.android.utils.ImageUtil;
 import com.example.rougelikegame.android.utils.SharedPreferencesUtil;
 import com.example.rougelikegame.android.models.User;
 
@@ -79,8 +82,13 @@ public class ProfileActivity extends AppCompatActivity {
         }
 
         // ---------- NORMAL USER ----------
-        User user = SharedPreferencesUtil.getUser(this);
-        showUser(user);
+        User local = SharedPreferencesUtil.getUser(this);
+        if (local == null || local.getUid() == null) {
+            showUser(null);
+            return;
+        }
+
+        loadUserFromDatabase(local.getUid());
     }
 
     private void loadUserFromDatabase(String uid) {
@@ -125,6 +133,17 @@ public class ProfileActivity extends AppCompatActivity {
         // ---------- NAME ----------
         txtName.setText(user.getFullName());
         txtSubtitle.setText("Profile");
+
+        // ---------- PROFILE IMAGE ----------
+        if (user.getProfileImage() != null && !user.getProfileImage().isEmpty()) {
+            Bitmap bitmap = ImageUtil.convertFrom64base(user.getProfileImage());
+            if (bitmap != null) {
+                imgAvatar.setImageBitmap(bitmap);
+            }
+        } else {
+            // fallback icon
+            imgAvatar.setImageResource(android.R.drawable.ic_menu_myplaces);
+        }
 
         // ---------- RUNS / WINS ----------
         int runs = user.getNumOfAttempts();

@@ -6,8 +6,10 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+import androidx.annotation.Nullable;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -16,11 +18,22 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.example.rougelikegame.R;
+import com.example.rougelikegame.android.adapters.ImageSourceAdapter;
+import com.example.rougelikegame.android.models.ImageSourceOption;
 import com.example.rougelikegame.android.models.User;
 import com.example.rougelikegame.android.screens.LandingActivity;
 import com.example.rougelikegame.android.services.DatabaseService;
+import com.example.rougelikegame.android.utils.ImageUtil;
 import com.example.rougelikegame.android.utils.SharedPreferencesUtil;
 import com.example.rougelikegame.android.utils.Validator;
+
+import android.net.Uri;
+import android.provider.MediaStore;
+import android.graphics.Bitmap;
+import androidx.appcompat.app.AlertDialog;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class UpdateUserActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -34,6 +47,11 @@ public class UpdateUserActivity extends AppCompatActivity implements View.OnClic
     User selectedUser;
     boolean isCurrentUser = false;
     DatabaseService databaseService;
+
+    private ImageView ivProfileIcon;
+
+    private static final int REQUEST_CAMERA = 100;
+    private static final int REQUEST_GALLERY = 101;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,6 +96,16 @@ public class UpdateUserActivity extends AppCompatActivity implements View.OnClic
         btnSignOut = findViewById(R.id.btn_sign_out);
         adminBadge = findViewById(R.id.admin_badge);
 
+        ivProfileIcon = findViewById(R.id.iv_profile_icon);
+
+        ivProfileIcon.setOnClickListener(v -> {
+            if (isCurrentUser) {
+                showImageSourceDialog();
+            } else {
+                Toast.makeText(this, "You can only change your own photo", Toast.LENGTH_SHORT).show();
+            }
+        });
+
         btnUpdateProfile.setOnClickListener(this);
         btnSignOut.setOnClickListener(this);
 
@@ -112,6 +140,13 @@ public class UpdateUserActivity extends AppCompatActivity implements View.OnClic
                 etUserEmail.setText(user.getEmail());
                 etUserPhone.setText(user.getPhone());
                 etUserPassword.setText(user.getPassword());
+
+                if (user.getProfileImage() != null) {
+                    Bitmap bitmap = ImageUtil.convertFrom64base(user.getProfileImage());
+                    if (bitmap != null) {
+                        ivProfileIcon.setImageBitmap(bitmap);
+                    }
+                }
 
                 // Update display fields
                 String displayName = user.getFirstName() + " " + user.getLastName();
@@ -170,6 +205,12 @@ public class UpdateUserActivity extends AppCompatActivity implements View.OnClic
         selectedUser.setEmail(email);
         selectedUser.setPassword(password);
 
+        String base64Image = ImageUtil.convertTo64Base(ivProfileIcon);
+        selectedUser.setProfileImage(base64Image);
+
+        Log.d(TAG, "Profile image length = " +
+            (base64Image == null ? "null" : base64Image.length()));
+
         // Update the user data in the authentication
         Log.d(TAG, "Updating user profile");
         Log.d(TAG, "Selected user UID: " + selectedUser.getUid());
@@ -195,7 +236,7 @@ public class UpdateUserActivity extends AppCompatActivity implements View.OnClic
 
     private void updateUserInDatabase(User user) {
         Log.d(TAG, "Updating user in database: " + user.getUid());
-        databaseService.updateUser(user, new DatabaseService.DatabaseCallback<Void>() {
+        databaseService.updateUser(user, false, new DatabaseService.DatabaseCallback<Void>() {
             @Override
             public void onCompleted(Void result) {
                 Log.d(TAG, "User profile updated successfully");
@@ -238,6 +279,72 @@ public class UpdateUserActivity extends AppCompatActivity implements View.OnClic
             return false;
         }
         return true;
+    }
+
+    private void showImageSourceDialog() {
+        List<ImageSourceOption> options = new ArrayList<>();
+
+        options.add(new ImageSourceOption(
+            "Camera",
+            "Take a photo",
+            R.drawable.photo_camera
+        ));
+
+        options.add(new ImageSourceOption(
+            "Gallery",
+            "Choose from gallery",
+            R.drawable.gallery_thumbnail
+        ));
+
+        ImageSourceAdapter adapter = new ImageSourceAdapter(
+            this,
+            options,
+            option -> {
+                if ("Camera".equals(option.getTitle())) {
+                    ImageUtil.requestPermission(this);
+                    openCamera();
+                } else {
+                    openGallery();
+                }
+            }
+        );
+
+        new AlertDialog.Builder(this)
+            .setAdapter(adapter, null)
+            .show();
+    }
+
+    private void openCamera() {
+        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        startActivityForResult(intent, REQUEST_CAMERA);
+    }
+
+    private void openGallery() {
+        Intent intent = new Intent(Intent.ACTION_PICK,
+            MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        startActivityForResult(intent, REQUEST_GALLERY);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (resultCode != RESULT_OK || data == null) return;
+
+        try {
+            if (requestCode == REQUEST_CAMERA) {
+                Bitmap bitmap = (Bitmap) data.getExtras().get("data");
+                ivProfileIcon.setImageBitmap(bitmap);
+            }
+
+            if (requestCode == REQUEST_GALLERY) {
+                Uri imageUri = data.getData();
+                Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageUri);
+                ivProfileIcon.setImageBitmap(bitmap);
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Failed to load image", e);
+        }
     }
 
     private void signOut() {

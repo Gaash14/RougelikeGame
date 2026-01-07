@@ -19,7 +19,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.rougelikegame.R;
 import com.example.rougelikegame.android.adapters.GuildListAdapter;
 import com.example.rougelikegame.android.adapters.UserListAdapter;
-import com.example.rougelikegame.android.screens.ProfileActivity;
+import com.example.rougelikegame.android.screens.stats.ProfileActivity;
 import com.example.rougelikegame.android.services.DatabaseService;
 import com.example.rougelikegame.android.utils.SharedPreferencesUtil;
 import com.example.rougelikegame.android.models.Guild;
