@@ -1,4 +1,4 @@
-package com.example.rougelikegame;
+package com.example.rougelikegame.android.models;
 
 public interface ScoreReporter {
     void reportRun(

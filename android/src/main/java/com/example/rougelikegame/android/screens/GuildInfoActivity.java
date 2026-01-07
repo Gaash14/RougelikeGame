@@ -8,13 +8,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.Button;
 import android.app.AlertDialog;
-import android.widget.Button;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.rougelikegame.R;
 import com.example.rougelikegame.android.utils.SharedPreferencesUtil;
-import com.example.rougelikegame.models.User;
+import com.example.rougelikegame.android.models.User;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;

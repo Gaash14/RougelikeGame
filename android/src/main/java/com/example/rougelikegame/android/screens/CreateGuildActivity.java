@@ -10,7 +10,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.rougelikegame.R;
 import com.example.rougelikegame.android.services.DatabaseService;
 import com.example.rougelikegame.android.utils.SharedPreferencesUtil;
-import com.example.rougelikegame.models.User;
+import com.example.rougelikegame.android.models.User;
 
 public class CreateGuildActivity extends AppCompatActivity {
 

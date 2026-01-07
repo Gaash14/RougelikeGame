@@ -1,4 +1,4 @@
-package com.example.rougelikegame.models;
+package com.example.rougelikegame.android.models;
 
 public class Skin {
     private String id;

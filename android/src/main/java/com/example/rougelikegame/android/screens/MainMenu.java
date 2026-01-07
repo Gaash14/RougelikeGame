@@ -9,7 +9,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.rougelikegame.R;
 import com.example.rougelikegame.android.utils.SharedPreferencesUtil;
-import com.example.rougelikegame.models.User;
+import com.example.rougelikegame.android.models.User;
 
 public class MainMenu extends AppCompatActivity {
     private static final String TAG = "MainMenu";

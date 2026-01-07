@@ -1,4 +1,4 @@
-package com.example.rougelikegame.screens;
+package com.example.rougelikegame.android.screens;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
@@ -15,15 +15,15 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
-import com.example.rougelikegame.ScoreReporter;
-import com.example.rougelikegame.models.BossEnemy;
-import com.example.rougelikegame.models.Enemy;
-import com.example.rougelikegame.models.GhostEnemy;
-import com.example.rougelikegame.models.Joystick;
-import com.example.rougelikegame.models.Obstacle;
-import com.example.rougelikegame.models.Pickup;
-import com.example.rougelikegame.models.Player;
-import com.example.rougelikegame.models.Projectile;
+import com.example.rougelikegame.android.models.ScoreReporter;
+import com.example.rougelikegame.android.models.BossEnemy;
+import com.example.rougelikegame.android.models.Enemy;
+import com.example.rougelikegame.android.models.GhostEnemy;
+import com.example.rougelikegame.android.models.Joystick;
+import com.example.rougelikegame.android.models.Obstacle;
+import com.example.rougelikegame.android.models.Pickup;
+import com.example.rougelikegame.android.models.Player;
+import com.example.rougelikegame.android.models.Projectile;
 
 import java.util.Random;
 

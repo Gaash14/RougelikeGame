@@ -1,4 +1,4 @@
-package com.example.rougelikegame.models;
+package com.example.rougelikegame.android.models;
 
 import java.io.Serializable;
 import java.util.HashMap;

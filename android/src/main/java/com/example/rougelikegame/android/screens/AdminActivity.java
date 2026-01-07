@@ -22,7 +22,7 @@ import com.example.rougelikegame.android.adapters.UserListAdapter;
 import com.example.rougelikegame.android.services.DatabaseService;
 import com.example.rougelikegame.android.utils.SharedPreferencesUtil;
 import com.example.rougelikegame.android.models.Guild;
-import com.example.rougelikegame.models.User;
+import com.example.rougelikegame.android.models.User;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;

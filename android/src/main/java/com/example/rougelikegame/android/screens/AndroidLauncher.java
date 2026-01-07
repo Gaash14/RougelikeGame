@@ -5,12 +5,11 @@ import android.util.Log;
 
 import com.badlogic.gdx.backends.android.AndroidApplication;
 import com.badlogic.gdx.backends.android.AndroidApplicationConfiguration;
-import com.example.rougelikegame.ScoreReporter;
+import com.example.rougelikegame.android.models.ScoreReporter;
 import com.example.rougelikegame.android.services.DatabaseService;
 import com.example.rougelikegame.android.utils.SharedPreferencesUtil;
-import com.example.rougelikegame.models.Player;
-import com.example.rougelikegame.models.User;
-import com.example.rougelikegame.screens.MainActivity;
+import com.example.rougelikegame.android.models.Player;
+import com.example.rougelikegame.android.models.User;
 
 /** Launches the Android application. */
 public class AndroidLauncher extends AndroidApplication {

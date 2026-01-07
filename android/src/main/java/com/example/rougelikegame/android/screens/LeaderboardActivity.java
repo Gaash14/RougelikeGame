@@ -9,7 +9,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.rougelikegame.R;
 import com.example.rougelikegame.android.services.DatabaseService;
-import com.example.rougelikegame.models.User;
+import com.example.rougelikegame.android.models.User;
 
 import java.util.ArrayList;
 import java.util.Collections;

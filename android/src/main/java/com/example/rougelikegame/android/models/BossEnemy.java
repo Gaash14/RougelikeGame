@@ -1,9 +1,9 @@
-package com.example.rougelikegame.models;
+package com.example.rougelikegame.android.models;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Array;
-import com.example.rougelikegame.screens.MainActivity;
+import com.example.rougelikegame.android.screens.MainActivity;
 
 public class BossEnemy extends Enemy {
 

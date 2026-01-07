@@ -1,4 +1,4 @@
-package com.example.rougelikegame.models;
+package com.example.rougelikegame.android.models;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
