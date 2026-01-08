@@ -5,8 +5,8 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.example.rougelikegame.android.models.Guild;
-import com.example.rougelikegame.android.models.User;
+import com.example.rougelikegame.android.models.meta.Guild;
+import com.example.rougelikegame.android.models.meta.User;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;

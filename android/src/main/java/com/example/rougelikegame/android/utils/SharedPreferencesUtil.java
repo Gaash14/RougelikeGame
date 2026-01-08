@@ -5,7 +5,7 @@ import android.content.SharedPreferences;
 
 import androidx.annotation.Nullable;
 
-import com.example.rougelikegame.android.models.User;
+import com.example.rougelikegame.android.models.meta.User;
 import com.google.gson.Gson;
 
 /// Utility class for shared preferences operations

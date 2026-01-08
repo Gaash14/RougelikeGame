@@ -12,7 +12,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.example.rougelikegame.R;
-import com.example.rougelikegame.android.models.ImageSourceOption;
+import com.example.rougelikegame.android.models.meta.ImageSourceOption;
 
 import java.util.List;
 
