@@ -18,6 +18,8 @@ public class User implements Serializable {
     private Map<String, Boolean> ownedSkins = new HashMap<>();
     private String equippedSkinId = "default";
 
+    private Map<String, Boolean> achievements = new HashMap<>();
+
     private String profileImage;
 
     // Scores are stored directly on the User
@@ -190,6 +192,14 @@ public class User implements Serializable {
     public void setOwnedSkins(Map<String, Boolean> ownedSkins) { this.ownedSkins = ownedSkins;}
     public String getEquippedSkinId() { return equippedSkinId == null ? "default" : equippedSkinId;}
     public void setEquippedSkinId(String equippedSkinId) { this.equippedSkinId = equippedSkinId;}
+
+    // --- achievements ---
+    public Map<String, Boolean> getAchievements() {
+        return achievements;
+    }
+    public void setAchievements(Map<String, Boolean> achievements) {
+        this.achievements = achievements;
+    }
 
     public int getNumOfCoins() { return numOfCoins;}
     public void setNumOfCoins(int numOfCoins) { this.numOfCoins = numOfCoins;}

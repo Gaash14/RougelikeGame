@@ -15,6 +15,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.example.rougelikegame.R;
+import com.example.rougelikegame.android.managers.AchievementManager;
 import com.example.rougelikegame.android.models.meta.User;
 import com.example.rougelikegame.android.screens.menu.MainMenu;
 import com.example.rougelikegame.android.services.DatabaseService;
@@ -128,6 +129,23 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
                 Log.e("LOGIN_SOURCE", "Loaded user from Firebase UID=" + user.getUid()
                     + " attempts=" + user.getNumOfAttempts());
+
+                AchievementManager.getInstance()
+                    .setUserUid(user.getUid());
+
+                AchievementManager.getInstance()
+                    .setContext(LoginActivity.this);
+
+                if (user.getAchievements() != null) {
+                    user.getAchievements().forEach((id, unlocked) -> {
+                        if (Boolean.TRUE.equals(unlocked)) {
+                            AchievementManager.getInstance()
+                                .getAchievement(id)
+                                .setUnlocked(true);
+                        }
+                    });
+                }
+
                 /// save the user data to shared preferences
                 SharedPreferencesUtil.saveUser(LoginActivity.this, user);
                 /// Redirect to main activity and clear back stack to prevent user from going back to login screen

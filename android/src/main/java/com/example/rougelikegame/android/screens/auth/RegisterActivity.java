@@ -16,6 +16,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.example.rougelikegame.R;
+import com.example.rougelikegame.android.managers.AchievementManager;
 import com.example.rougelikegame.android.models.meta.User;
 import com.example.rougelikegame.android.screens.menu.MainMenu;
 import com.example.rougelikegame.android.services.DatabaseService;
@@ -212,6 +213,10 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
                 Log.d(TAG, "createUserInDatabase: User created successfully");
                 /// save the user to shared preferences
                 SharedPreferencesUtil.saveUser(RegisterActivity.this, user);
+
+                AchievementManager.getInstance().setUserUid(user.getUid());
+                AchievementManager.getInstance().setContext(RegisterActivity.this);
+
                 Log.d(TAG, "createUserInDatabase: Redirecting to MainActivity");
                 /// Redirect to MainActivity and clear back stack to prevent user from going back to register screen
                 Intent mainIntent = new Intent(RegisterActivity.this, MainMenu.class);

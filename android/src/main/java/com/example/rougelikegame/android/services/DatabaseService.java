@@ -536,4 +536,13 @@ public class DatabaseService {
                 }
             });
     }
+
+    public void unlockAchievement(String uid, String achievementId) {
+        FirebaseDatabase.getInstance()
+            .getReference("users")
+            .child(uid)
+            .child("achievements")
+            .child(achievementId)
+            .setValue(true);
+    }
 }

@@ -8,6 +8,7 @@ import android.widget.Button;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.rougelikegame.R;
+import com.example.rougelikegame.android.managers.AchievementManager;
 import com.example.rougelikegame.android.screens.auth.LandingActivity;
 import com.example.rougelikegame.android.screens.admin.AdminActivity;
 import com.example.rougelikegame.android.screens.profile.UpdateUserActivity;
@@ -45,6 +46,21 @@ public class MainMenu extends AppCompatActivity {
             });
         } else {
             adminPanel.setVisibility(View.GONE);
+        }
+
+        if (currentUser != null) {
+            AchievementManager.getInstance().setUserUid(currentUser.getUid());
+            AchievementManager.getInstance().setContext(MainMenu.this);
+
+            if (currentUser.getAchievements() != null) {
+                currentUser.getAchievements().forEach((id, unlocked) -> {
+                    if (Boolean.TRUE.equals(unlocked)) {
+                        AchievementManager.getInstance()
+                            .getAchievement(id)
+                            .setUnlocked(true);
+                    }
+                });
+            }
         }
 
         startGame.setOnClickListener(v -> {

@@ -15,6 +15,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import com.example.rougelikegame.android.managers.AchievementManager;
 import com.example.rougelikegame.android.models.core.ScoreReporter;
 import com.example.rougelikegame.android.models.characters.BossEnemy;
 import com.example.rougelikegame.android.models.characters.Enemy;
@@ -72,6 +73,9 @@ public class MainActivity extends ApplicationAdapter {
     // Game state
     Random rnd;
     public Player.Difficulty getDifficulty() { return difficulty; }
+
+    private final AchievementManager achievementManager =
+        AchievementManager.getInstance();
 
     int wave = 1;
     private static final int BOSS_WAVE = 7;
@@ -567,6 +571,11 @@ public class MainActivity extends ApplicationAdapter {
             if (!dead.alive) {
                 enemies.removeIndex(i);
                 enemiesKilled++;
+
+                if (enemiesKilled >= 100) {
+                    achievementManager.unlock("kills_100");
+                }
+
                 if (dead.isBoss) {
                     onBossDefeat();
                 }
@@ -584,6 +593,13 @@ public class MainActivity extends ApplicationAdapter {
 
             if (waveTimer <= 0) {
                 wave++;
+
+                if (wave >= 5) {
+                    achievementManager.unlock("wave_5");
+                }
+                if (wave >= 10) {
+                    achievementManager.unlock("wave_10");
+                }
 
                 if (scoreReporter != null) {
                     scoreReporter.reportHighestWave(wave);
@@ -672,6 +688,7 @@ public class MainActivity extends ApplicationAdapter {
 
     private void onBossDefeat() {
         bossDefeated = true;
+        achievementManager.unlock("first_win");
         finishRun(true);
     }
 
