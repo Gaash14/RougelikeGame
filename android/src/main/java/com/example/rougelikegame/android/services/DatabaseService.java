@@ -545,4 +545,29 @@ public class DatabaseService {
             .child(achievementId)
             .setValue(true);
     }
+
+    public void unlockOwnedSkin(String uid, String skinId) {
+        FirebaseDatabase.getInstance()
+            .getReference("users")
+            .child(uid)
+            .child("ownedSkins")
+            .child(skinId)
+            .setValue(true);
+    }
+
+    public void setEquippedSkin(String uid, String skinId) {
+        FirebaseDatabase.getInstance()
+            .getReference("users")
+            .child(uid)
+            .child("equippedSkinId")
+            .setValue(skinId);
+    }
+
+    public void setCoins(String uid, int coins) {
+        FirebaseDatabase.getInstance()
+            .getReference("users")
+            .child(uid)
+            .child("numOfCoins")
+            .setValue(coins);
+    }
 }

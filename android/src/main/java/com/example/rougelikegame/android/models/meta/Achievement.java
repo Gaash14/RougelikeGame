@@ -6,13 +6,15 @@ public class Achievement {
     private String title;
     private String description;
     private boolean unlocked;
+    private String rewardSkinId; // null = no reward
 
     public Achievement() {} // required for firebase
 
-    public Achievement(String id, String title, String description) {
+    public Achievement(String id, String title, String description, String rewardSkinId) {
         this.id = id;
         this.title = title;
         this.description = description;
+        this.rewardSkinId = rewardSkinId;
         this.unlocked = false;
     }
 
@@ -27,4 +29,7 @@ public class Achievement {
 
     public boolean isUnlocked() { return unlocked; }
     public void setUnlocked(boolean unlocked) { this.unlocked = unlocked; }
+
+    public String getRewardSkinId() {return rewardSkinId;}
+    public void setRewardSkinId(String rewardSkinId) {this.rewardSkinId = rewardSkinId;}
 }

@@ -156,12 +156,24 @@ public class MainActivity extends ApplicationAdapter {
 
     private Texture getPlayerTextureForSkin() {
         switch (skinId) {
-            case "red_knight":
+            case "red":
                 return new Texture("skins/player_red.png");
-
             case "shadow":
                 return new Texture("skins/player_shadow.png");
-
+            case "red_knight":
+                return new Texture("skins/red_knight.png");
+            case "angel":
+                return new Texture("skins/player_angel.png");
+            case "skin_wave_5":
+                return new Texture("skins/wave_5.png");
+            case "skin_wave_10":
+                return new Texture("skins/wave_10.png");
+            case "skin_100_wins":
+                return new Texture("skins/100_kills.png");
+            case "skin_200_coins":
+                return new Texture("skins/200_coins.png");
+            case "skin_first_win":
+                return new Texture("skins/first_win.png");
             default:
                 return new Texture("skins/player_default.png");
         }

@@ -16,7 +16,7 @@
         android:theme="@style/GdxTheme"
         tools:ignore="UnusedAttribute">
 
-        <!-- LANDING ACTIVITY -->
+        <!-- SPLASH ACTIVITY -->
         <activity
             android:name="com.example.rougelikegame.android.screens.auth.SplashActivity"
             android:configChanges="keyboard|keyboardHidden|navigation|orientation|screenSize|screenLayout"
@@ -133,6 +133,13 @@
         <!-- ACHIEVEMENTS -->
         <activity
             android:name="com.example.rougelikegame.android.screens.menu.AchievementsActivity"
+            android:exported="true"
+            android:screenOrientation="landscape"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+
+        <!-- SKINS -->
+        <activity
+            android:name="com.example.rougelikegame.android.screens.profile.SkinsActivity"
             android:exported="true"
             android:screenOrientation="landscape"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />

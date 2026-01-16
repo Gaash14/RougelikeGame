@@ -19,6 +19,7 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.example.rougelikegame.R;
 import com.example.rougelikegame.android.adapters.ImageSourceAdapter;
+import com.example.rougelikegame.android.managers.AchievementManager;
 import com.example.rougelikegame.android.models.meta.ImageSourceOption;
 import com.example.rougelikegame.android.models.meta.User;
 import com.example.rougelikegame.android.screens.auth.LandingActivity;
@@ -349,6 +350,7 @@ public class UpdateUserActivity extends AppCompatActivity implements View.OnClic
 
     private void signOut() {
         Log.d(TAG, "Sign out button clicked");
+        AchievementManager.getInstance().reset();
         SharedPreferencesUtil.signOutUser(UpdateUserActivity.this);
 
         Log.d(TAG, "User signed out, redirecting to LandingActivity");

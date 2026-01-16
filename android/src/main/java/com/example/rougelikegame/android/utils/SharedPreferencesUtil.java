@@ -131,6 +131,14 @@ public class SharedPreferencesUtil {
         if (!isUserLoggedIn(context)) {
             return null;
         }
+
+        User user = getObject(context, "user", User.class);
+
+        if (user != null && user.getOwnedSkins() == null) {
+            user.setOwnedSkins(new java.util.HashMap<>());
+            saveUser(context, user);
+        }
+
         return getObject(context, "user", User.class);
     }
 

@@ -94,6 +94,7 @@ public class MainMenu extends AppCompatActivity {
 
         signOut.setOnClickListener(v -> {
             Log.d(TAG, "Sign out button clicked");
+            AchievementManager.getInstance().reset();
             SharedPreferencesUtil.signOutUser(MainMenu.this);
 
             Log.d(TAG, "User signed out, redirecting to LandingActivity");

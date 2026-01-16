@@ -75,6 +75,11 @@ public class ProfileActivity extends AppCompatActivity {
         findViewById(R.id.btnOpenShop).setOnClickListener(v -> {
             startActivity(new Intent(this, ShopActivity.class));
         });
+
+        findViewById(R.id.btnSkins).setOnClickListener(v -> {
+            startActivity(new Intent(this, SkinsActivity.class));
+        });
+
     }
 
     private void loadUserToUI() {

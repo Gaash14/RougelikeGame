@@ -26,10 +26,12 @@ public class SkinAdapter extends RecyclerView.Adapter<SkinAdapter.SkinViewHolder
     private final List<Skin> skins;
     private final User user;
     private final SkinActionListener listener;
+    private final boolean allowBuying;
 
-    public SkinAdapter(List<Skin> skins, User user, SkinActionListener listener) {
+    public SkinAdapter(List<Skin> skins, User user, boolean allowBuying, SkinActionListener listener) {
         this.skins = skins;
         this.user = user;
+        this.allowBuying = allowBuying;
         this.listener = listener;
     }
 
@@ -50,21 +52,50 @@ public class SkinAdapter extends RecyclerView.Adapter<SkinAdapter.SkinViewHolder
         boolean owned = user.getOwnedSkins().containsKey(skin.getId());
         boolean equipped = skin.getId().equals(user.getEquippedSkinId());
 
-        if (owned) {
-            holder.txtPrice.setText(equipped ? "Equipped" : "Owned");
+        // DEFAULT skin
+        if (skin.getUnlockType() == Skin.UnlockType.DEFAULT) {
+            holder.txtPrice.setText(equipped ? "Equipped" : "Default");
             holder.btnAction.setText(equipped ? "EQUIPPED" : "EQUIP");
             holder.btnAction.setEnabled(!equipped);
-        } else {
-            holder.txtPrice.setText("Price: " + skin.getPrice());
-            holder.btnAction.setText("BUY");
-            holder.btnAction.setEnabled(user.getNumOfCoins() >= skin.getPrice());
+        }
+
+        // SHOP skin
+        else if (skin.getUnlockType() == Skin.UnlockType.SHOP) {
+            if (owned) {
+                holder.txtPrice.setText(equipped ? "Equipped" : "Owned");
+                holder.btnAction.setText(equipped ? "EQUIPPED" : "EQUIP");
+                holder.btnAction.setEnabled(!equipped);
+            } else {
+                if (allowBuying) {
+                    holder.txtPrice.setText("Price: " + skin.getPrice());
+                    holder.btnAction.setText("BUY");
+                    holder.btnAction.setEnabled(user.getNumOfCoins() >= skin.getPrice());
+                } else {
+                    holder.txtPrice.setText("Locked (Shop)");
+                    holder.btnAction.setText("LOCKED");
+                    holder.btnAction.setEnabled(false);
+                }
+            }
+        }
+
+        // ACHIEVEMENT skin
+        else {
+            if (owned) {
+                holder.txtPrice.setText(equipped ? "Equipped" : "Unlocked");
+                holder.btnAction.setText(equipped ? "EQUIPPED" : "EQUIP");
+                holder.btnAction.setEnabled(!equipped);
+            } else {
+                holder.txtPrice.setText("Locked (Achievement)");
+                holder.btnAction.setText("LOCKED");
+                holder.btnAction.setEnabled(false);
+            }
         }
 
         holder.btnAction.setOnClickListener(v -> {
-            if (owned) {
-                listener.onEquip(skin);
-            } else {
+            if (!owned && allowBuying && skin.getUnlockType() == Skin.UnlockType.SHOP) {
                 listener.onBuy(skin);
+            } else if (owned && !equipped) {
+                listener.onEquip(skin);
             }
         });
     }

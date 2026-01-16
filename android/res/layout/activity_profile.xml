@@ -83,39 +83,61 @@
                 android:layout_weight="1"
                 android:orientation="vertical">
 
-                <!-- Runs / Wins / Win Rate -->
+                <!-- Runs / Wins / Win Rate + Skins -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
+                    android:orientation="horizontal"
                     android:background="#1E1E1E"
                     android:padding="12dp">
 
-                    <TextView
-                        android:id="@+id/txtRuns"
-                        android:layout_width="wrap_content"
+                    <!-- LEFT: Stats -->
+                    <LinearLayout
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:text="Runs: 0"
-                        android:textColor="#FFFFFF"
-                        android:textSize="16sp" />
+                        android:layout_weight="1"
+                        android:orientation="vertical">
 
-                    <TextView
-                        android:id="@+id/txtWinsLosses"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Wins: 0 | Losses: 0"
-                        android:textColor="#FFFFFF"
-                        android:textSize="16sp"
-                        android:layout_marginTop="4dp" />
+                        <TextView
+                            android:id="@+id/txtRuns"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Runs: 0"
+                            android:textColor="#FFFFFF"
+                            android:textSize="16sp" />
 
+                        <TextView
+                            android:id="@+id/txtWinsLosses"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Wins: 0 | Losses: 0"
+                            android:textColor="#FFFFFF"
+                            android:textSize="16sp"
+                            android:layout_marginTop="4dp" />
+
+                        <TextView
+                            android:id="@+id/txtWinRate"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Win Rate: 0%"
+                            android:textColor="#FFFFFF"
+                            android:textSize="16sp"
+                            android:layout_marginTop="4dp" />
+                    </LinearLayout>
+
+                    <!-- RIGHT: Skins button -->
                     <TextView
-                        android:id="@+id/txtWinRate"
+                        android:id="@+id/btnSkins"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Win Rate: 0%"
-                        android:textColor="#FFFFFF"
-                        android:textSize="16sp"
-                        android:layout_marginTop="4dp" />
+                        android:text="👕 SKINS"
+                        android:textColor="#BBBBBB"
+                        android:textSize="14sp"
+                        android:paddingStart="12dp"
+                        android:paddingEnd="0dp"
+                        android:gravity="center"
+                        android:clickable="true"
+                        android:focusable="true" />
                 </LinearLayout>
 
                 <!-- Streaks -->
