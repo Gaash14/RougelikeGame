@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.ImageButton;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -22,6 +23,7 @@ public class ProfileActivity extends AppCompatActivity {
     // Header
     private ImageView imgAvatar;
     private TextView txtName, txtSubtitle;
+    private ImageButton btnUpdateUser;
 
     // Stats
     private TextView txtRuns, txtWinsLosses, txtWinRate;
@@ -29,8 +31,6 @@ public class ProfileActivity extends AppCompatActivity {
     private TextView txtHighestWave, txtBestTime;
     private TextView txtRangedPicks, txtMeleePicks;
     private TextView txtCurrentStreak, txtBestStreak;
-
-    private Button btnOpenShop;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +45,7 @@ public class ProfileActivity extends AppCompatActivity {
         imgAvatar = findViewById(R.id.imgAvatar);
         txtName = findViewById(R.id.txtName);
         txtSubtitle = findViewById(R.id.txtSubtitle);
+        btnUpdateUser = findViewById(R.id.btnUpdateUser);
 
         txtRuns = findViewById(R.id.txtRuns);
         txtWinsLosses = findViewById(R.id.txtWinsLosses);
@@ -65,6 +66,11 @@ public class ProfileActivity extends AppCompatActivity {
 
         // Placeholder avatar (until image upload is added)
         imgAvatar.setImageResource(android.R.drawable.ic_menu_myplaces);
+
+        btnUpdateUser.setOnClickListener(v -> {
+            Intent intent = new Intent(this, UpdateUserActivity.class);
+            startActivity(intent);
+        });
 
         findViewById(R.id.btnOpenShop).setOnClickListener(v -> {
             startActivity(new Intent(this, ShopActivity.class));

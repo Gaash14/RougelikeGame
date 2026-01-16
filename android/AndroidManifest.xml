@@ -123,5 +123,12 @@
             android:screenOrientation="landscape"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
 
+        <!-- ACHIEVEMENTS -->
+        <activity
+            android:name="com.example.rougelikegame.android.screens.menu.AchievementsActivity"
+            android:exported="true"
+            android:screenOrientation="landscape"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+
     </application>
 </manifest>

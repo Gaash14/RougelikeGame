@@ -83,4 +83,22 @@ public class AchievementManager {
             });
         }
     }
+
+    public void markUnlockedFromDatabase(String id) {
+        Achievement achievement = achievements.get(id);
+        if (achievement == null) return;
+
+        // mark unlocked WITHOUT triggering unlock logic
+        achievement.setUnlocked(true);
+    }
+
+    public void reset() {
+        // Clear unlocked state for all achievements
+        for (Achievement achievement : achievements.values()) {
+            achievement.setUnlocked(false);
+        }
+
+        // Clear current user
+        userUid = null;
+    }
 }

@@ -30,9 +30,8 @@ public class MainMenu extends AppCompatActivity {
         Button leaderboard = findViewById(R.id.leaderboardButton);
         Button guilds = findViewById(R.id.guildsButton);
         Button profile = findViewById(R.id.profileButton);
-        Button updateUser = findViewById(R.id.updateUserButton);
+        Button achievements = findViewById(R.id.achievementsButton);
         Button signOut = findViewById(R.id.signOutButton);
-        Button exitButton = findViewById(R.id.exitButton);
         Button adminPanel = findViewById(R.id.adminPanelButton);
 
         User currentUser = SharedPreferencesUtil.getUser(this);
@@ -49,15 +48,20 @@ public class MainMenu extends AppCompatActivity {
         }
 
         if (currentUser != null) {
-            AchievementManager.getInstance().setUserUid(currentUser.getUid());
-            AchievementManager.getInstance().setContext(MainMenu.this);
+            AchievementManager manager = AchievementManager.getInstance();
 
+            // clear previous user state (singleton!)
+            manager.reset();
+
+            // set active user
+            manager.setUserUid(currentUser.getUid());
+            manager.setContext(MainMenu.this);
+
+            // load achievements from Firebase
             if (currentUser.getAchievements() != null) {
                 currentUser.getAchievements().forEach((id, unlocked) -> {
                     if (Boolean.TRUE.equals(unlocked)) {
-                        AchievementManager.getInstance()
-                            .getAchievement(id)
-                            .setUnlocked(true);
+                        manager.markUnlockedFromDatabase(id);
                     }
                 });
             }
@@ -83,8 +87,8 @@ public class MainMenu extends AppCompatActivity {
             startActivity(intent);
         });
 
-        updateUser.setOnClickListener(v -> {
-            Intent intent = new Intent(this, UpdateUserActivity.class);
+        achievements.setOnClickListener(v -> {
+            Intent intent = new Intent(this, AchievementsActivity.class);
             startActivity(intent);
         });
 
@@ -97,7 +101,5 @@ public class MainMenu extends AppCompatActivity {
             landingIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(landingIntent);
         });
-
-        exitButton.setOnClickListener(v -> finishAffinity());
     }
 }

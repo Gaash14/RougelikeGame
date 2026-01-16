@@ -57,9 +57,8 @@
                     android:textSize="18sp"
                     android:textStyle="bold"
                     android:textColor="#000000"
-                    android:backgroundTint="#FF9800"
-                    android:layout_marginBottom="10dp"
-                    />
+                    android:background="@drawable/btn_game"
+                    android:layout_marginBottom="10dp" />
 
                 <!-- ROW 1 -->
                 <LinearLayout
@@ -73,7 +72,9 @@
                         android:layout_width="0dp"
                         android:layout_height="52dp"
                         android:layout_weight="1"
-                        android:text="Leaderboard" />
+                        android:text="Leaderboard"
+                        android:textColor="#FFFFFF"
+                        android:background="@drawable/btn_primary" />
 
                     <View
                         android:layout_width="10dp"
@@ -84,7 +85,9 @@
                         android:layout_width="0dp"
                         android:layout_height="52dp"
                         android:layout_weight="1"
-                        android:text="Guilds" />
+                        android:text="Guilds"
+                        android:textColor="#FFFFFF"
+                        android:background="@drawable/btn_primary" />
                 </LinearLayout>
 
                 <!-- ROW 2 -->
@@ -99,18 +102,22 @@
                         android:layout_width="0dp"
                         android:layout_height="52dp"
                         android:layout_weight="1"
-                        android:text="Profile" />
+                        android:text="Profile"
+                        android:textColor="#FFFFFF"
+                        android:background="@drawable/btn_primary" />
 
                     <View
                         android:layout_width="10dp"
                         android:layout_height="1dp" />
 
                     <Button
-                        android:id="@+id/updateUserButton"
+                        android:id="@+id/achievementsButton"
                         android:layout_width="0dp"
                         android:layout_height="52dp"
                         android:layout_weight="1"
-                        android:text="Update User" />
+                        android:text="🏆 Achievements"
+                        android:textColor="#FFFFFF"
+                        android:background="@drawable/btn_primary" />
                 </LinearLayout>
 
                 <!-- ADMIN PANEL (HIDDEN BY DEFAULT) -->
@@ -119,21 +126,19 @@
                     android:layout_width="match_parent"
                     android:layout_height="52dp"
                     android:text="Admin Panel"
+                    android:textColor="#FFFFFF"
+                    android:background="@drawable/btn_primary"
                     android:visibility="gone"
                     android:layout_marginBottom="10dp" />
 
+                <!-- SIGN OUT ONLY -->
                 <Button
                     android:id="@+id/signOutButton"
                     android:layout_width="match_parent"
                     android:layout_height="52dp"
-                    android:text="Sign Out" />
-
-                <!-- EXIT (FULL WIDTH, BOTTOM) -->
-                <Button
-                    android:id="@+id/exitButton"
-                    android:layout_width="match_parent"
-                    android:layout_height="52dp"
-                    android:text="Exit" />
+                    android:text="Sign Out"
+                    android:textColor="#FFFFFF"
+                    android:background="@drawable/btn_primary" />
 
             </LinearLayout>
         </LinearLayout>

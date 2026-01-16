@@ -130,27 +130,29 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 Log.e("LOGIN_SOURCE", "Loaded user from Firebase UID=" + user.getUid()
                     + " attempts=" + user.getNumOfAttempts());
 
-                AchievementManager.getInstance()
-                    .setUserUid(user.getUid());
+                AchievementManager manager = AchievementManager.getInstance();
 
-                AchievementManager.getInstance()
-                    .setContext(LoginActivity.this);
+                // previous user state
+                manager.reset();
 
+                // set new active user
+                manager.setUserUid(user.getUid());
+                manager.setContext(LoginActivity.this);
+
+                // load achievements from Firebase
                 if (user.getAchievements() != null) {
                     user.getAchievements().forEach((id, unlocked) -> {
                         if (Boolean.TRUE.equals(unlocked)) {
-                            AchievementManager.getInstance()
-                                .getAchievement(id)
-                                .setUnlocked(true);
+                            manager.markUnlockedFromDatabase(id);
                         }
                     });
                 }
 
-                /// save the user data to shared preferences
+                // save user locally
                 SharedPreferencesUtil.saveUser(LoginActivity.this, user);
-                /// Redirect to main activity and clear back stack to prevent user from going back to login screen
+
+                // go to main menu
                 Intent mainIntent = new Intent(LoginActivity.this, MainMenu.class);
-                /// Clear the back stack (clear history) and start the MainActivity
                 mainIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                 startActivity(mainIntent);
             }
