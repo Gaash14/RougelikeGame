@@ -20,8 +20,8 @@ public class Enemy {
     public boolean hitThisSwing = false;
     public int damage;
 
-    public Enemy(String texture, float startX, float startY, float speed, float width, float height, int health, int damage) {
-        this.texture = new Texture(texture);
+    public Enemy(Texture texture, float startX, float startY, float speed, float width, float height, int health, int damage) {
+        this.texture = texture;
         this.x = startX;
         this.y = startY;
         this.speed = speed;

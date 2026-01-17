@@ -47,10 +47,10 @@ public class SkinRegistry {
         ));
 
         skins.add(new Skin(
-            "skin_200_coins",
+            "skin_25_coins",
             "Collector",
             Skin.UnlockType.ACHIEVEMENT,
-            "coins_200"
+            "coins_25"
         ));
 
         skins.add(new Skin(

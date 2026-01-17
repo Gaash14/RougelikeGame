@@ -1,8 +1,10 @@
 package com.example.rougelikegame.android.models.characters;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Array;
+import com.example.rougelikegame.android.models.world.Obstacle;
 import com.example.rougelikegame.android.models.world.Projectile;
 
 public class GhostEnemy extends Enemy {
@@ -14,8 +16,8 @@ public class GhostEnemy extends Enemy {
 
     private Array<Projectile> projectiles;
 
-    public GhostEnemy(float x, float y, Array<Projectile> projectiles, int health, int damage) {
-        super("enemies/ghost_enemy.png", x, y, 120f, 128, 128, health, damage);
+    public GhostEnemy(Texture texture, float x, float y, Array<Projectile> projectiles, int health, int damage) {
+        super(texture, x, y, 120f, 128, 128, health, damage);
         this.projectiles = projectiles;
         this.health = health;
         this.damage = damage;
@@ -56,5 +58,10 @@ public class GhostEnemy extends Enemy {
         y = MathUtils.clamp(y, 0, Gdx.graphics.getHeight() - height);
 
         bounds.setPosition(x, y);
+    }
+
+    @Override
+    public void handleObstacleCollision(Array<Obstacle> obstacles) {
+        // do nothing
     }
 }

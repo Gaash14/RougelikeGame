@@ -70,6 +70,12 @@ public class MainActivity extends ApplicationAdapter {
     Array<Projectile> playerProjectiles = new Array<>();
     Array<Projectile> enemyProjectiles = new Array<>();
 
+    // Cached textures
+    private Texture playerTexture;
+    private Texture enemyTexture;
+    private Texture ghostTexture;
+    private Texture bossTexture;
+
     // Game state
     Random rnd;
     public Player.Difficulty getDifficulty() { return difficulty; }
@@ -99,6 +105,7 @@ public class MainActivity extends ApplicationAdapter {
         rnd = new Random();
 
         setupCamera();
+        loadTextures();
         setupPlayerAndEnemies();
         setupPickupsAndObstacles();
         setupStageAndJoystick();
@@ -138,6 +145,10 @@ public class MainActivity extends ApplicationAdapter {
         font.dispose();
         stage.dispose();
         attackBtnTexture.dispose();
+        enemyTexture.dispose();
+        ghostTexture.dispose();
+        bossTexture.dispose();
+        playerTexture.dispose();
     }
 
     // Setup methods
@@ -146,9 +157,16 @@ public class MainActivity extends ApplicationAdapter {
         camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
     }
 
+    private void loadTextures() {
+        enemyTexture = new Texture("enemies/enemy.png");
+        ghostTexture = new Texture("enemies/ghost_enemy.png"); // adjust path
+        bossTexture  = new Texture("enemies/boss.png");  // adjust path
+        playerTexture = getPlayerTextureForSkin();
+    }
+
     private void setupPlayerAndEnemies() {
         player = new Player(100, 100);
-        player.setTexture(getPlayerTextureForSkin());
+        player.setTexture(playerTexture);
         player.playerClass = selectedClass;
         enemies = new Array<>();
         spawnWave(wave);
@@ -170,8 +188,8 @@ public class MainActivity extends ApplicationAdapter {
                 return new Texture("skins/wave_10.png");
             case "skin_100_wins":
                 return new Texture("skins/100_kills.png");
-            case "skin_200_coins":
-                return new Texture("skins/200_coins.png");
+            case "skin_25_coins":
+                return new Texture("skins/25_coins.png");
             case "skin_first_win":
                 return new Texture("skins/first_win.png");
             default:
@@ -318,7 +336,7 @@ public class MainActivity extends ApplicationAdapter {
             float x = Gdx.graphics.getWidth() / 2f - bossWidth / 2f;
             float y = Gdx.graphics.getHeight() / 2f - bossHeight / 2f;
 
-            enemies.add(new BossEnemy(x, y, enemyProjectiles,
+            enemies.add(new BossEnemy(bossTexture, x, y, enemyProjectiles,
                 calculateEnemyHP(250, true),5, this));
             System.out.println("Spawned boss on wave " + waveNumber);
             return;
@@ -327,7 +345,7 @@ public class MainActivity extends ApplicationAdapter {
         // Normal enemies
         int enemyCount = calculateEnemyCount(waveNumber);
 
-        float rangedChance = 0.15f;
+        float ghostChance = 0.15f; // 15% chance to spawn a ghost
         int bonusEnemyDamage = wave / 5; // +1 enemy dmg every 5 waves
 
         for (int i = 0; i < enemyCount; i++) {
@@ -340,11 +358,11 @@ public class MainActivity extends ApplicationAdapter {
                 continue;
             }
 
-            if (rnd.nextFloat() < rangedChance) {
-                enemies.add(new GhostEnemy(x, y, enemyProjectiles,
+            if (rnd.nextFloat() < ghostChance) {
+                enemies.add(new GhostEnemy(ghostTexture, x , y, enemyProjectiles,
                     calculateEnemyHP(20, false),1 + bonusEnemyDamage));
             } else {
-                enemies.add(new Enemy("enemies/enemy.png", x, y, 100, 128, 128,
+                enemies.add(new Enemy(enemyTexture, x, y, 100, 128, 128,
                     calculateEnemyHP(30, false), 1 + bonusEnemyDamage));
             }
 
@@ -474,6 +492,9 @@ public class MainActivity extends ApplicationAdapter {
 
             case COIN:
                 player.coins++;
+                if (player.coins >= 25) {
+                    achievementManager.unlock("coins_25");
+                }
                 System.out.println("Picked up coin → coins = " + player.coins);
                 break;
         }

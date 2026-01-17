@@ -44,8 +44,8 @@ public class AchievementManager {
             "Reach wave 10","skin_wave_10"));
         add(new Achievement("kills_100","Slayer",
             "Kill 100 enemies","skin_100_wins"));
-        add(new Achievement("coins_200","Collector",
-            "Collect 200 coins","skin_200_coins"));
+        add(new Achievement("coins_25","Collector",
+            "Collect 25 coins in one run","skin_25_coins"));
         add(new Achievement("first_win","Champion",
             "Defeat the boss","skin_first_win"));
     }

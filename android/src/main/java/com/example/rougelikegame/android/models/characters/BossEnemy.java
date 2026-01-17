@@ -1,6 +1,7 @@
 package com.example.rougelikegame.android.models.characters;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Array;
 import com.example.rougelikegame.android.models.world.Projectile;
@@ -18,9 +19,9 @@ public class BossEnemy extends Enemy {
 
     private Array<Projectile> projectiles;
 
-    public BossEnemy(float startX, float startY,Array<Projectile> projectiles,
+    public BossEnemy(Texture texture, float startX, float startY, Array<Projectile> projectiles,
                      int health, int damage, MainActivity game) {
-        super("enemies/boss.png", startX, startY,70f,
+        super(texture, startX, startY,70f,
             256f,256f, health, damage);
 
         this.projectiles = projectiles;
