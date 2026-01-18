@@ -2,11 +2,13 @@ package com.example.rougelikegame.android.screens.menu;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
@@ -79,6 +81,7 @@ public class MainActivity extends ApplicationAdapter {
 
     // Game state
     private static final boolean DEBUG = false;
+    private boolean paused = false;
     private final RunStats runStats = new RunStats();
     Random rnd;
     public Player.Difficulty getDifficulty() { return difficulty; }
@@ -98,6 +101,11 @@ public class MainActivity extends ApplicationAdapter {
     Texture attackBtnTexture;
     Rectangle attackBtnBounds;
 
+    // UI
+    private final GlyphLayout glyphLayout = new GlyphLayout();
+    private Rectangle resumeBounds;
+    private Rectangle exitBounds;
+
     // LibGDX
     @Override
     public void create() {
@@ -109,9 +117,12 @@ public class MainActivity extends ApplicationAdapter {
         setupPlayerAndEnemies();
         setupPickupsAndObstacles();
         setupStageAndJoystick();
+        setupPauseButtons();
         setupAttackButton();
         setupInput();
         setupFont();
+
+        Gdx.input.setCatchKey(com.badlogic.gdx.Input.Keys.BACK, true);
     }
 
     @Override
@@ -123,7 +134,9 @@ public class MainActivity extends ApplicationAdapter {
 
         ScreenUtils.clear(0.3f, 0.3f, 0.3f, 1);
 
-        update(delta);
+        if (!paused) {
+            update(delta);
+        }
         drawGame();
     }
 
@@ -216,6 +229,13 @@ public class MainActivity extends ApplicationAdapter {
         stage.addActor(joystick);
     }
 
+    private void setupPauseButtons() {
+        float centerX = Gdx.graphics.getWidth() / 2f;
+
+        resumeBounds = new Rectangle(centerX - 150, Gdx.graphics.getHeight() / 2f + 20, 300, 80);
+        exitBounds   = new Rectangle(centerX - 150, Gdx.graphics.getHeight() / 2f - 100, 300, 80);
+    }
+
     private void setupAttackButton() {
         attackBtnTexture = new Texture("inputs/attack_icon.png");
         attackBtnBounds = new Rectangle(
@@ -229,20 +249,36 @@ public class MainActivity extends ApplicationAdapter {
     private void setupInput() {
         InputMultiplexer multiplexer = new InputMultiplexer();
         multiplexer.addProcessor(stage);
+
         multiplexer.addProcessor(new InputAdapter() {
+
             @Override
             public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-
                 Vector3 touch = new Vector3(screenX, screenY, 0);
                 camera.unproject(touch);
 
+                // ---------------- PAUSE MENU ----------------
+                if (paused) {
+                    if (resumeBounds.contains(touch.x, touch.y)) {
+                        paused = false;
+                        return true;
+                    }
+
+                    if (exitBounds.contains(touch.x, touch.y)) {
+                        Gdx.app.exit();
+                        return true;
+                    }
+
+                    return true; // swallow all input while paused
+                }
+
+                // ---------------- GAME INPUT ----------------
                 if (attackBtnBounds.contains(touch.x, touch.y)) {
 
                     if (player.playerClass == Player.PlayerClass.MELEE) {
 
                         player.meleeAttack(joystick);
 
-                        // Reset hit flags for this swing
                         for (Enemy e : enemies) {
                             e.hitThisSwing = false;
                         }
@@ -266,6 +302,15 @@ public class MainActivity extends ApplicationAdapter {
                     return true;
                 }
 
+                return false;
+            }
+
+            @Override
+            public boolean keyDown(int keycode) {
+                if (keycode == Input.Keys.BACK) {
+                    paused = !paused;
+                    return true;
+                }
                 return false;
             }
         });
@@ -785,10 +830,43 @@ public class MainActivity extends ApplicationAdapter {
         drawDebugAttackHitbox(); // remove later/change to actual animation
         drawUI();
 
+        if (paused) {
+            drawPauseOverlay();
+        }
+
         batch.end();
 
         stage.act(Gdx.graphics.getDeltaTime());
         stage.draw();
+    }
+
+    private void drawPauseOverlay() {
+        batch.setColor(0, 0, 0, 0.6f);
+        batch.draw(
+            player.debugPixel,
+            0, 0,
+            Gdx.graphics.getWidth(),
+            Gdx.graphics.getHeight()
+        );
+        batch.setColor(1, 1, 1, 1);
+
+        // RESUME text
+        glyphLayout.setText(font, "RESUME");
+        font.draw(
+            batch,
+            glyphLayout,
+            resumeBounds.x + (resumeBounds.width - glyphLayout.width) / 2f,
+            resumeBounds.y + (resumeBounds.height + glyphLayout.height) / 2f
+        );
+
+        // EXIT text
+        glyphLayout.setText(font, "EXIT");
+        font.draw(
+            batch,
+            glyphLayout,
+            exitBounds.x + (exitBounds.width - glyphLayout.width) / 2f,
+            exitBounds.y + (exitBounds.height + glyphLayout.height) / 2f
+        );
     }
 
     private void drawUI() {
@@ -850,5 +928,10 @@ public class MainActivity extends ApplicationAdapter {
             player.attackHitbox.height
         );
         batch.setColor(1, 1, 1, 1);
+    }
+
+    @Override
+    public void pause() {
+        paused = true;
     }
 }
