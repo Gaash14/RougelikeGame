@@ -21,6 +21,7 @@ import com.example.rougelikegame.android.models.characters.BossEnemy;
 import com.example.rougelikegame.android.models.characters.Enemy;
 import com.example.rougelikegame.android.models.characters.GhostEnemy;
 import com.example.rougelikegame.android.models.input.Joystick;
+import com.example.rougelikegame.android.models.meta.RunStats;
 import com.example.rougelikegame.android.models.world.Obstacle;
 import com.example.rougelikegame.android.models.world.Pickup;
 import com.example.rougelikegame.android.models.characters.Player;
@@ -77,6 +78,8 @@ public class MainActivity extends ApplicationAdapter {
     private Texture bossTexture;
 
     // Game state
+    private static final boolean DEBUG = false;
+    private final RunStats runStats = new RunStats();
     Random rnd;
     public Player.Difficulty getDifficulty() { return difficulty; }
 
@@ -89,10 +92,7 @@ public class MainActivity extends ApplicationAdapter {
     float timeBetweenWaves = 2f; // seconds delay before next wave
     float waveTimer = 0f;
     boolean waitingForNextWave = false;
-
-    private float runTime = 0f;
     private boolean bossDefeated = false;
-    private int enemiesKilled = 0, pickupsPicked = 0;
 
     // Attack button
     Texture attackBtnTexture;
@@ -118,7 +118,7 @@ public class MainActivity extends ApplicationAdapter {
     public void render() {
         float delta = Gdx.graphics.getDeltaTime();
         if (!bossDefeated) {
-            runTime += delta;
+            runStats.addTime(delta);
         }
 
         ScreenUtils.clear(0.3f, 0.3f, 0.3f, 1);
@@ -338,7 +338,7 @@ public class MainActivity extends ApplicationAdapter {
 
             enemies.add(new BossEnemy(bossTexture, x, y, enemyProjectiles,
                 calculateEnemyHP(250, true),5, this));
-            System.out.println("Spawned boss on wave " + waveNumber);
+            if (DEBUG) Gdx.app.log("Spawn", "Spawned boss on wave " + waveNumber);
             return;
         }
 
@@ -368,7 +368,7 @@ public class MainActivity extends ApplicationAdapter {
 
         }
 
-        System.out.println("Spawned wave " + waveNumber + " with " + enemyCount + " enemies");
+        if (DEBUG) Gdx.app.log("Spawn", "Spawned wave " + waveNumber + " with " + enemyCount + " enemies");
     }
 
     private int calculateEnemyCount(int waveNumber) {
@@ -468,7 +468,7 @@ public class MainActivity extends ApplicationAdapter {
             if (player.bounds.overlaps(p.bounds)) {
                 applyPickupEffect(p);
                 pickups.removeIndex(i);
-                pickupsPicked++;
+                runStats.addPickup();
             }
         }
     }
@@ -477,17 +477,17 @@ public class MainActivity extends ApplicationAdapter {
         switch (p.type) {
             case HEALTH:
                 player.health += 5;
-                System.out.println("Picked up health → player HP = " + player.health);
+                if (DEBUG) Gdx.app.log("Pickups", "Picked up health → player HP = " + player.health);
                 break;
 
             case SPEED:
                 player.speed += 50;
-                System.out.println("Picked up speed → new speed = " + player.speed);
+                if (DEBUG) Gdx.app.log("Pickups", "Picked up speed → new speed = " + player.speed);
                 break;
 
             case DAMAGE:
                 player.attackBonus += 5;
-                System.out.println("Picked up damage → new bonus = " + player.attackBonus);
+                if (DEBUG) Gdx.app.log("Pickups", "Picked up damage → new bonus = " + player.attackBonus);
                 break;
 
             case COIN:
@@ -495,7 +495,7 @@ public class MainActivity extends ApplicationAdapter {
                 if (player.coins >= 25) {
                     achievementManager.unlock("coins_25");
                 }
-                System.out.println("Picked up coin → coins = " + player.coins);
+                if (DEBUG) Gdx.app.log("Pickups", "Picked up coin → coins = " + player.coins);
                 break;
         }
     }
@@ -561,7 +561,7 @@ public class MainActivity extends ApplicationAdapter {
                     player.knockbackY = dy;
                     player.knockbackTime = player.knockbackDuration;
 
-                    System.out.println("Player hit! HP = " + player.health);
+                    if (DEBUG) Gdx.app.log("Combat", "Player hit! HP = " + player.health);
                 }
             }
         }
@@ -593,7 +593,7 @@ public class MainActivity extends ApplicationAdapter {
             e.setX(e.getX() + dx * knockback);
             e.setY(e.getY() + dy * knockback);
 
-            System.out.println("HIT! Enemy HP = " + e.health);
+            if (DEBUG) Gdx.app.log("Combat", "HIT! Enemy HP = " + e.health);
         }
     }
 
@@ -603,9 +603,9 @@ public class MainActivity extends ApplicationAdapter {
             Enemy dead = enemies.get(i);
             if (!dead.alive) {
                 enemies.removeIndex(i);
-                enemiesKilled++;
+                runStats.addKill();
 
-                if (enemiesKilled >= 100) {
+                if (runStats.getEnemiesKilled() >= 100) {
                     achievementManager.unlock("kills_100");
                 }
 
@@ -696,7 +696,7 @@ public class MainActivity extends ApplicationAdapter {
             if (p.getBounds().overlaps(player.bounds)) {
                 player.health -= p.damage;
                 p.alive = false;
-                System.out.println("Player hit! HP = " + player.health);
+                if (DEBUG) Gdx.app.log("Combat", "Player hit! HP = " + player.health);
 
                 if (player.health <= 0) {
                     onPlayerDied();
@@ -710,13 +710,7 @@ public class MainActivity extends ApplicationAdapter {
     private void onPlayerDied() {
         finishRun(false);
 
-        // Give Firebase time to write
-        Gdx.app.postRunnable(() -> {
-            try {
-                Thread.sleep(300);
-            } catch (InterruptedException ignored) {}
-            Gdx.app.postRunnable(() -> Gdx.app.exit());
-        });
+        Gdx.app.postRunnable(() -> Gdx.app.exit());
     }
 
     private void onBossDefeat() {
@@ -733,14 +727,23 @@ public class MainActivity extends ApplicationAdapter {
             boolean rangedChosen = player.playerClass == Player.PlayerClass.RANGED;
             scoreReporter.reportRun(
                 wave,
-                win ? (int) runTime : 0, // if won, time = runtime. else, time = 0
-                enemiesKilled,
-                pickupsPicked,
+                win ? (int) runStats.getRunTime() : 0, // if won, time = runtime. else, time = 0
+                runStats.getEnemiesKilled(),
+                runStats.getPickupsPicked(),
                 player.coins,
                 win,
                 rangedChosen
             );
         }
+
+        Gdx.app.log("SAVE",
+            "Saving run | wave=" + wave +
+                " time=" + runStats.getRunTime() +
+                " kills=" + runStats.getEnemiesKilled() +
+                " pickups=" + runStats.getPickupsPicked() +
+                " coins=" + player.coins +
+                " win=" + win
+        );
     }
 
     // Drawing
@@ -790,12 +793,15 @@ public class MainActivity extends ApplicationAdapter {
 
     private void drawUI() {
         float screenH = Gdx.graphics.getHeight();
+        float y = screenH - 20;
+        float lineHeight = 70;
 
-        font.draw(batch, "HP: " + player.health, 20, screenH - 20);
-        font.draw(batch, "Wave: " + wave, 20, screenH - 90);
-        font.draw(batch, "Damage: " + player.getCurrentDamage(), 20, screenH - 140);
-        font.draw(batch, "Speed: " + player.speed, 20, screenH - 190);
-        font.draw(batch, "Coins: " + player.coins, 20, screenH - 240);
+        font.draw(batch, "HP: " + player.health, 20, y); y -= lineHeight;
+        font.draw(batch, "Wave: " + wave, 20, y); y -= lineHeight;
+        font.draw(batch, "Damage: " + player.getCurrentDamage(), 20, y); y -= lineHeight;
+        font.draw(batch, "Speed: " + player.speed, 20, y); y -= lineHeight;
+        font.draw(batch, "Coins: " + player.coins, 20, y);
+
     }
 
     private void drawBossHealthBar() {
