@@ -6,15 +6,28 @@
     android:background="#121212"
     android:padding="16dp">
 
+    <!-- Title -->
     <TextView
+        android:id="@+id/txtSkinsTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Skins"
         android:textColor="#FFFFFF"
         android:textSize="22sp"
-        android:textStyle="bold"
+        android:textStyle="bold" />
+
+    <!-- Progress -->
+    <TextView
+        android:id="@+id/txtSkinsProgress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Unlocked: 0 / 0"
+        android:textColor="#AAAAAA"
+        android:textSize="14sp"
+        android:layout_marginTop="4dp"
         android:layout_marginBottom="12dp" />
 
+    <!-- Skins list -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerSkins"
         android:layout_width="match_parent"

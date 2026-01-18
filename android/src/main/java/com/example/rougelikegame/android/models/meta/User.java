@@ -192,6 +192,9 @@ public class User implements Serializable {
     public void setOwnedSkins(Map<String, Boolean> ownedSkins) { this.ownedSkins = ownedSkins;}
     public String getEquippedSkinId() { return equippedSkinId == null ? "default" : equippedSkinId;}
     public void setEquippedSkinId(String equippedSkinId) { this.equippedSkinId = equippedSkinId;}
+    public boolean hasSkinUnlocked(String skinId) {
+        return ownedSkins != null && Boolean.TRUE.equals(ownedSkins.get(skinId));
+    }
 
     // --- achievements ---
     public Map<String, Boolean> getAchievements() {

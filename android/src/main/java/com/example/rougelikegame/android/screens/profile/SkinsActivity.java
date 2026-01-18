@@ -1,6 +1,7 @@
 package com.example.rougelikegame.android.screens.profile;
 
 import android.os.Bundle;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -21,6 +22,8 @@ public class SkinsActivity extends AppCompatActivity {
     private RecyclerView recyclerSkins;
     private User user;
 
+    private TextView txtSkinsProgress;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -28,6 +31,8 @@ public class SkinsActivity extends AppCompatActivity {
 
         recyclerSkins = findViewById(R.id.recyclerSkins);
         recyclerSkins.setLayoutManager(new LinearLayoutManager(this));
+
+        txtSkinsProgress = findViewById(R.id.txtSkinsProgress);
 
         user = SharedPreferencesUtil.getUser(this);
         if (user == null) return;
@@ -37,6 +42,8 @@ public class SkinsActivity extends AppCompatActivity {
 
     private void loadSkins() {
         List<Skin> allSkins = SkinRegistry.getAllSkins();
+
+        updateSkinsProgress(allSkins);
 
         SkinAdapter adapter = new SkinAdapter(
             allSkins,
@@ -63,5 +70,18 @@ public class SkinsActivity extends AppCompatActivity {
         );
 
         recyclerSkins.setAdapter(adapter);
+    }
+
+    private void updateSkinsProgress(List<Skin> skins) {
+        int unlocked = 0;
+
+        for (Skin skin : skins) {
+            if (user.hasSkinUnlocked(skin.getId())) {
+                unlocked++;
+            }
+        }
+
+        int total = skins.size();
+        txtSkinsProgress.setText("Unlocked: " + unlocked + " / " + total);
     }
 }
