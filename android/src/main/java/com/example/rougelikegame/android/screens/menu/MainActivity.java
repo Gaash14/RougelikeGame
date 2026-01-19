@@ -1,11 +1,13 @@
 package com.example.rougelikegame.android.screens.menu;
 
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
@@ -18,6 +20,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.example.rougelikegame.android.managers.AchievementManager;
+import com.example.rougelikegame.android.models.characters.EnemyFactory;
 import com.example.rougelikegame.android.models.core.ScoreReporter;
 import com.example.rougelikegame.android.models.characters.BossEnemy;
 import com.example.rougelikegame.android.models.characters.Enemy;
@@ -28,10 +31,12 @@ import com.example.rougelikegame.android.models.world.Obstacle;
 import com.example.rougelikegame.android.models.world.Pickup;
 import com.example.rougelikegame.android.models.characters.Player;
 import com.example.rougelikegame.android.models.world.Projectile;
+import com.example.rougelikegame.android.models.world.WaveManager;
+import com.example.rougelikegame.android.models.world.WaveSpawner;
 
 import java.util.Random;
 
-public class MainActivity extends ApplicationAdapter {
+public class MainActivity extends ApplicationAdapter implements WaveSpawner {
 
     // Constructors (for AndroidLauncher / tests)
     private final ScoreReporter scoreReporter;
@@ -67,11 +72,14 @@ public class MainActivity extends ApplicationAdapter {
 
     // Game objects
     Player player;
+    private EnemyFactory enemyFactory;
     Array<Enemy> enemies;
     Array<Pickup> pickups;
     Array<Obstacle> obstacles;
     Array<Projectile> playerProjectiles = new Array<>();
     Array<Projectile> enemyProjectiles = new Array<>();
+
+    private WaveManager waveManager;
 
     // Cached textures
     private Texture playerTexture;
@@ -89,12 +97,6 @@ public class MainActivity extends ApplicationAdapter {
     private final AchievementManager achievementManager =
         AchievementManager.getInstance();
 
-    int wave = 1;
-    private static final int BOSS_WAVE = 7;
-
-    float timeBetweenWaves = 2f; // seconds delay before next wave
-    float waveTimer = 0f;
-    boolean waitingForNextWave = false;
     private boolean bossDefeated = false;
 
     // Attack button
@@ -181,8 +183,19 @@ public class MainActivity extends ApplicationAdapter {
         player = new Player(100, 100);
         player.setTexture(playerTexture);
         player.playerClass = selectedClass;
+
+        enemyFactory = new EnemyFactory(
+            enemyTexture,
+            ghostTexture,
+            bossTexture,
+            enemyProjectiles
+        );
+
         enemies = new Array<>();
-        spawnWave(wave);
+
+        waveManager = new WaveManager();
+
+        spawnWave(waveManager.getWave(), enemies, player, getDifficulty());
     }
 
     private Texture getPlayerTextureForSkin() {
@@ -199,7 +212,7 @@ public class MainActivity extends ApplicationAdapter {
                 return new Texture("skins/wave_5.png");
             case "skin_wave_10":
                 return new Texture("skins/wave_10.png");
-            case "skin_100_wins":
+            case "skin_100_kills":
                 return new Texture("skins/100_kills.png");
             case "skin_25_coins":
                 return new Texture("skins/25_coins.png");
@@ -319,8 +332,19 @@ public class MainActivity extends ApplicationAdapter {
     }
 
     private void setupFont() {
-        font = new BitmapFont();
-        font.getData().setScale(5.0f);
+        FreeTypeFontGenerator generator =
+            new FreeTypeFontGenerator(Gdx.files.internal("fonts/Roboto-Regular.ttf"));
+
+        FreeTypeFontGenerator.FreeTypeFontParameter param =
+            new FreeTypeFontGenerator.FreeTypeFontParameter();
+
+        param.size = 48; // REAL font size, not scale
+        param.color = Color.WHITE;
+        param.minFilter = Texture.TextureFilter.Linear;
+        param.magFilter = Texture.TextureFilter.Linear;
+
+        font = generator.generateFont(param);
+        generator.dispose();
     }
 
     // Update loop
@@ -337,7 +361,15 @@ public class MainActivity extends ApplicationAdapter {
         preventEnemyOverlap();
         handlePlayerEnemyCollision();
         handleAttackDamage();
-        cleanupDeadEnemiesAndWaves(delta);
+        cleanupDeadEnemies();
+
+        waveManager.update(
+            delta,
+            enemies,
+            player,
+            difficulty,
+            this
+        );
     }
 
     private void updateGame(float delta) {
@@ -354,6 +386,8 @@ public class MainActivity extends ApplicationAdapter {
 
     // Spawning & waves
     private void spawnRandomObstacles() {
+        if (player == null) return;
+
         obstacles.clear();
 
         int numObstacles = 5;
@@ -372,17 +406,26 @@ public class MainActivity extends ApplicationAdapter {
         }
     }
 
-    private void spawnWave(int waveNumber) {
+    public void spawnWave(int waveNumber, Array<Enemy> enemies,
+                           Player player,
+                           Player.Difficulty difficulty) {
         // Boss wave
-        if (waveNumber == BOSS_WAVE) {
+        if (waveManager.isBossWave()) {
             float bossWidth = 256;
             float bossHeight = 256;
 
             float x = Gdx.graphics.getWidth() / 2f - bossWidth / 2f;
             float y = Gdx.graphics.getHeight() / 2f - bossHeight / 2f;
 
-            enemies.add(new BossEnemy(bossTexture, x, y, enemyProjectiles,
-                calculateEnemyHP(250, true),5, this));
+            enemies.add(
+                enemyFactory.createBossEnemy(
+                    x,
+                    y,
+                    calculateEnemyHP(250, true),
+                    5,
+                    this
+                )
+            );
             if (DEBUG) Gdx.app.log("Spawn", "Spawned boss on wave " + waveNumber);
             return;
         }
@@ -391,7 +434,7 @@ public class MainActivity extends ApplicationAdapter {
         int enemyCount = calculateEnemyCount(waveNumber);
 
         float ghostChance = 0.15f; // 15% chance to spawn a ghost
-        int bonusEnemyDamage = wave / 5; // +1 enemy dmg every 5 waves
+        int bonusEnemyDamage = waveManager.getWave() / 5; // +1 enemy dmg every 5 waves
 
         for (int i = 0; i < enemyCount; i++) {
             float x = rnd.nextInt(Gdx.graphics.getWidth() - 128);
@@ -404,11 +447,23 @@ public class MainActivity extends ApplicationAdapter {
             }
 
             if (rnd.nextFloat() < ghostChance) {
-                enemies.add(new GhostEnemy(ghostTexture, x , y, enemyProjectiles,
-                    calculateEnemyHP(20, false),1 + bonusEnemyDamage));
+                enemies.add(
+                    enemyFactory.createGhostEnemy(
+                        x,
+                        y,
+                        calculateEnemyHP(20, false),
+                        1 + bonusEnemyDamage
+                    )
+                );
             } else {
-                enemies.add(new Enemy(enemyTexture, x, y, 100, 128, 128,
-                    calculateEnemyHP(30, false), 1 + bonusEnemyDamage));
+                enemies.add(
+                    enemyFactory.createNormalEnemy(
+                        x,
+                        y,
+                        calculateEnemyHP(30, false),
+                        1 + bonusEnemyDamage
+                    )
+                );
             }
 
         }
@@ -456,7 +511,7 @@ public class MainActivity extends ApplicationAdapter {
 
         int waveBonus = 0;
         if (!isBoss) {
-            waveBonus = (wave * 2) - 2; // wave based scaling (wave 1=+0)
+            waveBonus = (waveManager.getWave() * 2) - 2; // wave based scaling (wave 1=+0)
         }
 
         int finalHp = Math.round((baseHP + waveBonus) * hpMultiplier);
@@ -466,11 +521,11 @@ public class MainActivity extends ApplicationAdapter {
     }
 
     public void spawnBossReinforcements() {
-        int reinforcementWave = Math.max(1, wave - 1); // scale with current wave
-        spawnWave(reinforcementWave);
+        int reinforcementWave = Math.max(1, waveManager.getWave() - 1); // scale with current wave
+        spawnWave(reinforcementWave, enemies, player, getDifficulty());
     }
 
-    private void spawnWavePickups(int waveNumber) {
+    public void spawnWavePickups(int waveNumber) {
         int numPickups = 2 + waveNumber / 2;
 
         for (int i = 0; i < numPickups; i++) {
@@ -642,8 +697,7 @@ public class MainActivity extends ApplicationAdapter {
         }
     }
 
-    private void cleanupDeadEnemiesAndWaves(float delta) {
-        // Remove dead enemies & detect boss death
+    private void cleanupDeadEnemies() {
         for (int i = enemies.size - 1; i >= 0; i--) {
             Enemy dead = enemies.get(i);
             if (!dead.alive) {
@@ -659,36 +713,8 @@ public class MainActivity extends ApplicationAdapter {
                 }
             }
         }
-
-        // Wave progression
-        if (enemies.size == 0 && !waitingForNextWave) {
-            waitingForNextWave = true;
-            waveTimer = timeBetweenWaves; // start countdown
-        }
-
-        if (waitingForNextWave) {
-            waveTimer -= delta;
-
-            if (waveTimer <= 0) {
-                wave++;
-
-                if (wave >= 5) {
-                    achievementManager.unlock("wave_5");
-                }
-                if (wave >= 10) {
-                    achievementManager.unlock("wave_10");
-                }
-
-                if (scoreReporter != null) {
-                    scoreReporter.reportHighestWave(wave);
-                }
-
-                spawnWave(wave);
-                spawnWavePickups(wave);
-                waitingForNextWave = false;
-            }
-        }
     }
+
 
     // Projectiles
     private void spawnProjectile(float x, float y, Vector2 dir, int damage) {
@@ -771,7 +797,7 @@ public class MainActivity extends ApplicationAdapter {
         if (scoreReporter != null) {
             boolean rangedChosen = player.playerClass == Player.PlayerClass.RANGED;
             scoreReporter.reportRun(
-                wave,
+                waveManager.getWave(),
                 win ? (int) runStats.getRunTime() : 0, // if won, time = runtime. else, time = 0
                 runStats.getEnemiesKilled(),
                 runStats.getPickupsPicked(),
@@ -782,7 +808,7 @@ public class MainActivity extends ApplicationAdapter {
         }
 
         Gdx.app.log("SAVE",
-            "Saving run | wave=" + wave +
+            "Saving run | wave=" + waveManager.getWave() +
                 " time=" + runStats.getRunTime() +
                 " kills=" + runStats.getEnemiesKilled() +
                 " pickups=" + runStats.getPickupsPicked() +
@@ -875,7 +901,7 @@ public class MainActivity extends ApplicationAdapter {
         float lineHeight = 70;
 
         font.draw(batch, "HP: " + player.health, 20, y); y -= lineHeight;
-        font.draw(batch, "Wave: " + wave, 20, y); y -= lineHeight;
+        font.draw(batch, "Wave: " + waveManager.getWave(), 20, y); y -= lineHeight;
         font.draw(batch, "Damage: " + player.getCurrentDamage(), 20, y); y -= lineHeight;
         font.draw(batch, "Speed: " + player.speed, 20, y); y -= lineHeight;
         font.draw(batch, "Coins: " + player.coins, 20, y);

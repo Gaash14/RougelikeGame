@@ -40,7 +40,7 @@ public class SkinRegistry {
         ));
 
         skins.add(new Skin(
-            "skin_100_wins",
+            "skin_100_kills",
             "Slayer",
             Skin.UnlockType.ACHIEVEMENT,
             "kills_100"

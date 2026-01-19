@@ -43,7 +43,7 @@ public class AchievementManager {
         add(new Achievement("wave_10","Survivor",
             "Reach wave 10","skin_wave_10"));
         add(new Achievement("kills_100","Slayer",
-            "Kill 100 enemies","skin_100_wins"));
+            "Kill 100 enemies","skin_100_kills"));
         add(new Achievement("coins_25","Collector",
             "Collect 25 coins in one run","skin_25_coins"));
         add(new Achievement("first_win","Champion",
