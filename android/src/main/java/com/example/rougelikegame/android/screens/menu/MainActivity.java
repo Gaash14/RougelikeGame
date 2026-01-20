@@ -159,6 +159,7 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
         player.dispose();
         font.dispose();
         stage.dispose();
+        joystick.dispose();
         attackBtnTexture.dispose();
         enemyTexture.dispose();
         ghostTexture.dispose();
@@ -235,11 +236,8 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
         joystick = new Joystick(
             "inputs/joystick_base.png",
             "inputs/joystick_knob.png",
-            150, 150,
             100
         );
-
-        stage.addActor(joystick);
     }
 
     private void setupPauseButtons() {
@@ -270,6 +268,9 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
                 Vector3 touch = new Vector3(screenX, screenY, 0);
                 camera.unproject(touch);
 
+                // JOYSTICK
+                joystick.touchDown(touch.x, touch.y, pointer);
+
                 // ---------------- PAUSE MENU ----------------
                 if (paused) {
                     if (resumeBounds.contains(touch.x, touch.y)) {
@@ -282,10 +283,10 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
                         return true;
                     }
 
-                    return true; // swallow all input while paused
+                    return true;
                 }
 
-                // ---------------- GAME INPUT ----------------
+                // ---------------- ATTACK BUTTON ----------------
                 if (attackBtnBounds.contains(touch.x, touch.y)) {
 
                     if (player.playerClass == Player.PlayerClass.MELEE) {
@@ -315,7 +316,22 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
                     return true;
                 }
 
-                return false;
+                return true;
+            }
+
+            @Override
+            public boolean touchDragged(int screenX, int screenY, int pointer) {
+                Vector3 touch = new Vector3(screenX, screenY, 0);
+                camera.unproject(touch);
+
+                joystick.touchDragged(touch.x, touch.y, pointer);
+                return true;
+            }
+
+            @Override
+            public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+                joystick.touchUp(pointer);
+                return true;
             }
 
             @Override
@@ -845,6 +861,8 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
         for (Projectile p : enemyProjectiles) {
             p.draw(batch);
         }
+
+        joystick.draw(batch);
 
         // attack button
         batch.draw(

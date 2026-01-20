@@ -1,74 +1,108 @@
 package com.example.rougelikegame.android.models.input;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
-import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.InputListener;
+import com.badlogic.gdx.math.Vector2;
 
-public class Joystick extends Actor {
-    private Texture base, knob;
-    private float baseX, baseY, knobX, knobY, radius;
-    private boolean touched = false;
+public class Joystick {
 
-    public Joystick(String baseFile, String knobFile, float x, float y, float radius) {
+    private final Texture base;
+    private final Texture knob;
+    private final float radius;
+
+    private float baseX, baseY;
+    private float knobX, knobY;
+
+    private boolean active = false;
+    private int activePointer = -1;
+
+    public Joystick(String baseFile, String knobFile, float radius) {
         this.base = new Texture(baseFile);
         this.knob = new Texture(knobFile);
-        this.baseX = x;
-        this.baseY = y;
         this.radius = radius;
-        this.knobX = x;
-        this.knobY = y;
-
-        setBounds(x - radius, y - radius, radius * 2, radius * 2);
-
-        addListener(new InputListener() {
-            @Override
-            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-                touched = true;
-                updateKnob(x, y);
-                return true;
-            }
-
-            @Override
-            public void touchDragged(InputEvent event, float x, float y, int pointer) {
-                if (touched) updateKnob(x, y);
-            }
-
-            @Override
-            public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
-                touched = false;
-                knobX = baseX;
-                knobY = baseY;
-            }
-        });
     }
 
-    private void updateKnob(float x, float y) {
+    // ================= INPUT =================
+
+    public void touchDown(float x, float y, int pointer) {
+
+        // left half only
+        if (x > Gdx.graphics.getWidth() / 2f) return;
+
+        // already moving → ignore other fingers
+        if (active) return;
+
+        activePointer = pointer;
+
+        baseX = x;
+        baseY = y;
+        knobX = x;
+        knobY = y;
+        active = true;
+    }
+
+    public void touchDragged(float x, float y, int pointer) {
+        if (!active || pointer != activePointer) return;
+
         float dx = x - baseX;
         float dy = y - baseY;
-        float distance = (float) Math.sqrt(dx * dx + dy * dy);
 
-        if (distance > radius) {
-            dx = dx / distance * radius;
-            dy = dy / distance * radius;
+        float dist = (float) Math.sqrt(dx * dx + dy * dy);
+        if (dist > radius) {
+            dx = dx / dist * radius;
+            dy = dy / dist * radius;
         }
 
         knobX = baseX + dx;
         knobY = baseY + dy;
     }
 
+    public void touchUp(int pointer) {
+        if (pointer != activePointer) return;
+
+        active = false;
+        activePointer = -1;
+    }
+
+    // ================= OUTPUT =================
+
     public float getPercentX() {
+        if (!active) return 0f;
         return (knobX - baseX) / radius;
     }
 
     public float getPercentY() {
+        if (!active) return 0f;
         return (knobY - baseY) / radius;
     }
 
-    @Override
-    public void draw(Batch batch, float parentAlpha) {
-        batch.draw(base, baseX - radius, baseY - radius, radius * 2, radius * 2);
-        batch.draw(knob, knobX - knob.getWidth() / 2f, knobY - knob.getHeight() / 2f);
+    public boolean isActive() {
+        return active;
+    }
+
+    // ================= DRAW =================
+
+    public void draw(Batch batch) {
+        if (!active) return;
+
+        batch.draw(
+            base,
+            baseX - radius,
+            baseY - radius,
+            radius * 2,
+            radius * 2
+        );
+
+        batch.draw(
+            knob,
+            knobX - knob.getWidth() / 2f,
+            knobY - knob.getHeight() / 2f
+        );
+    }
+
+    public void dispose() {
+        base.dispose();
+        knob.dispose();
     }
 }

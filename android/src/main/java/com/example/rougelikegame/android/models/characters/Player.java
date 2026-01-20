@@ -94,6 +94,10 @@ public class Player {
         float dx = joystick.getPercentX();
         float dy = joystick.getPercentY();
 
+        // dead zone (prevents tiny unwanted movement)
+        if (Math.abs(dx) < 0.15f) dx = 0f;
+        if (Math.abs(dy) < 0.15f) dy = 0f;
+
         // movement / knockback
         if (knockbackTime > 0) {
             knockbackTime -= delta;
