@@ -69,6 +69,11 @@ public class Player {
     public float rangedCooldown = 0f;
     public float rangedCooldownTime = 0.8f; // longer cooldown
 
+    // immunity
+    private float immunityTimer = 0f;
+    private float immunityDuration = 0f;
+    private boolean immune = false;
+
     public Player(float x, float y) {
         this.texture = new Texture("skins/player_default.png");
 
@@ -82,6 +87,7 @@ public class Player {
     public void update(Joystick joystick, float delta) {
 
         // timers
+
         if (attacking) {
             attackTime -= delta;
             if (attackTime <= 0) attacking = false;
@@ -90,6 +96,14 @@ public class Player {
         if (meleeCooldown > 0) meleeCooldown -= delta;
         if (rangedCooldown > 0) rangedCooldown -= delta;
         if (damageCooldown > 0) damageCooldown -= delta;
+
+        // immunity
+        if (immune) {
+            immunityTimer += delta;
+            if (immunityTimer >= immunityDuration) {
+                immune = false;
+            }
+        }
 
         float dx = joystick.getPercentX();
         float dy = joystick.getPercentY();
@@ -188,6 +202,16 @@ public class Player {
 
     public void triggerRangedCooldown() {
         rangedCooldown = rangedCooldownTime;
+    }
+
+    public void giveImmunity(float seconds) {
+        immune = true;
+        immunityDuration = seconds;
+        immunityTimer = 0f;
+    }
+
+    public boolean isImmune() {
+        return immune;
     }
 
     public void draw(SpriteBatch batch) {

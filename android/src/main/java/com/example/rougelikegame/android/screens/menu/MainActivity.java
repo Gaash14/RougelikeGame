@@ -91,7 +91,7 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
     private static final boolean DEBUG = false;
     private boolean paused = false;
     private final RunStats runStats = new RunStats();
-    Random rnd;
+    private Random rnd;
     public Player.Difficulty getDifficulty() { return difficulty; }
 
     private final AchievementManager achievementManager =
@@ -196,7 +196,7 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
 
         waveManager = new WaveManager();
 
-        spawnWave(waveManager.getWave(), enemies, player, getDifficulty());
+        spawnWave(waveManager.getWave(), enemies, player, getDifficulty(), true);
     }
 
     private Texture getPlayerTextureForSkin() {
@@ -424,9 +424,10 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
 
     public void spawnWave(int waveNumber, Array<Enemy> enemies,
                            Player player,
-                           Player.Difficulty difficulty) {
+                           Player.Difficulty difficulty,
+                          boolean allowBoss) {
         // Boss wave
-        if (waveManager.isBossWave()) {
+        if (allowBoss && waveManager.isBossWave()) {
             float bossWidth = 256;
             float bossHeight = 256;
 
@@ -449,7 +450,7 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
         // Normal enemies
         int enemyCount = calculateEnemyCount(waveNumber);
 
-        float ghostChance = 0.15f; // 15% chance to spawn a ghost
+        float ghostChance = 0.10f; // 10% chance to spawn a ghost
         int bonusEnemyDamage = waveManager.getWave() / 5; // +1 enemy dmg every 5 waves
 
         for (int i = 0; i < enemyCount; i++) {
@@ -537,8 +538,8 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
     }
 
     public void spawnBossReinforcements() {
-        int reinforcementWave = Math.max(1, waveManager.getWave() - 1); // scale with current wave
-        spawnWave(reinforcementWave, enemies, player, getDifficulty());
+        int reinforcementWave = 5;
+        spawnWave(reinforcementWave, enemies, player, getDifficulty(), false);
     }
 
     public void spawnWavePickups(int waveNumber) {
@@ -648,6 +649,7 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
     }
 
     private void handlePlayerEnemyCollision() {
+        if (player.isImmune()) return;
         for (Enemy e : enemies) {
             if (e.getBounds().overlaps(player.bounds)) {
 
@@ -777,6 +779,7 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
     }
 
     private void handleEnemyProjectileHits() {
+        if (player.isImmune()) return;
         for (Projectile p : enemyProjectiles) {
             if (!p.alive) continue;
 
@@ -841,13 +844,22 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
         player.draw(batch);
 
         for (Enemy e : enemies) {
-            e.draw(batch);
+            if (!(e instanceof GhostEnemy)) {
+                e.draw(batch);
+            }
         }
 
         drawBossHealthBar();
 
         for (Obstacle o : obstacles) {
             o.draw(batch);
+        }
+
+        // ghosts are drawn on-top of obstacles
+        for (Enemy e : enemies) {
+            if (e instanceof GhostEnemy) {
+                e.draw(batch);
+            }
         }
 
         for (Pickup p : pickups) {

@@ -9,7 +9,7 @@ import com.example.rougelikegame.android.models.world.Projectile;
 
 public class GhostEnemy extends Enemy {
 
-    private float shootCooldown = 1.5f;
+    private float shootCooldown = 2.0f;
     private float shootTimer = 0f;
     private float preferredDistance = 280f;
     private int damage;

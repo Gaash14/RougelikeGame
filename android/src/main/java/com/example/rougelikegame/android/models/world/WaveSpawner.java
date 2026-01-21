@@ -5,6 +5,6 @@ import com.example.rougelikegame.android.models.characters.Enemy;
 import com.example.rougelikegame.android.models.characters.Player;
 
 public interface WaveSpawner {
-    void spawnWave(int wave, Array<Enemy> enemies, Player player, Player.Difficulty difficulty);
+    void spawnWave(int wave, Array<Enemy> enemies, Player player, Player.Difficulty difficulty, boolean allowBoss);
     void spawnWavePickups(int wave);
 }

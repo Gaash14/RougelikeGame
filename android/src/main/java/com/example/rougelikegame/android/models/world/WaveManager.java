@@ -46,7 +46,9 @@ public class WaveManager {
                 if (wave >= 5) achievementManager.unlock("wave_5");
                 if (wave >= 10) achievementManager.unlock("wave_10");
 
-                spawner.spawnWave(wave, enemies, player, difficulty);
+                player.giveImmunity(1.0f); // 1 second wave-start immunity
+
+                spawner.spawnWave(wave, enemies, player, difficulty, true);
                 spawner.spawnWavePickups(wave);
 
                 waitingForNextWave = false;
