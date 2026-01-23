@@ -5,6 +5,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.example.rougelikegame.android.models.meta.DailyRun;
 import com.example.rougelikegame.android.models.meta.Guild;
 import com.example.rougelikegame.android.models.meta.User;
 import com.google.firebase.database.DataSnapshot;
@@ -569,5 +570,52 @@ public class DatabaseService {
             .child(uid)
             .child("numOfCoins")
             .setValue(coins);
+    }
+
+    public void saveDailyRun(
+        String dateKey,
+        DailyRun run,
+        DatabaseCallback<Void> callback
+    ) {
+        FirebaseDatabase.getInstance()
+            .getReference("daily_runs")
+            .child(dateKey)
+            .child(run.uid)
+            .setValue(run)
+            .addOnSuccessListener(aVoid -> {
+                if (callback != null) callback.onCompleted(null);
+            })
+            .addOnFailureListener(e -> {
+                if (callback != null) callback.onFailed(e);
+            });
+    }
+
+    public void getDailyRuns(
+        String dateKey,
+        DatabaseCallback<List<DailyRun>> callback
+    ) {
+        FirebaseDatabase.getInstance()
+            .getReference("daily_runs")
+            .child(dateKey)
+            .addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    List<DailyRun> runs = new ArrayList<>();
+
+                    for (DataSnapshot child : snapshot.getChildren()) {
+                        DailyRun run = child.getValue(DailyRun.class);
+                        if (run != null) {
+                            runs.add(run);
+                        }
+                    }
+
+                    callback.onCompleted(runs);
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+                    callback.onFailed(error.toException());
+                }
+            });
     }
 }

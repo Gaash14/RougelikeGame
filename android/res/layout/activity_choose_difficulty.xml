@@ -1,126 +1,154 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fillViewport="true"
-    android:background="#121212">
+    android:orientation="vertical"
+    android:background="#121212"
+    android:padding="24dp">
 
+    <!-- Title Card -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:gravity="center"
-        android:padding="24dp">
+        android:background="#1E1E1E"
+        android:padding="12dp"
+        android:layout_marginBottom="12dp">
 
-        <!-- Title Card -->
-        <LinearLayout
-            android:layout_width="match_parent"
+        <TextView
+            android:id="@+id/titleText"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:gravity="center"
-            android:background="#1E1E1E"
-            android:padding="12dp"
-            android:layout_marginBottom="12dp">
+            android:text="Roguelike Game"
+            android:textSize="30sp"
+            android:textStyle="bold"
+            android:textColor="#FFFFFF" />
+    </LinearLayout>
 
-            <TextView
-                android:id="@+id/titleText"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Roguelike Game"
-                android:textSize="30sp"
-                android:textStyle="bold"
-                android:textColor="#FFFFFF" />
-        </LinearLayout>
+    <!-- Class + Difficulty Row -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="12dp">
 
         <!-- Class Selection Card -->
         <LinearLayout
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:orientation="vertical"
             android:gravity="center"
             android:background="#1E1E1E"
             android:padding="12dp"
-            android:layout_marginBottom="12dp">
+            android:layout_marginEnd="8dp">
 
             <TextView
                 android:id="@+id/classLabel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Class: MELEE"
-                android:textSize="20sp"
+                android:textSize="18sp"
                 android:textColor="#FFFFFF"
-                android:layout_marginBottom="12dp" />
+                android:layout_marginBottom="8dp" />
 
             <Switch
                 android:id="@+id/classSwitch"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Ranged Class"
+                android:text="Ranged"
                 android:textColor="#FFFFFF" />
         </LinearLayout>
 
         <!-- Difficulty Selection Card -->
         <LinearLayout
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:orientation="vertical"
             android:gravity="center"
             android:background="#1E1E1E"
             android:padding="12dp"
-            android:layout_marginBottom="20dp">
+            android:layout_marginStart="8dp">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Difficulty"
-                android:textSize="20sp"
+                android:textSize="18sp"
                 android:textColor="#FFFFFF"
-                android:layout_marginBottom="12dp" />
+                android:layout_marginBottom="8dp" />
 
-            <android.widget.RadioGroup
+            <RadioGroup
                 android:id="@+id/difficultyGroup"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center">
 
-                <android.widget.RadioButton
+                <RadioButton
                     android:id="@+id/diffEasy"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Easy"
                     android:textColor="#FFFFFF"
-                    android:layout_marginEnd="16dp" />
+                    android:layout_marginEnd="8dp" />
 
-                <android.widget.RadioButton
+                <RadioButton
                     android:id="@+id/diffNormal"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Normal"
                     android:textColor="#FFFFFF"
                     android:checked="true"
-                    android:layout_marginEnd="16dp" />
+                    android:layout_marginEnd="8dp" />
 
-                <android.widget.RadioButton
+                <RadioButton
                     android:id="@+id/diffHard"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Hard"
                     android:textColor="#FFFFFF" />
-
-            </android.widget.RadioGroup>
+            </RadioGroup>
         </LinearLayout>
 
-        <!-- Start Button -->
-        <Button
-            android:id="@+id/startGameButton"
-            android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:text="▶ START GAME"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:textColor="#000000"
-            android:backgroundTint="#FF9800" />
-
     </LinearLayout>
-</ScrollView>
+
+    <!-- Daily Challenge Card -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:background="#1E1E1E"
+        android:padding="12dp"
+        android:layout_marginBottom="12dp">
+
+        <Switch
+            android:id="@+id/dailyChallengeSwitch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Daily Challenge"
+            android:textSize="18sp"
+            android:textColor="#FFFFFF" />
+    </LinearLayout>
+
+    <!-- Spacer -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <!-- Start Button -->
+    <Button
+        android:id="@+id/startGameButton"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:text="▶ START GAME"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:textColor="#000000"
+        android:backgroundTint="#FF9800" />
+
+</LinearLayout>

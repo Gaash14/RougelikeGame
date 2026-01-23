@@ -20,6 +20,9 @@ public class ChooseDifficultyActivity extends AppCompatActivity {
     private Button startGameButton;
     private RadioGroup difficultyGroup;
 
+    private Switch dailyChallengeSwitch;
+    private boolean dailyChallenge = false;
+
     private Player.Difficulty selectedDifficulty = Player.Difficulty.NORMAL;
     private Player.PlayerClass selectedClass = Player.PlayerClass.MELEE;
 
@@ -53,12 +56,35 @@ public class ChooseDifficultyActivity extends AppCompatActivity {
             }
         });
 
+        dailyChallengeSwitch = findViewById(R.id.dailyChallengeSwitch);
+
+        dailyChallengeSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            dailyChallenge = isChecked;
+
+            if (isChecked) {
+                // Lock difficulty to NORMAL
+                selectedDifficulty = Player.Difficulty.NORMAL;
+                difficultyGroup.check(R.id.diffNormal);
+
+                // Disable difficulty selection
+                for (int i = 0; i < difficultyGroup.getChildCount(); i++) {
+                    difficultyGroup.getChildAt(i).setEnabled(false);
+                }
+            } else {
+                // Re-enable difficulty selection
+                for (int i = 0; i < difficultyGroup.getChildCount(); i++) {
+                    difficultyGroup.getChildAt(i).setEnabled(true);
+                }
+            }
+        });
+
         startGameButton = findViewById(R.id.startGameButton);
         // Start game
         startGameButton.setOnClickListener(v -> {
             Intent intent = new Intent(ChooseDifficultyActivity.this, AndroidLauncher.class);
             intent.putExtra("PLAYER_CLASS", selectedClass.name());
             intent.putExtra("DIFFICULTY", selectedDifficulty.name());
+            intent.putExtra("DAILY_CHALLENGE", dailyChallenge);
             startActivity(intent);
         });
     }

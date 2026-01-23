@@ -21,6 +21,7 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.example.rougelikegame.android.managers.AchievementManager;
 import com.example.rougelikegame.android.models.characters.EnemyFactory;
+import com.example.rougelikegame.android.models.core.GameState;
 import com.example.rougelikegame.android.models.core.ScoreReporter;
 import com.example.rougelikegame.android.models.characters.BossEnemy;
 import com.example.rougelikegame.android.models.characters.Enemy;
@@ -45,21 +46,25 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
     private final String skinId;
 
     public MainActivity(
-            ScoreReporter scoreReporter,
-            Player.PlayerClass selectedClass,
-            Player.Difficulty difficulty,
-            String skinId
+        ScoreReporter scoreReporter,
+        Player.PlayerClass selectedClass,
+        Player.Difficulty difficulty,
+        String skinId,
+        boolean dailyChallenge
     ) {
         this.scoreReporter = scoreReporter;
         this.selectedClass = selectedClass;
         this.difficulty = difficulty;
         this.skinId = skinId;
+        this.dailyChallenge = dailyChallenge;
     }
     public MainActivity(ScoreReporter scoreReporter) {
-        this(scoreReporter, Player.PlayerClass.MELEE, Player.Difficulty.NORMAL, "default");
+        this(scoreReporter, Player.PlayerClass.MELEE,
+            Player.Difficulty.NORMAL, "default", false);
     }
     public MainActivity() {
-        this(null, Player.PlayerClass.MELEE, Player.Difficulty.NORMAL, "default");
+        this(null, Player.PlayerClass.MELEE,
+            Player.Difficulty.NORMAL, "default", false);
     }
     private boolean runReported = false;
 
@@ -88,9 +93,12 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
     private Texture bossTexture;
 
     // Game state
+    private GameState gameState;
+    private long runSeed;
     private static final boolean DEBUG = false;
     private boolean paused = false;
     private final RunStats runStats = new RunStats();
+    private boolean dailyChallenge = false;
     private Random rnd;
     public Player.Difficulty getDifficulty() { return difficulty; }
 
@@ -112,7 +120,14 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
     @Override
     public void create() {
         batch = new SpriteBatch();
-        rnd = new Random();
+
+        runSeed = dailyChallenge
+            ? getDailySeed()
+            : System.currentTimeMillis();
+        gameState = new GameState(runSeed);
+        rnd = gameState.getRandom();
+
+        Gdx.app.log("SEED", "Run seed = " + runSeed);
 
         setupCamera();
         loadTextures();
@@ -124,7 +139,7 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
         setupInput();
         setupFont();
 
-        Gdx.input.setCatchKey(com.badlogic.gdx.Input.Keys.BACK, true);
+        Gdx.input.setCatchKey(Input.Keys.BACK, true);
     }
 
     @Override
@@ -438,8 +453,8 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
                 enemyFactory.createBossEnemy(
                     x,
                     y,
-                    calculateEnemyHP(250, true),
-                    5,
+                    calculateEnemyHP(25, true),
+                    0,
                     this
                 )
             );
@@ -575,7 +590,7 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
 
         pool.add(Pickup.Type.COIN);  // 1 coin vs 2+ of others
 
-        return pool.random();
+        return pool.get(rnd.nextInt(pool.size));
     }
 
     private void checkPickups() {
@@ -923,6 +938,18 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
             exitBounds.x + (exitBounds.width - glyphLayout.width) / 2f,
             exitBounds.y + (exitBounds.height + glyphLayout.height) / 2f
         );
+
+        if (dailyChallenge) {
+            font.draw(batch, "DAILY CHALLENGE", 20, 60);
+        }
+        else {
+            font.draw(
+                batch,
+                "Seed: " + runSeed,
+                20,
+                60
+            );
+        }
     }
 
     private void drawUI() {
@@ -989,5 +1016,10 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
     @Override
     public void pause() {
         paused = true;
+    }
+
+    private long getDailySeed() {
+        // Same seed for everyone today
+        return java.time.LocalDate.now().toEpochDay();
     }
 }

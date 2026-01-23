@@ -62,7 +62,7 @@ public class LeaderboardAdapter extends ArrayAdapter<User> {
                 currentUserUid.equals(user.getUid());
 
         if (isCurrentUser) {
-            root.setBackgroundColor(0xFF3A3A3A);
+            root.setBackgroundResource(R.drawable.bg_you_outline);
             tvName.setText(medal + name + "  • YOU");
         } else {
             root.setBackgroundColor(0xFF2A2A2A);

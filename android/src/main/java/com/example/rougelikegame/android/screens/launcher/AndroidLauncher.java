@@ -6,6 +6,7 @@ import android.util.Log;
 import com.badlogic.gdx.backends.android.AndroidApplication;
 import com.badlogic.gdx.backends.android.AndroidApplicationConfiguration;
 import com.example.rougelikegame.android.models.core.ScoreReporter;
+import com.example.rougelikegame.android.models.meta.DailyRun;
 import com.example.rougelikegame.android.screens.menu.MainActivity;
 import com.example.rougelikegame.android.services.DatabaseService;
 import com.example.rougelikegame.android.utils.SharedPreferencesUtil;
@@ -27,6 +28,9 @@ public class AndroidLauncher extends AndroidApplication {
 
         String difficultyName = getIntent().getStringExtra("DIFFICULTY");
         Player.Difficulty difficulty = Player.Difficulty.valueOf(difficultyName);
+
+        boolean dailyChallenge =
+            getIntent().getBooleanExtra("DAILY_CHALLENGE", false);
 
         User user = SharedPreferencesUtil.getUser(this);
 
@@ -51,6 +55,28 @@ public class AndroidLauncher extends AndroidApplication {
             {
                 User user = SharedPreferencesUtil.getUser(AndroidLauncher.this);
                 if (user == null) return;
+
+                // daily challenge save
+                if (dailyChallenge && win) {
+
+                    String dateKey = java.time.LocalDate.now().toString();
+
+                    DailyRun dailyRun = new DailyRun(
+                        user.getUid(),
+                        user.getFullName(),
+                        wave,
+                        bestTimeSeconds,
+                        rangedChosen ? "RANGED" : "MELEE"
+                    );
+
+                    DatabaseService.getInstance().saveDailyRun(
+                        dateKey,
+                        dailyRun,
+                        null
+                    );
+
+                    return;
+                }
 
                 // highest wave
                 if (wave > user.getHighestWave()) {
@@ -141,6 +167,6 @@ public class AndroidLauncher extends AndroidApplication {
             }
 
         },
-        selectedClass, difficulty, equippedSkinId), configuration);
+        selectedClass, difficulty, equippedSkinId, dailyChallenge), configuration);
     }
 }
