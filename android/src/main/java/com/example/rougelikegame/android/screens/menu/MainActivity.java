@@ -50,21 +50,23 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
         Player.PlayerClass selectedClass,
         Player.Difficulty difficulty,
         String skinId,
-        boolean dailyChallenge
+        boolean dailyChallenge,
+        long runSeed
     ) {
         this.scoreReporter = scoreReporter;
         this.selectedClass = selectedClass;
         this.difficulty = difficulty;
         this.skinId = skinId;
         this.dailyChallenge = dailyChallenge;
+        this.runSeed = runSeed;
     }
     public MainActivity(ScoreReporter scoreReporter) {
         this(scoreReporter, Player.PlayerClass.MELEE,
-            Player.Difficulty.NORMAL, "default", false);
+            Player.Difficulty.NORMAL, "default", false, System.currentTimeMillis());
     }
     public MainActivity() {
         this(null, Player.PlayerClass.MELEE,
-            Player.Difficulty.NORMAL, "default", false);
+            Player.Difficulty.NORMAL, "default", false, System.currentTimeMillis());
     }
     private boolean runReported = false;
 
@@ -121,9 +123,6 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
     public void create() {
         batch = new SpriteBatch();
 
-        runSeed = dailyChallenge
-            ? getDailySeed()
-            : System.currentTimeMillis();
         gameState = new GameState(runSeed);
         rnd = gameState.getRandom();
 
@@ -453,8 +452,8 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
                 enemyFactory.createBossEnemy(
                     x,
                     y,
-                    calculateEnemyHP(25, true),
-                    0,
+                    calculateEnemyHP(250, true),
+                    5,
                     this
                 )
             );
@@ -1016,10 +1015,5 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
     @Override
     public void pause() {
         paused = true;
-    }
-
-    private long getDailySeed() {
-        // Same seed for everyone today
-        return java.time.LocalDate.now().toEpochDay();
     }
 }

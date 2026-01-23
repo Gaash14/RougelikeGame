@@ -11,7 +11,7 @@ public class WaveManager {
 
     private final AchievementManager achievementManager;
 
-    private int wave = 7;
+    private int wave = 1;
 
     private final float timeBetweenWaves = 2f;
     private float waveTimer = 0f;

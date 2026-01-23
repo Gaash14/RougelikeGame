@@ -56,7 +56,6 @@ public class DailyLeaderboardAdapter extends BaseAdapter {
         // ---------- HIGHLIGHTING ----------
         int rank = position + 1;
 
-
         // 🥇🥈🥉 medals (emoji only)
         String medal = "";
         if (rank == 1) medal = "🥇 ";
@@ -64,10 +63,10 @@ public class DailyLeaderboardAdapter extends BaseAdapter {
         else if (rank == 3) medal = "🥉 ";
 
         TextView txtRank = convertView.findViewById(R.id.txtRank);
+        txtRank.setVisibility(View.GONE);
         TextView txtName = convertView.findViewById(R.id.txtName);
         TextView txtStats = convertView.findViewById(R.id.txtStats);
 
-        txtRank.setText("#" + (position + 1));
         txtName.setText(medal + run.name);
 
         txtStats.setText(

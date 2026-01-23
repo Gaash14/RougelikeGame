@@ -32,6 +32,22 @@ public class AndroidLauncher extends AndroidApplication {
         boolean dailyChallenge =
             getIntent().getBooleanExtra("DAILY_CHALLENGE", false);
 
+        long runSeed;
+
+        if (dailyChallenge) {
+            // Same seed for everyone today
+            runSeed = java.time.LocalDate.now().toEpochDay();
+        } else if (getIntent().hasExtra("CUSTOM_SEED")) {
+            // Player-entered seed
+            runSeed = getIntent().getLongExtra(
+                "CUSTOM_SEED",
+                System.currentTimeMillis()
+            );
+        } else {
+            // Normal random run
+            runSeed = System.currentTimeMillis();
+        }
+
         User user = SharedPreferencesUtil.getUser(this);
 
         String equippedSkinId = "default";
@@ -167,6 +183,6 @@ public class AndroidLauncher extends AndroidApplication {
             }
 
         },
-        selectedClass, difficulty, equippedSkinId, dailyChallenge), configuration);
+        selectedClass, difficulty, equippedSkinId, dailyChallenge, runSeed), configuration);
     }
 }
