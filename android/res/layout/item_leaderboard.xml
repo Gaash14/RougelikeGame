@@ -1,9 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
-<TextView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/tvItem"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/rootItem"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:textColor="#FFFFFF"
-    android:textSize="16sp"
+    android:orientation="vertical"
     android:padding="12dp"
-    android:background="#2A2A2A" />
+    android:layout_marginBottom="8dp"
+    android:background="#2A2A2A"
+    android:elevation="2dp">
+
+    <!-- Top line: Rank + Name -->
+    <TextView
+        android:id="@+id/tvName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="🥇 Player Name"
+        android:textColor="#FFFFFF"
+        android:textSize="16sp"
+        android:textStyle="bold" />
+
+    <!-- Bottom line: Stats -->
+    <TextView
+        android:id="@+id/tvStats"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Wave 10 • 03:21"
+        android:textColor="#BBBBBB"
+        android:textSize="13sp"
+        android:layout_marginTop="4dp" />
+</LinearLayout>

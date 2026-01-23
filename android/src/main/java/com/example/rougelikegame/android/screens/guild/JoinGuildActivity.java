@@ -35,7 +35,7 @@ public class JoinGuildActivity extends AppCompatActivity {
 
         adapter = new ArrayAdapter<String>(
             this,
-            R.layout.item_leaderboard,
+            R.layout.item_simple_text,
             R.id.tvItem,
             guildNames
         );
