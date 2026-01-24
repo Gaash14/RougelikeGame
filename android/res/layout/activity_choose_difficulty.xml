@@ -148,7 +148,8 @@
             android:textColor="#FFFFFF"
             android:textColorHint="#888888"
             android:inputType="number"
-            android:backgroundTint="#FF9800" />
+            android:backgroundTint="#FF9800"
+            android:visibility="visible" />
     </LinearLayout>
 
     <!-- Spacer -->

@@ -34,6 +34,12 @@ public class User implements Serializable {
     private int pickupsPicked;
     private int numOfCoins;
 
+    // daily challenge
+    private int dailyChallengesCompleted;
+    private String lastDailyCompletionDate; // yyyy-MM-dd
+    private int dailyStreak;
+    private int bestDailyStreak;
+
     // Required empty constructor for Firebase
     public User() {
     }
@@ -200,12 +206,21 @@ public class User implements Serializable {
     public Map<String, Boolean> getAchievements() {
         return achievements;
     }
-    public void setAchievements(Map<String, Boolean> achievements) {
-        this.achievements = achievements;
-    }
+    public void setAchievements(Map<String, Boolean> achievements) { this.achievements = achievements; }
 
     public int getNumOfCoins() { return numOfCoins;}
     public void setNumOfCoins(int numOfCoins) { this.numOfCoins = numOfCoins;}
+
+    // --- daily challenges ---
+    public int getDailyChallengesCompleted() {return dailyChallengesCompleted;}
+    public void setDailyChallengesCompleted(int dailyChallengesCompleted) {this.dailyChallengesCompleted = dailyChallengesCompleted;}
+    public String getLastDailyCompletionDate() {return lastDailyCompletionDate;}
+    public void setLastDailyCompletionDate(String lastDailyCompletionDate) {this.lastDailyCompletionDate = lastDailyCompletionDate;}
+    public int getDailyStreak() {return dailyStreak;}
+    public void setDailyStreak(int dailyStreak) {this.dailyStreak = dailyStreak;}
+    public int getBestDailyStreak() {return bestDailyStreak;}
+    public void setBestDailyStreak(int bestDailyStreak) {this.bestDailyStreak = bestDailyStreak;}
+
     // --- score stuff ---
     // getters
     public int getHighestWave() {

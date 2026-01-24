@@ -75,8 +75,9 @@ public class AndroidLauncher extends AndroidApplication {
                 // daily challenge save
                 if (dailyChallenge && win) {
 
-                    String dateKey = java.time.LocalDate.now().toString();
+                    String today = java.time.LocalDate.now().toString(); // yyyy-MM-dd
 
+                    // save run
                     DailyRun dailyRun = new DailyRun(
                         user.getUid(),
                         user.getFullName(),
@@ -86,10 +87,46 @@ public class AndroidLauncher extends AndroidApplication {
                     );
 
                     DatabaseService.getInstance().saveDailyRun(
-                        dateKey,
+                        today,
                         dailyRun,
                         null
                     );
+
+                    // only count completion & streak once per day
+                    if (!today.equals(user.getLastDailyCompletionDate())) {
+                        // daily completion count
+                        user.setDailyChallengesCompleted(
+                            user.getDailyChallengesCompleted() + 1
+                        );
+
+                        // daily streak logic
+                        String lastDate = user.getLastDailyCompletionDate();
+
+                        if (lastDate != null) {
+                            java.time.LocalDate last =
+                                java.time.LocalDate.parse(lastDate);
+
+                            if (last.plusDays(1).equals(java.time.LocalDate.now())) {
+                                user.setDailyStreak(user.getDailyStreak() + 1);
+                            } else {
+                                user.setDailyStreak(1);
+                            }
+                        } else {
+                            user.setDailyStreak(1);
+                        }
+
+                        user.setBestDailyStreak(
+                            Math.max(
+                                user.getBestDailyStreak(),
+                                user.getDailyStreak()
+                            )
+                        );
+
+                        user.setLastDailyCompletionDate(today);
+                    }
+
+                    SharedPreferencesUtil.saveUser(AndroidLauncher.this, user);
+                    DatabaseService.getInstance().updateUser(user, true, null);
 
                     return;
                 }

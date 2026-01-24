@@ -79,6 +79,17 @@
             android:background="#1E1E1E"
             android:padding="12dp">
 
+            <TextView
+                android:id="@+id/txtEmptyDaily"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="No one has completed today’s Daily Challenge yet.\nBe the first!"
+                android:textColor="#AAAAAA"
+                android:textSize="16sp"
+                android:gravity="center"
+                android:padding="24dp"
+                android:visibility="gone" />
+
             <ListView
                 android:id="@+id/listLeaderboard"
                 android:layout_width="match_parent"

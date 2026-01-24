@@ -32,6 +32,7 @@ public class LeaderboardActivity extends AppCompatActivity {
     private DatabaseService databaseService;
 
     private TextView txtDailyReset;
+    private TextView txtEmptyDaily;
     private final android.os.Handler handler = new android.os.Handler();
 
     @Override
@@ -46,6 +47,7 @@ public class LeaderboardActivity extends AppCompatActivity {
         Button btnDaily = findViewById(R.id.btnDaily);
 
         txtDailyReset = findViewById(R.id.txtDailyReset);
+        txtEmptyDaily = findViewById(R.id.txtEmptyDaily);
 
         // Default: NORMAL
         currentMode = Mode.NORMAL;
@@ -82,6 +84,7 @@ public class LeaderboardActivity extends AppCompatActivity {
     }
 
     private void loadLeaderboard() {
+        txtEmptyDaily.setVisibility(View.GONE);
         databaseService.getUserList(new DatabaseService.DatabaseCallback<List<User>>() {
             @Override
             public void onCompleted(List<User> users) {
@@ -143,7 +146,13 @@ public class LeaderboardActivity extends AppCompatActivity {
             @Override
             public void onCompleted(List<DailyRun> runs) {
 
-                if (runs == null) runs = new ArrayList<>();
+                if (runs == null || runs.isEmpty()) {
+                    txtEmptyDaily.setVisibility(View.VISIBLE);
+                    listLeaderboard.setAdapter(null);
+                    return;
+                }
+
+                txtEmptyDaily.setVisibility(View.GONE);
 
                 runs.sort((a, b) -> {
                     int waveCompare = Integer.compare(b.wave, a.wave);

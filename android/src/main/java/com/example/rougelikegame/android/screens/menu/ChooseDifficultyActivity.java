@@ -79,8 +79,9 @@ public class ChooseDifficultyActivity extends AppCompatActivity {
                     difficultyGroup.getChildAt(i).setEnabled(false);
                 }
 
-                seedInput.setEnabled(false);
-                seedInput.setText(""); // daily ignores custom seed
+                seedInput.setVisibility(View.GONE);
+                seedInput.setText(""); // clear any custom seed
+                txtDailyReset.setVisibility(View.VISIBLE);
 
                 startDailyCountdown();
 
@@ -93,7 +94,7 @@ public class ChooseDifficultyActivity extends AppCompatActivity {
                 txtDailyReset.setVisibility(View.GONE);
                 handler.removeCallbacksAndMessages(null);
 
-                seedInput.setEnabled(true);
+                seedInput.setVisibility(View.VISIBLE);
             }
         });
 

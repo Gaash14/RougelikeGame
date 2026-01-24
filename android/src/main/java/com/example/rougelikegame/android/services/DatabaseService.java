@@ -413,6 +413,41 @@ public class DatabaseService {
                     )
                 );
 
+                currentUser.setDailyChallengesCompleted(
+                    Math.max(
+                        currentUser.getDailyChallengesCompleted(),
+                        incomingUser.getDailyChallengesCompleted()
+                    )
+                );
+
+                currentUser.setDailyChallengesCompleted(
+                    Math.max(
+                        currentUser.getDailyChallengesCompleted(),
+                        incomingUser.getDailyChallengesCompleted()
+                    )
+                );
+
+                currentUser.setDailyStreak(
+                    Math.max(
+                        currentUser.getDailyStreak(),
+                        incomingUser.getDailyStreak()
+                    )
+                );
+
+                currentUser.setBestDailyStreak(
+                    Math.max(
+                        currentUser.getBestDailyStreak(),
+                        incomingUser.getBestDailyStreak()
+                    )
+                );
+
+                // Last daily completion date (keep latest)
+                if (incomingUser.getLastDailyCompletionDate() != null) {
+                    currentUser.setLastDailyCompletionDate(
+                        incomingUser.getLastDailyCompletionDate()
+                    );
+                }
+
                 if (incomingUser.getProfileImage() != null) {
                     currentUser.setProfileImage(incomingUser.getProfileImage());
                 }

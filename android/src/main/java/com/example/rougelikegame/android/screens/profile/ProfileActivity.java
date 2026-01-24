@@ -31,6 +31,7 @@ public class ProfileActivity extends AppCompatActivity {
     private TextView txtHighestWave, txtBestTime;
     private TextView txtRangedPicks, txtMeleePicks;
     private TextView txtCurrentStreak, txtBestStreak;
+    private TextView txtDailyStats;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,6 +64,8 @@ public class ProfileActivity extends AppCompatActivity {
 
         txtCurrentStreak = findViewById(R.id.txtCurrentStreak);
         txtBestStreak = findViewById(R.id.txtBestStreak);
+
+        txtDailyStats = findViewById(R.id.txtDailyStats);
 
         // Placeholder avatar (until image upload is added)
         imgAvatar.setImageResource(android.R.drawable.ic_menu_myplaces);
@@ -138,6 +141,8 @@ public class ProfileActivity extends AppCompatActivity {
 
             txtCurrentStreak.setText("Current Streak: 0");
             txtBestStreak.setText("Best Streak: 0");
+
+            txtDailyStats.setText("Completed: 0 • 🔥 Streak: 0");
             return;
         }
 
@@ -175,6 +180,12 @@ public class ProfileActivity extends AppCompatActivity {
 
         txtCurrentStreak.setText("Current Streak: " + currentStreak);
         txtBestStreak.setText("Best Streak: " + bestStreak);
+
+        txtDailyStats.setText(
+            "Completed: " + user.getDailyChallengesCompleted()
+                + " • 🔥 Streak: " + user.getDailyStreak()
+                + " (Best: " + user.getBestDailyStreak() + ")"
+        );
 
         // ---------- CLASS PICKS ----------
         int rangedPicks = user.getPickedRanged();
