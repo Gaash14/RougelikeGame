@@ -68,8 +68,6 @@
                 app:tint="#FFFFFF" />
         </LinearLayout>
 
-        <!-- (everything else stays exactly like your current XML) -->
-
         <!-- Two columns -->
         <LinearLayout
             android:layout_width="match_parent"
@@ -175,6 +173,7 @@
                     android:orientation="vertical"
                     android:background="#1E1E1E"
                     android:padding="12dp"
+                    android:minHeight="75dp"
                     android:layout_marginTop="10dp">
 
                     <TextView
@@ -297,6 +296,7 @@
                     android:orientation="vertical"
                     android:background="#1E1E1E"
                     android:padding="12dp"
+                    android:minHeight="75dp"
                     android:layout_marginTop="10dp">
 
                     <TextView

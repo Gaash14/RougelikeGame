@@ -420,13 +420,6 @@ public class DatabaseService {
                     )
                 );
 
-                currentUser.setDailyChallengesCompleted(
-                    Math.max(
-                        currentUser.getDailyChallengesCompleted(),
-                        incomingUser.getDailyChallengesCompleted()
-                    )
-                );
-
                 currentUser.setDailyStreak(
                     Math.max(
                         currentUser.getDailyStreak(),
