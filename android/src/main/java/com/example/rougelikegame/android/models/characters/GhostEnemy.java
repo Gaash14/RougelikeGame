@@ -9,12 +9,12 @@ import com.example.rougelikegame.android.models.world.Projectile;
 
 public class GhostEnemy extends Enemy {
 
-    private float shootCooldown = 2.0f;
+    private final float shootCooldown = 2.0f;
     private float shootTimer = 0f;
-    private float preferredDistance = 280f;
-    private int damage;
+    private final float preferredDistance = 280f;
+    private final int damage;
 
-    private Array<Projectile> projectiles;
+    private final Array<Projectile> projectiles;
 
     public GhostEnemy(Texture texture, float x, float y, Array<Projectile> projectiles, int health, int damage) {
         super(texture, x, y, 120f, 128, 128, health, damage);

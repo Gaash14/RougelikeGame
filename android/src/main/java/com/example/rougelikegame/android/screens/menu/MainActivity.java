@@ -4,8 +4,6 @@ import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.InputAdapter;
-import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
@@ -14,26 +12,29 @@ import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.example.rougelikegame.android.managers.AchievementManager;
 import com.example.rougelikegame.android.models.characters.EnemyFactory;
+import com.example.rougelikegame.android.models.core.CombatSystem;
 import com.example.rougelikegame.android.models.core.GameState;
 import com.example.rougelikegame.android.models.core.ScoreReporter;
 import com.example.rougelikegame.android.models.characters.BossEnemy;
 import com.example.rougelikegame.android.models.characters.Enemy;
 import com.example.rougelikegame.android.models.characters.GhostEnemy;
+import com.example.rougelikegame.android.models.input.GameInputController;
 import com.example.rougelikegame.android.models.input.Joystick;
 import com.example.rougelikegame.android.models.meta.RunStats;
+import com.example.rougelikegame.android.models.meta.Skin;
 import com.example.rougelikegame.android.models.world.Obstacle;
 import com.example.rougelikegame.android.models.world.Pickup;
 import com.example.rougelikegame.android.models.characters.Player;
-import com.example.rougelikegame.android.models.world.Projectile;
+import com.example.rougelikegame.android.models.world.ProjectileSystem;
 import com.example.rougelikegame.android.models.world.WaveManager;
 import com.example.rougelikegame.android.models.world.WaveSpawner;
+import com.example.rougelikegame.android.utils.SkinRegistry;
 
 import java.util.Random;
 
@@ -83,10 +84,10 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
     Array<Enemy> enemies;
     Array<Pickup> pickups;
     Array<Obstacle> obstacles;
-    Array<Projectile> playerProjectiles = new Array<>();
-    Array<Projectile> enemyProjectiles = new Array<>();
-
+    private ProjectileSystem projectileSystem;
+    private CombatSystem combatSystem;
     private WaveManager waveManager;
+    private GameInputController inputController;
 
     // Cached textures
     private Texture playerTexture;
@@ -95,12 +96,10 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
     private Texture bossTexture;
 
     // Game state
-    private GameState gameState;
-    private long runSeed;
+    private final long runSeed;
     private static final boolean DEBUG = false;
-    private boolean paused = false;
     private final RunStats runStats = new RunStats();
-    private boolean dailyChallenge = false;
+    private final boolean dailyChallenge;
     private Random rnd;
     public Player.Difficulty getDifficulty() { return difficulty; }
 
@@ -123,7 +122,7 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
     public void create() {
         batch = new SpriteBatch();
 
-        gameState = new GameState(runSeed);
+        GameState gameState = new GameState(runSeed);
         rnd = gameState.getRandom();
 
         Gdx.app.log("SEED", "Run seed = " + runSeed);
@@ -150,9 +149,10 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
 
         ScreenUtils.clear(0.3f, 0.3f, 0.3f, 1);
 
-        if (!paused) {
+        if (!inputController.isPaused()) {
             update(delta);
         }
+
         drawGame();
     }
 
@@ -168,7 +168,7 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
         for (Obstacle o : obstacles) {
             o.dispose();
         }
-        Projectile.disposeTexture();
+        if (projectileSystem != null) projectileSystem.disposeShared();
 
         player.dispose();
         font.dispose();
@@ -189,8 +189,8 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
 
     private void loadTextures() {
         enemyTexture = new Texture("enemies/enemy.png");
-        ghostTexture = new Texture("enemies/ghost_enemy.png"); // adjust path
-        bossTexture  = new Texture("enemies/boss.png");  // adjust path
+        ghostTexture = new Texture("enemies/ghost_enemy.png");
+        bossTexture  = new Texture("enemies/boss.png");
         playerTexture = getPlayerTextureForSkin();
     }
 
@@ -199,14 +199,37 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
         player.setTexture(playerTexture);
         player.playerClass = selectedClass;
 
+        projectileSystem = new ProjectileSystem();
+
         enemyFactory = new EnemyFactory(
             enemyTexture,
             ghostTexture,
             bossTexture,
-            enemyProjectiles
+            projectileSystem.getEnemyProjectiles()
         );
 
         enemies = new Array<>();
+
+        combatSystem = new CombatSystem(new CombatSystem.Callbacks() {
+            @Override
+            public void onPlayerDied() {
+                MainActivity.this.onPlayerDied();
+            }
+
+            @Override
+            public void onBossDefeated() {
+                MainActivity.this.onBossDefeat();
+            }
+
+            @Override
+            public void onEnemyKilled(Enemy enemy) {
+                runStats.addKill();
+
+                if (runStats.getEnemiesKilled() >= 100) {
+                    achievementManager.unlock("kills_100");
+                }
+            }
+        });
 
         waveManager = new WaveManager();
 
@@ -214,28 +237,8 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
     }
 
     private Texture getPlayerTextureForSkin() {
-        switch (skinId) {
-            case "red":
-                return new Texture("skins/player_red.png");
-            case "shadow":
-                return new Texture("skins/player_shadow.png");
-            case "red_knight":
-                return new Texture("skins/red_knight.png");
-            case "angel":
-                return new Texture("skins/player_angel.png");
-            case "skin_wave_5":
-                return new Texture("skins/wave_5.png");
-            case "skin_wave_10":
-                return new Texture("skins/wave_10.png");
-            case "skin_100_kills":
-                return new Texture("skins/100_kills.png");
-            case "skin_25_coins":
-                return new Texture("skins/25_coins.png");
-            case "skin_first_win":
-                return new Texture("skins/first_win.png");
-            default:
-                return new Texture("skins/player_default.png");
-        }
+        Skin skin = SkinRegistry.getSkinById(skinId);
+        return new Texture(skin.getTexturePath());
     }
 
     private void setupPickupsAndObstacles() {
@@ -272,93 +275,20 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
     }
 
     private void setupInput() {
-        InputMultiplexer multiplexer = new InputMultiplexer();
-        multiplexer.addProcessor(stage);
+        inputController = new GameInputController(
+            camera,
+            stage,
+            joystick,
+            player,
+            enemies,
+            attackBtnBounds,
+            resumeBounds,
+            exitBounds,
+            this::spawnProjectile,
+            () -> Gdx.app.exit()
+        );
 
-        multiplexer.addProcessor(new InputAdapter() {
-
-            @Override
-            public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-                Vector3 touch = new Vector3(screenX, screenY, 0);
-                camera.unproject(touch);
-
-                // JOYSTICK
-                joystick.touchDown(touch.x, touch.y, pointer);
-
-                // ---------------- PAUSE MENU ----------------
-                if (paused) {
-                    if (resumeBounds.contains(touch.x, touch.y)) {
-                        paused = false;
-                        return true;
-                    }
-
-                    if (exitBounds.contains(touch.x, touch.y)) {
-                        Gdx.app.exit();
-                        return true;
-                    }
-
-                    return true;
-                }
-
-                // ---------------- ATTACK BUTTON ----------------
-                if (attackBtnBounds.contains(touch.x, touch.y)) {
-
-                    if (player.playerClass == Player.PlayerClass.MELEE) {
-
-                        player.meleeAttack(joystick);
-
-                        for (Enemy e : enemies) {
-                            e.hitThisSwing = false;
-                        }
-
-                    } else if (player.playerClass == Player.PlayerClass.RANGED) {
-
-                        if (player.canShoot()) {
-                            Vector2 dir = player.getShootDirection(joystick);
-
-                            spawnProjectile(
-                                player.x + player.width / 2f,
-                                player.y + player.height / 2f,
-                                dir,
-                                player.getCurrentDamage()
-                            );
-
-                            player.triggerRangedCooldown();
-                        }
-                    }
-
-                    return true;
-                }
-
-                return true;
-            }
-
-            @Override
-            public boolean touchDragged(int screenX, int screenY, int pointer) {
-                Vector3 touch = new Vector3(screenX, screenY, 0);
-                camera.unproject(touch);
-
-                joystick.touchDragged(touch.x, touch.y, pointer);
-                return true;
-            }
-
-            @Override
-            public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-                joystick.touchUp(pointer);
-                return true;
-            }
-
-            @Override
-            public boolean keyDown(int keycode) {
-                if (keycode == Input.Keys.BACK) {
-                    paused = !paused;
-                    return true;
-                }
-                return false;
-            }
-        });
-
-        Gdx.input.setInputProcessor(multiplexer);
+        Gdx.input.setInputProcessor(inputController.buildProcessor());
     }
 
     private void setupFont() {
@@ -381,17 +311,16 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
     private void update(float delta) {
         updateGame(delta);
 
-        updatePlayerProjectiles(delta);
-        handlePlayerProjectileHits();
-
-        updateEnemyProjectiles(delta);
-        handleEnemyProjectileHits();
+        projectileSystem.update(delta);
+        projectileSystem.handlePlayerProjectilesHitEnemies(enemies);
+        projectileSystem.handleEnemyProjectilesHitPlayer(player, this::onPlayerDied);
 
         checkPickups();
-        preventEnemyOverlap();
-        handlePlayerEnemyCollision();
-        handleAttackDamage();
-        cleanupDeadEnemies();
+
+        combatSystem.preventEnemyOverlap(enemies);
+        combatSystem.handlePlayerEnemyCollision(player, enemies);
+        combatSystem.handleAttackDamage(player, enemies);
+        combatSystem.cleanupDeadEnemies(enemies);
 
         waveManager.update(
             delta,
@@ -569,7 +498,7 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
         }
     }
 
-    // Pickups & collisions
+    // Pickups
     private Pickup.Type getRandomPickupType(float currentPlayerSpeed) {
 
         boolean allowSpeed = currentPlayerSpeed < player.maxSpeed;
@@ -631,183 +560,9 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
         }
     }
 
-    private void preventEnemyOverlap() {
-        for (int i = 0; i < enemies.size; i++) {
-            Enemy a = enemies.get(i);
-
-            for (int j = i + 1; j < enemies.size; j++) {
-                Enemy b = enemies.get(j);
-
-                float dx = b.getX() - a.getX();
-                float dy = b.getY() - a.getY();
-
-                float dist = (float) Math.sqrt(dx * dx + dy * dy);
-                float minDist = a.width;
-
-                if (dist < minDist && dist > 0) {
-                    float overlap = minDist - dist;
-
-                    // normalize
-                    dx /= dist;
-                    dy /= dist;
-
-                    // push each enemy half the overlap
-                    a.setX(a.getX() - dx * overlap * 0.5f);
-                    a.setY(a.getY() - dy * overlap * 0.5f);
-
-                    b.setX(b.getX() + dx * overlap * 0.5f);
-                    b.setY(b.getY() + dy * overlap * 0.5f);
-                }
-            }
-        }
-    }
-
-    private void handlePlayerEnemyCollision() {
-        if (player.isImmune()) return;
-        for (Enemy e : enemies) {
-            if (e.getBounds().overlaps(player.bounds)) {
-
-                if (player.damageCooldown <= 0) {
-
-                    // apply damage
-                    player.health -= e.damage;
-
-                    if (player.health <= 0) {
-                        onPlayerDied();
-                    }
-
-                    // start damage cooldown
-                    player.damageCooldown = player.damageCooldownTime;
-
-                    // knockback direction
-                    float dx = player.x - e.getX();
-                    float dy = player.y - e.getY();
-                    float len = (float) Math.sqrt(dx * dx + dy * dy);
-                    if (len != 0) {
-                        dx /= len;
-                        dy /= len;
-                    }
-
-                    // Apply knockback to player
-                    player.knockbackX = dx;
-                    player.knockbackY = dy;
-                    player.knockbackTime = player.knockbackDuration;
-
-                    if (DEBUG) Gdx.app.log("Combat", "Player hit! HP = " + player.health);
-                }
-            }
-        }
-    }
-
-    private void handleAttackDamage() {
-        if (!player.attacking) return;
-
-        for (Enemy e : enemies) {
-            if (e.hitThisSwing) continue;
-            if (!e.getBounds().overlaps(player.attackHitbox)) continue;
-
-            e.takeDamage(player.getCurrentDamage());
-            e.hitThisSwing = true;
-
-            // knockback enemy away from player
-            float dx = e.getX() - player.x;
-            float dy = e.getY() - player.y;
-
-            float length = (float) Math.sqrt(dx * dx + dy * dy);
-            if (length != 0) {
-                dx /= length;
-                dy /= length;
-            }
-
-            // knockback strength
-            float knockback = 160f;
-
-            e.setX(e.getX() + dx * knockback);
-            e.setY(e.getY() + dy * knockback);
-
-            if (DEBUG) Gdx.app.log("Combat", "HIT! Enemy HP = " + e.health);
-        }
-    }
-
-    private void cleanupDeadEnemies() {
-        for (int i = enemies.size - 1; i >= 0; i--) {
-            Enemy dead = enemies.get(i);
-            if (!dead.alive) {
-                enemies.removeIndex(i);
-                runStats.addKill();
-
-                if (runStats.getEnemiesKilled() >= 100) {
-                    achievementManager.unlock("kills_100");
-                }
-
-                if (dead.isBoss) {
-                    onBossDefeat();
-                }
-            }
-        }
-    }
-
-
     // Projectiles
     private void spawnProjectile(float x, float y, Vector2 dir, int damage) {
-        Projectile p = new Projectile(x, y, dir.x, dir.y, damage);
-        playerProjectiles.add(p);
-    }
-
-    private void updatePlayerProjectiles(float delta) {
-        for (int i = playerProjectiles.size - 1; i >= 0; i--) {
-            Projectile p = playerProjectiles.get(i);
-            p.update(delta);
-
-            if (!p.alive) {
-                playerProjectiles.removeIndex(i);
-            }
-        }
-    }
-
-    private void handlePlayerProjectileHits() {
-        for (Projectile p : playerProjectiles) {
-            if (!p.alive) continue;
-
-            for (Enemy e : enemies) {
-                if (!e.alive) continue;
-
-                if (p.getBounds().overlaps(e.getBounds())) {
-                    e.takeDamage(p.damage);
-                    p.alive = false;
-                    break;
-                }
-            }
-        }
-    }
-
-    private void updateEnemyProjectiles(float delta) {
-        for (int i = enemyProjectiles.size - 1; i >= 0; i--) {
-            Projectile p = enemyProjectiles.get(i);
-            p.update(delta);
-
-            if (!p.alive) {
-                enemyProjectiles.removeIndex(i);
-            }
-        }
-    }
-
-    private void handleEnemyProjectileHits() {
-        if (player.isImmune()) return;
-        for (Projectile p : enemyProjectiles) {
-            if (!p.alive) continue;
-
-            if (p.getBounds().overlaps(player.bounds)) {
-                player.health -= p.damage;
-                p.alive = false;
-                if (DEBUG) Gdx.app.log("Combat", "Player hit! HP = " + player.health);
-
-                if (player.health <= 0) {
-                    onPlayerDied();
-                    return;
-                }
-            }
-        }
+        projectileSystem.spawnPlayerProjectile(x, y, dir, damage);
     }
 
     // Game over / boss defeat
@@ -880,13 +635,7 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
             p.draw(batch);
         }
 
-        for (Projectile p : playerProjectiles) {
-            p.draw(batch);
-        }
-
-        for (Projectile p : enemyProjectiles) {
-            p.draw(batch);
-        }
+        projectileSystem.drawAll(batch);
 
         joystick.draw(batch);
 
@@ -900,7 +649,7 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
         drawDebugAttackHitbox(); // remove later/change to actual animation
         drawUI();
 
-        if (paused) {
+        if (inputController.isPaused()) {
             drawPauseOverlay();
         }
 
@@ -1014,6 +763,8 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
 
     @Override
     public void pause() {
-        paused = true;
+        if (inputController != null) {
+            inputController.setPaused(true);
+        }
     }
 }

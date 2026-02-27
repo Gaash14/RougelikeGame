@@ -9,15 +9,15 @@ import com.example.rougelikegame.android.screens.menu.MainActivity;
 
 public class BossEnemy extends Enemy {
 
-    private float shootCooldown = 2.5f;
+    private final float shootCooldown = 2.5f;
     private float shootTimer = 0f;
-    private int damage;
+    private final int damage;
 
     private boolean reinforcementsSummoned = false;
-    private int maxHealth;
-    private MainActivity game;
+    private final int maxHealth;
+    private final MainActivity game;
 
-    private Array<Projectile> projectiles;
+    private final Array<Projectile> projectiles;
 
     public BossEnemy(Texture texture, float startX, float startY, Array<Projectile> projectiles,
                      int health, int damage, MainActivity game) {

@@ -1,8 +1,6 @@
 package com.example.rougelikegame.android.models.characters;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.example.rougelikegame.android.models.world.Projectile;
 import com.example.rougelikegame.android.screens.menu.MainActivity;

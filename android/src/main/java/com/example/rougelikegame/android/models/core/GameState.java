@@ -3,8 +3,8 @@ package com.example.rougelikegame.android.models.core;
 import java.util.Random;
 
 public class GameState {
-    private long seed;
-    private Random random;
+    private final long seed;
+    private final Random random;
 
     public GameState(long seed) {
         this.seed = seed;

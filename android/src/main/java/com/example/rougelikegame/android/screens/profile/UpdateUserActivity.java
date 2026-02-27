@@ -224,7 +224,6 @@ public class UpdateUserActivity extends AppCompatActivity implements View.OnClic
         if (!isCurrentUser && !selectedUser.isAdmin()) {
             Log.e(TAG, "Only the current user can update their profile");
             Toast.makeText(this, "You can only update your own profile", Toast.LENGTH_SHORT).show();
-            return;
         }
         else if (isCurrentUser) {
             updateUserInDatabase(selectedUser);

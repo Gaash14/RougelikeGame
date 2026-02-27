@@ -11,7 +11,6 @@ import com.example.rougelikegame.R;
 import com.example.rougelikegame.android.managers.AchievementManager;
 import com.example.rougelikegame.android.screens.auth.LandingActivity;
 import com.example.rougelikegame.android.screens.admin.AdminActivity;
-import com.example.rougelikegame.android.screens.profile.UpdateUserActivity;
 import com.example.rougelikegame.android.screens.guild.GuildInfoActivity;
 import com.example.rougelikegame.android.screens.leaderboard.LeaderboardActivity;
 import com.example.rougelikegame.android.screens.profile.ProfileActivity;

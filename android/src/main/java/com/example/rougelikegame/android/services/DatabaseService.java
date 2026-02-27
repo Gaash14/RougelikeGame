@@ -48,10 +48,10 @@ public class DatabaseService {
     /// @see DatabaseCallback#onFailed(Exception)
     public interface DatabaseCallback<T> {
         /// called when the operation is completed successfully
-        public void onCompleted(T object);
+        void onCompleted(T object);
 
         /// called when the operation fails with an exception
-        public void onFailed(Exception e);
+        void onFailed(Exception e);
     }
 
     /// the instance of this class

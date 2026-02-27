@@ -25,7 +25,7 @@ public class ImageSourceAdapter extends ArrayAdapter<ImageSourceOption> {
 
     private final LayoutInflater inflater;
     private final List<ImageSourceOption> objects;
-    private OnImageSourceSelectedListener listener;
+    private final OnImageSourceSelectedListener listener;
 
     public ImageSourceAdapter(@NonNull Context context, @NonNull List<ImageSourceOption> objects,
                               @NonNull OnImageSourceSelectedListener listener) {
