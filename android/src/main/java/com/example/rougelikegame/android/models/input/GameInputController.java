@@ -101,10 +101,11 @@ public class GameInputController {
 
                     if (player.playerClass == Player.PlayerClass.MELEE) {
 
-                        player.meleeAttack(joystick);
-
-                        for (Enemy e : enemies) {
-                            e.hitThisSwing = false;
+                        if (player.canMelee()) {
+                            for (Enemy e : enemies) {
+                                e.hitThisSwing = false;
+                            }
+                            player.meleeAttack(joystick);
                         }
 
                     } else if (player.playerClass == Player.PlayerClass.RANGED) {

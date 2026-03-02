@@ -8,6 +8,8 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.example.rougelikegame.android.models.input.Joystick;
+import com.example.rougelikegame.android.models.items.DamageContext;
+import com.example.rougelikegame.android.models.items.PassiveItem;
 import com.example.rougelikegame.android.models.world.Obstacle;
 
 public class Player {
@@ -40,6 +42,8 @@ public class Player {
     public final int maxSpeed = 600;
     public int coins = 0;
     public int attackBonus = 0;
+
+    private final Array<PassiveItem> passiveItems = new Array<>();
 
     // collisions
     public final Rectangle bounds;
@@ -212,6 +216,25 @@ public class Player {
 
     public boolean isImmune() {
         return immune;
+    }
+
+    public int getDisplayedDamage() {
+        DamageContext ctx = new DamageContext(getCurrentDamage());
+
+        for (PassiveItem it : passiveItems) {
+            it.modifyStats(this, ctx);
+        }
+
+        return ctx.damage;
+    }
+
+    public void addPassiveItem(PassiveItem item) {
+        passiveItems.add(item);
+        item.onPickup(this);
+    }
+
+    public Array<PassiveItem> getPassiveItems() {
+        return passiveItems;
     }
 
     public void draw(SpriteBatch batch) {

@@ -20,6 +20,8 @@ public class Enemy {
     public boolean hitThisSwing = false;
     public int damage;
 
+    private final StatusEffects effects = new StatusEffects();
+
     public Enemy(Texture texture, float startX, float startY, float speed, float width, float height, int health, int damage) {
         this.texture = texture;
         this.x = startX;
@@ -40,6 +42,7 @@ public class Enemy {
 
     // Update enemy position
     public void update(float delta, float playerX, float playerY) {
+        // movements
         float dx = playerX - x;
         float dy = playerY - y;
 
@@ -57,6 +60,16 @@ public class Enemy {
         y = MathUtils.clamp(y, 0, Gdx.graphics.getHeight() - height);
 
         bounds.setPosition(x, y);
+
+        effects.update(delta, this);
+    }
+
+    public StatusEffects getEffects() {
+        return effects;
+    }
+
+    public void applyPoison(float durationSeconds) {
+        effects.applyPoison(durationSeconds);
     }
 
     public void handleObstacleCollision(Array<Obstacle> obstacles) {

@@ -3,6 +3,8 @@ package com.example.rougelikegame.android.models.core;
 import com.badlogic.gdx.utils.Array;
 import com.example.rougelikegame.android.models.characters.Enemy;
 import com.example.rougelikegame.android.models.characters.Player;
+import com.example.rougelikegame.android.models.items.DamageContext;
+import com.example.rougelikegame.android.models.items.PassiveItem;
 
 public class CombatSystem {
 
@@ -97,7 +99,15 @@ public class CombatSystem {
             if (e.hitThisSwing) continue;
             if (!e.getBounds().overlaps(player.attackHitbox)) continue;
 
-            e.takeDamage(player.getCurrentDamage());
+            DamageContext ctx = new DamageContext(player.getCurrentDamage());
+
+            for (PassiveItem it : player.getPassiveItems()) {
+                it.modifyMeleeDamage(player, ctx);
+                it.onHitEnemy(player, e);
+            }
+
+            e.takeDamage(ctx.damage);
+
             e.hitThisSwing = true;
 
             // knockback enemy away from player

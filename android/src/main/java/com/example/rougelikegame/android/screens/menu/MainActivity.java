@@ -26,6 +26,9 @@ import com.example.rougelikegame.android.models.characters.Enemy;
 import com.example.rougelikegame.android.models.characters.GhostEnemy;
 import com.example.rougelikegame.android.models.input.GameInputController;
 import com.example.rougelikegame.android.models.input.Joystick;
+import com.example.rougelikegame.android.models.items.DamageContext;
+import com.example.rougelikegame.android.models.items.ItemRegistry;
+import com.example.rougelikegame.android.models.items.PassiveItem;
 import com.example.rougelikegame.android.models.meta.RunStats;
 import com.example.rougelikegame.android.models.meta.Skin;
 import com.example.rougelikegame.android.models.world.Obstacle;
@@ -201,6 +204,9 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
 
         projectileSystem = new ProjectileSystem();
 
+        player.addPassiveItem(ItemRegistry.create(1));
+        player.addPassiveItem(ItemRegistry.create(2));
+
         enemyFactory = new EnemyFactory(
             enemyTexture,
             ghostTexture,
@@ -312,7 +318,7 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
         updateGame(delta);
 
         projectileSystem.update(delta);
-        projectileSystem.handlePlayerProjectilesHitEnemies(enemies);
+        projectileSystem.handlePlayerProjectilesHitEnemies(player, enemies);
         projectileSystem.handleEnemyProjectilesHitPlayer(player, this::onPlayerDied);
 
         checkPickups();
@@ -561,8 +567,12 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
     }
 
     // Projectiles
-    private void spawnProjectile(float x, float y, Vector2 dir, int damage) {
-        projectileSystem.spawnPlayerProjectile(x, y, dir, damage);
+    private void spawnProjectile(float x, float y, Vector2 dir, int baseDamage) {
+        DamageContext ctx = new DamageContext(baseDamage);
+        for (PassiveItem it : player.getPassiveItems()) {
+            it.modifyProjectileDamage(player, ctx);
+        }
+        projectileSystem.spawnPlayerProjectile(x, y, dir, ctx.damage);
     }
 
     // Game over / boss defeat
@@ -707,7 +717,7 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
 
         font.draw(batch, "HP: " + player.health, 20, y); y -= lineHeight;
         font.draw(batch, "Wave: " + waveManager.getWave(), 20, y); y -= lineHeight;
-        font.draw(batch, "Damage: " + player.getCurrentDamage(), 20, y); y -= lineHeight;
+        font.draw(batch, "Damage: " + player.getDisplayedDamage(), 20, y); y -= lineHeight;
         font.draw(batch, "Speed: " + player.speed, 20, y); y -= lineHeight;
         font.draw(batch, "Coins: " + player.coins, 20, y);
 

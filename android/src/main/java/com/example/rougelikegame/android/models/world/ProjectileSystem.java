@@ -4,6 +4,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.math.Vector2;
 import com.example.rougelikegame.android.models.characters.Enemy;
 import com.example.rougelikegame.android.models.characters.Player;
+import com.example.rougelikegame.android.models.items.PassiveItem;
 
 public class ProjectileSystem {
 
@@ -44,7 +45,7 @@ public class ProjectileSystem {
 
     // ----- Hits -----
 
-    public void handlePlayerProjectilesHitEnemies(Array<Enemy> enemies) {
+    public void handlePlayerProjectilesHitEnemies(Player player, Array<Enemy> enemies) {
         for (Projectile p : playerProjectiles) {
             if (!p.alive) continue;
 
@@ -52,7 +53,13 @@ public class ProjectileSystem {
                 if (!e.alive) continue;
 
                 if (p.getBounds().overlaps(e.getBounds())) {
+
                     e.takeDamage(p.damage);
+
+                    for (PassiveItem it : player.getPassiveItems()) {
+                        it.onHitEnemy(player, e);
+                    }
+
                     p.alive = false;
                     break;
                 }
