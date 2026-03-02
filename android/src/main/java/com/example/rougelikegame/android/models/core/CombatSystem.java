@@ -62,7 +62,7 @@ public class CombatSystem {
 
                 if (player.damageCooldown <= 0) {
 
-                    player.health -= e.damage;
+                    player.applyIncomingDamage(e.damage);
 
                     if (player.health <= 0) {
                         callbacks.onPlayerDied();

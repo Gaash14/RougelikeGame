@@ -74,7 +74,7 @@ public class ProjectileSystem {
             if (!p.alive) continue;
 
             if (p.getBounds().overlaps(player.bounds)) {
-                player.health -= p.damage;
+                player.applyIncomingDamage(p.damage);
                 p.alive = false;
 
                 if (player.health <= 0) {

@@ -8,6 +8,7 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.example.rougelikegame.android.models.input.Joystick;
+import com.example.rougelikegame.android.models.items.contexts.BlockChanceContext;
 import com.example.rougelikegame.android.models.items.contexts.CooldownContext;
 import com.example.rougelikegame.android.models.items.contexts.DamageContext;
 import com.example.rougelikegame.android.models.items.PassiveItem;
@@ -237,6 +238,30 @@ public class Player {
 
     public boolean isImmune() {
         return immune;
+    }
+
+    public float getEffectiveBlockChance() {
+        BlockChanceContext ctx = new BlockChanceContext(0f);
+
+        for (PassiveItem it : passiveItems) {
+            it.modifyBlockChance(this, ctx);
+        }
+
+        return MathUtils.clamp(ctx.chance, 0f, 0.5f);
+    }
+
+    public int getEffectiveIncomingDamage(int baseDamage) {
+        if (MathUtils.random() < getEffectiveBlockChance()) {
+            return 0;
+        }
+
+        return baseDamage;
+    }
+
+    public int applyIncomingDamage(int baseDamage) {
+        int finalDamage = getEffectiveIncomingDamage(baseDamage);
+        health -= finalDamage;
+        return finalDamage;
     }
 
     public int getDisplayedDamage() {

@@ -204,8 +204,7 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
 
         projectileSystem = new ProjectileSystem();
 
-        player.addPassiveItem(ItemRegistry.create(1));
-        player.addPassiveItem(ItemRegistry.create(2));
+        player.addPassiveItem(ItemRegistry.create(4));
 
         enemyFactory = new EnemyFactory(
             enemyTexture,
