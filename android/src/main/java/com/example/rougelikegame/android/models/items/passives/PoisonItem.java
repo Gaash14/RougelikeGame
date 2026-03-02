@@ -1,7 +1,8 @@
-package com.example.rougelikegame.android.models.items;
+package com.example.rougelikegame.android.models.items.passives;
 
 import com.example.rougelikegame.android.models.characters.Enemy;
 import com.example.rougelikegame.android.models.characters.Player;
+import com.example.rougelikegame.android.models.items.PassiveItem;
 
 public class PoisonItem implements PassiveItem {
 

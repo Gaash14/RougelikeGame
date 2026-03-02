@@ -1,5 +1,9 @@
 package com.example.rougelikegame.android.models.items;
 
+import com.example.rougelikegame.android.models.items.passives.AttackSpeedItem;
+import com.example.rougelikegame.android.models.items.passives.DamageUpItem;
+import com.example.rougelikegame.android.models.items.passives.PoisonItem;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
@@ -11,6 +15,7 @@ public class ItemRegistry {
     static {
         register(DamageUpItem.ID, DamageUpItem::new);
         register(PoisonItem.ID, PoisonItem::new);
+        register(AttackSpeedItem.ID, AttackSpeedItem::new);
     }
 
     private static void register(int id, Supplier<PassiveItem> supplier) {

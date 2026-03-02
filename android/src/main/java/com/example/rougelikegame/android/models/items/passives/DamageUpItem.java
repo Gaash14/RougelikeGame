@@ -1,6 +1,8 @@
-package com.example.rougelikegame.android.models.items;
+package com.example.rougelikegame.android.models.items.passives;
 
 import com.example.rougelikegame.android.models.characters.Player;
+import com.example.rougelikegame.android.models.items.PassiveItem;
+import com.example.rougelikegame.android.models.items.contexts.DamageContext;
 
 public class DamageUpItem implements PassiveItem {
 

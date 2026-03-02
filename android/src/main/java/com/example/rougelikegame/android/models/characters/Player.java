@@ -8,7 +8,8 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.example.rougelikegame.android.models.input.Joystick;
-import com.example.rougelikegame.android.models.items.DamageContext;
+import com.example.rougelikegame.android.models.items.contexts.CooldownContext;
+import com.example.rougelikegame.android.models.items.contexts.DamageContext;
 import com.example.rougelikegame.android.models.items.PassiveItem;
 import com.example.rougelikegame.android.models.world.Obstacle;
 
@@ -169,7 +170,7 @@ public class Player {
     public void meleeAttack(Joystick joystick) {
         if (!canMelee()) return;
 
-        meleeCooldown = meleeCooldownTime;
+        meleeCooldown = getEffectiveMeleeCooldownTime();
         attacking = true;
         attackTime = 0.15f;
 
@@ -205,7 +206,27 @@ public class Player {
     }
 
     public void triggerRangedCooldown() {
-        rangedCooldown = rangedCooldownTime;
+        rangedCooldown = getEffectiveRangedCooldownTime();
+    }
+
+    public float getEffectiveMeleeCooldownTime() {
+        CooldownContext ctx = new CooldownContext(meleeCooldownTime);
+
+        for (PassiveItem it : passiveItems) {
+            it.modifyMeleeCooldown(this, ctx);
+        }
+
+        return ctx.cooldown;
+    }
+
+    public float getEffectiveRangedCooldownTime() {
+        CooldownContext ctx = new CooldownContext(rangedCooldownTime);
+
+        for (PassiveItem it : passiveItems) {
+            it.modifyRangedCooldown(this, ctx);
+        }
+
+        return ctx.cooldown;
     }
 
     public void giveImmunity(float seconds) {

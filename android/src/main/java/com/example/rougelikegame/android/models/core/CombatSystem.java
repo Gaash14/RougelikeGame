@@ -3,7 +3,7 @@ package com.example.rougelikegame.android.models.core;
 import com.badlogic.gdx.utils.Array;
 import com.example.rougelikegame.android.models.characters.Enemy;
 import com.example.rougelikegame.android.models.characters.Player;
-import com.example.rougelikegame.android.models.items.DamageContext;
+import com.example.rougelikegame.android.models.items.contexts.DamageContext;
 import com.example.rougelikegame.android.models.items.PassiveItem;
 
 public class CombatSystem {

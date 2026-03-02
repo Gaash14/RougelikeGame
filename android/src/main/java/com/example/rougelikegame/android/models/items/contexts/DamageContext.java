@@ -1,4 +1,4 @@
-package com.example.rougelikegame.android.models.items;
+package com.example.rougelikegame.android.models.items.contexts;
 
 public class DamageContext {
     public int damage;
