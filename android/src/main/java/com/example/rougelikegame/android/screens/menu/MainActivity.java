@@ -204,7 +204,7 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
 
         projectileSystem = new ProjectileSystem();
 
-        player.addPassiveItem(ItemRegistry.create(4));
+        player.addPassiveItem(ItemRegistry.create(5));
 
         enemyFactory = new EnemyFactory(
             enemyTexture,
@@ -289,7 +289,17 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
             attackBtnBounds,
             resumeBounds,
             exitBounds,
-            this::spawnProjectile,
+            new GameInputController.ProjectileSpawner() {
+                @Override
+                public void spawnProjectile(float x, float y, Vector2 dir, int damage) {
+                    MainActivity.this.spawnProjectile(x, y, dir, damage);
+                }
+
+                @Override
+                public void spawnBeam(Vector2 dir, float chargePercent) {
+                    MainActivity.this.spawnBeam(dir, chargePercent);
+                }
+            },
             () -> Gdx.app.exit()
         );
 
@@ -572,6 +582,29 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
             it.modifyProjectileDamage(player, ctx);
         }
         projectileSystem.spawnPlayerProjectile(x, y, dir, ctx.damage);
+    }
+
+    private void spawnBeam(Vector2 dir, float chargePercent) {
+        int baseDamage = player.getCurrentDamage();
+        DamageContext ctx = new DamageContext(baseDamage);
+
+        for (PassiveItem it : player.getPassiveItems()) {
+            it.modifyProjectileDamage(player, ctx);
+            it.modifyMeleeDamage(player, ctx);
+        }
+
+        float scaled = ctx.damage * Math.max(0f, Math.min(chargePercent, 1f));
+        int beamTickDamage = Math.max(1, Math.round(scaled));
+
+        projectileSystem.spawnBeam(
+            player.x + player.width / 2f,
+            player.y + player.height / 2f,
+            dir,
+            beamTickDamage
+        );
+
+        player.meleeCooldown = player.getEffectiveMeleeCooldownTime();
+        player.triggerRangedCooldown();
     }
 
     // Game over / boss defeat

@@ -1,6 +1,5 @@
 package com.example.rougelikegame.android.models.input;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.InputMultiplexer;
@@ -12,12 +11,14 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.example.rougelikegame.android.models.characters.Enemy;
 import com.example.rougelikegame.android.models.characters.Player;
-import com.example.rougelikegame.android.models.world.Projectile;
+import com.example.rougelikegame.android.models.items.PassiveItem;
+import com.example.rougelikegame.android.models.items.passives.BeamItem;
 
 public class GameInputController {
 
     public interface ProjectileSpawner {
         void spawnProjectile(float x, float y, Vector2 dir, int damage);
+        void spawnBeam(Vector2 dir, float chargePercent);
     }
 
     private final OrthographicCamera camera;
@@ -35,6 +36,7 @@ public class GameInputController {
     private final Runnable onExitRequested;
 
     private boolean paused = false;
+    private int attackPointer = -1;
 
     public GameInputController(
         OrthographicCamera camera,
@@ -98,6 +100,11 @@ public class GameInputController {
 
                 // ---------------- ATTACK BUTTON ----------------
                 if (attackBtnBounds.contains(touch.x, touch.y)) {
+                    if (hasBeamItem()) {
+                        attackPointer = pointer;
+                        player.startCharge();
+                        return true;
+                    }
 
                     if (player.playerClass == Player.PlayerClass.MELEE) {
 
@@ -142,6 +149,17 @@ public class GameInputController {
             @Override
             public boolean touchUp(int screenX, int screenY, int pointer, int button) {
                 joystick.touchUp(pointer);
+
+                if (pointer == attackPointer) {
+                    attackPointer = -1;
+                    float chargePercent = player.releaseChargePercent();
+
+                    if (chargePercent >= (0.8f / 1.2f)) {
+                        Vector2 dir = player.getShootDirection(joystick);
+                        projectileSpawner.spawnBeam(dir, chargePercent);
+                    }
+                }
+
                 return true;
             }
 
@@ -156,5 +174,14 @@ public class GameInputController {
         });
 
         return multiplexer;
+    }
+
+    private boolean hasBeamItem() {
+        for (PassiveItem item : player.getPassiveItems()) {
+            if (item.getItemId() == BeamItem.ID) {
+                return true;
+            }
+        }
+        return false;
     }
 }

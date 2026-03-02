@@ -75,6 +75,11 @@ public class Player {
     public float rangedCooldown = 0f;
     public float rangedCooldownTime = 0.8f; // longer cooldown
 
+    // charge attack
+    private boolean charging = false;
+    private float chargeTime = 0f;
+    private static final float MAX_CHARGE_TIME = 2.0f;
+
     // immunity
     private float immunityTimer = 0f;
     private float immunityDuration = 0f;
@@ -102,6 +107,8 @@ public class Player {
         if (meleeCooldown > 0) meleeCooldown -= delta;
         if (rangedCooldown > 0) rangedCooldown -= delta;
         if (damageCooldown > 0) damageCooldown -= delta;
+
+        updateCharge(delta);
 
         // immunity
         if (immune) {
@@ -208,6 +215,25 @@ public class Player {
 
     public void triggerRangedCooldown() {
         rangedCooldown = getEffectiveRangedCooldownTime();
+    }
+
+    public void startCharge() {
+        charging = true;
+        chargeTime = 0f;
+    }
+
+    public void updateCharge(float delta) {
+        if (!charging) return;
+        chargeTime = Math.min(chargeTime + delta, MAX_CHARGE_TIME);
+    }
+
+    public float releaseChargePercent() {
+        if (!charging) return 0f;
+
+        charging = false;
+        float percent = chargeTime / MAX_CHARGE_TIME;
+        chargeTime = 0f;
+        return MathUtils.clamp(percent, 0f, 1f);
     }
 
     public float getEffectiveMeleeCooldownTime() {

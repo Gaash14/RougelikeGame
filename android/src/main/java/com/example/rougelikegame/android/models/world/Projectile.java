@@ -46,6 +46,11 @@ public class Projectile {
         return bounds;
     }
 
+    public static Texture getTexture() {
+        if (tex == null) tex = new Texture("pixel.png");
+        return tex;
+    }
+
     public static void disposeTexture() {
         if (tex != null) {
             tex.dispose();
