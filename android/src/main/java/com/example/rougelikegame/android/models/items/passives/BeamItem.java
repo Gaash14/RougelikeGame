@@ -20,4 +20,9 @@ public class BeamItem implements PassiveItem {
     public String getDisplayName() {
         return "Light Beam";
     }
+
+    @Override
+    public String getIconPath() {
+        return "items/beam.png";
+    }
 }

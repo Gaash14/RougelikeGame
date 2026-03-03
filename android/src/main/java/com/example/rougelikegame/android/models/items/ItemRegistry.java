@@ -7,7 +7,9 @@ import com.example.rougelikegame.android.models.items.passives.DamageUpItem;
 import com.example.rougelikegame.android.models.items.passives.PoisonItem;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Supplier;
 
 public class ItemRegistry {
@@ -30,5 +32,9 @@ public class ItemRegistry {
         Supplier<PassiveItem> supplier = registry.get(id);
         if (supplier == null) throw new IllegalArgumentException("Unknown item id: " + id);
         return supplier.get();
+    }
+
+    public static Set<Integer> getAllItemIds() {
+        return new HashSet<>(registry.keySet());
     }
 }

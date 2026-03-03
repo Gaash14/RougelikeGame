@@ -8,6 +8,7 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.example.rougelikegame.android.models.input.Joystick;
+import com.example.rougelikegame.android.models.items.ItemRegistry;
 import com.example.rougelikegame.android.models.items.contexts.BlockChanceContext;
 import com.example.rougelikegame.android.models.items.contexts.CooldownContext;
 import com.example.rougelikegame.android.models.items.contexts.DamageContext;
@@ -301,8 +302,32 @@ public class Player {
     }
 
     public void addPassiveItem(PassiveItem item) {
+        if (item == null) return;
+
+        if (hasItem(item.getItemId()) && !ownsAllItems()) {
+            return;
+        }
+
         passiveItems.add(item);
         item.onPickup(this);
+    }
+
+    public boolean hasItem(int itemId) {
+        for (PassiveItem item : passiveItems) {
+            if (item.getItemId() == itemId) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public int getOwnedItemCount() {
+        return passiveItems.size;
+    }
+
+    public boolean ownsAllItems() {
+        return getOwnedItemCount() >= ItemRegistry.getAllItemIds().size();
     }
 
     public Array<PassiveItem> getPassiveItems() {

@@ -24,6 +24,11 @@ public class DamageUpItem implements PassiveItem {
     }
 
     @Override
+    public String getIconPath() {
+        return "pickups/pickup_damage.png";
+    }
+
+    @Override
     public void modifyStats(Player player, DamageContext ctx) {
         ctx.damage += 5;
     }

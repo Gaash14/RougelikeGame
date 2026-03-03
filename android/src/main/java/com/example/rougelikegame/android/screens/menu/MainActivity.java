@@ -12,7 +12,10 @@ import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
@@ -39,7 +42,13 @@ import com.example.rougelikegame.android.models.world.WaveManager;
 import com.example.rougelikegame.android.models.world.WaveSpawner;
 import com.example.rougelikegame.android.utils.SkinRegistry;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 
 public class MainActivity extends ApplicationAdapter implements WaveSpawner {
 
@@ -78,6 +87,12 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
     SpriteBatch batch;
     OrthographicCamera camera;
     Stage stage;
+    private Stage rewardStage;
+    private boolean rewardScreenActive = false;
+    private int rewardWave = -1;
+    private int pendingWaveToSpawn = -1;
+    private final Map<String, Texture> itemIconCache = new HashMap<>();
+    private Texture fallbackItemTexture;
     Joystick joystick;
     BitmapFont font;
 
@@ -146,14 +161,16 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
     @Override
     public void render() {
         float delta = Gdx.graphics.getDeltaTime();
-        if (!bossDefeated) {
+        if (!bossDefeated && !rewardScreenActive) {
             runStats.addTime(delta);
         }
 
         ScreenUtils.clear(0.3f, 0.3f, 0.3f, 1);
 
-        if (!inputController.isPaused()) {
+        if (!rewardScreenActive && !inputController.isPaused()) {
             update(delta);
+        } else if (rewardScreenActive && rewardStage != null) {
+            rewardStage.act(delta);
         }
 
         drawGame();
@@ -176,6 +193,14 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
         player.dispose();
         font.dispose();
         stage.dispose();
+        if (rewardStage != null) rewardStage.dispose();
+        for (Texture tex : itemIconCache.values()) {
+            if (tex != null && tex != fallbackItemTexture) {
+                tex.dispose();
+            }
+        }
+        itemIconCache.clear();
+        if (fallbackItemTexture != null) fallbackItemTexture.dispose();
         joystick.dispose();
         attackBtnTexture.dispose();
         enemyTexture.dispose();
@@ -195,6 +220,7 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
         ghostTexture = new Texture("enemies/ghost_enemy.png");
         bossTexture  = new Texture("enemies/boss.png");
         playerTexture = getPlayerTextureForSkin();
+        fallbackItemTexture = new Texture("items/error.png");
     }
 
     private void setupPlayerAndEnemies() {
@@ -203,8 +229,6 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
         player.playerClass = selectedClass;
 
         projectileSystem = new ProjectileSystem();
-
-        player.addPassiveItem(ItemRegistry.create(5));
 
         enemyFactory = new EnemyFactory(
             enemyTexture,
@@ -342,7 +366,8 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
             enemies,
             player,
             difficulty,
-            this
+            this,
+            this::onWaveStarted
         );
     }
 
@@ -384,6 +409,10 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
                            Player player,
                            Player.Difficulty difficulty,
                           boolean allowBoss) {
+        if (rewardScreenActive && waveNumber == pendingWaveToSpawn) {
+            return;
+        }
+
         // Boss wave
         if (allowBoss && waveManager.isBossWave()) {
             float bossWidth = 256;
@@ -695,10 +724,18 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
             drawPauseOverlay();
         }
 
+        if (rewardScreenActive) {
+            drawRewardOverlay();
+        }
+
         batch.end();
 
         stage.act(Gdx.graphics.getDeltaTime());
         stage.draw();
+
+        if (rewardScreenActive && rewardStage != null) {
+            rewardStage.draw();
+        }
     }
 
     private void drawPauseOverlay() {
@@ -801,6 +838,206 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
             player.attackHitbox.height
         );
         batch.setColor(1, 1, 1, 1);
+    }
+
+    private boolean onWaveStarted(int waveNumber) {
+        if (waveNumber % 4 != 0) {
+            return false;
+        }
+
+        rewardWave = waveNumber;
+        pendingWaveToSpawn = waveNumber;
+        showRewardScreen();
+        return true;
+    }
+
+    private void showRewardScreen() {
+        rewardScreenActive = true;
+
+        if (rewardStage != null) {
+            rewardStage.dispose();
+        }
+
+        rewardStage = new Stage(new ScreenViewport());
+
+        RewardOption[] options = pickRewardItemOptions();
+
+        float screenW = Gdx.graphics.getWidth();
+        float screenH = Gdx.graphics.getHeight();
+        float cardW = Math.min(420f, screenW * 0.4f);
+        float cardH = 180f;
+        float gap = 80f;
+        float totalW = (cardW * 2f) + gap;
+        float startX = (screenW - totalW) / 2f;
+        float y = (screenH - cardH) / 2f - 20f;
+
+        RewardCardActor left = new RewardCardActor(options[0]);
+        left.setBounds(startX, y, cardW, cardH);
+        left.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                onRewardItemSelected(options[0].itemId);
+            }
+        });
+
+        RewardCardActor right = new RewardCardActor(options[1]);
+        right.setBounds(startX + cardW + gap, y, cardW, cardH);
+        right.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                onRewardItemSelected(options[1].itemId);
+            }
+        });
+
+        rewardStage.addActor(left);
+        rewardStage.addActor(right);
+
+        Gdx.input.setInputProcessor(rewardStage);
+    }
+
+    private void onRewardItemSelected(int itemId) {
+        player.addPassiveItem(ItemRegistry.create(itemId));
+        rewardScreenActive = false;
+
+        if (rewardStage != null) {
+            rewardStage.dispose();
+            rewardStage = null;
+        }
+
+        player.giveImmunity(1.0f);
+        spawnWave(pendingWaveToSpawn, enemies, player, difficulty, true);
+        spawnWavePickups(pendingWaveToSpawn);
+        pendingWaveToSpawn = -1;
+        rewardWave = -1;
+
+        Gdx.input.setInputProcessor(inputController.buildProcessor());
+    }
+
+    private RewardOption[] pickRewardItemOptions() {
+        Set<Integer> allIdsSet = ItemRegistry.getAllItemIds();
+        List<Integer> allIds = new ArrayList<>(allIdsSet);
+        List<Integer> unowned = new ArrayList<>();
+
+        for (Integer id : allIds) {
+            if (!player.hasItem(id)) {
+                unowned.add(id);
+            }
+        }
+
+        Collections.shuffle(unowned, rnd);
+        Collections.shuffle(allIds, rnd);
+
+        int[] optionIds = new int[2];
+        int index = 0;
+
+        while (index < 2 && !unowned.isEmpty()) {
+            optionIds[index++] = unowned.remove(0);
+        }
+
+        while (index < 2) {
+            optionIds[index++] = allIds.get(rnd.nextInt(allIds.size()));
+        }
+
+        RewardOption[] options = new RewardOption[2];
+        for (int i = 0; i < 2; i++) {
+            PassiveItem item = ItemRegistry.create(optionIds[i]);
+            options[i] = new RewardOption(
+                optionIds[i],
+                item.getDisplayName(),
+                getItemIconTexture(item.getIconPath())
+            );
+        }
+
+        return options;
+    }
+
+    private Texture getItemIconTexture(String iconPath) {
+        if (iconPath == null || iconPath.trim().isEmpty()) {
+            return fallbackItemTexture;
+        }
+
+        if (itemIconCache.containsKey(iconPath)) {
+            return itemIconCache.get(iconPath);
+        }
+
+        Texture texture;
+        try {
+            texture = new Texture(iconPath);
+        } catch (Exception ex) {
+            Gdx.app.error("RewardUI", "Failed to load icon: " + iconPath + ", using fallback", ex);
+            texture = fallbackItemTexture;
+        }
+
+        itemIconCache.put(iconPath, texture);
+        return texture;
+    }
+
+    private void drawRewardOverlay() {
+        batch.setColor(0, 0, 0, 0.7f);
+        batch.draw(
+            player.debugPixel,
+            0, 0,
+            Gdx.graphics.getWidth(),
+            Gdx.graphics.getHeight()
+        );
+        batch.setColor(1, 1, 1, 1);
+
+        glyphLayout.setText(font, "Choose a Passive Item");
+        font.draw(
+            batch,
+            glyphLayout,
+            (Gdx.graphics.getWidth() - glyphLayout.width) / 2f,
+            Gdx.graphics.getHeight() * 0.72f
+        );
+
+        glyphLayout.setText(font, "Wave " + rewardWave + " Reward");
+        font.draw(
+            batch,
+            glyphLayout,
+            (Gdx.graphics.getWidth() - glyphLayout.width) / 2f,
+            Gdx.graphics.getHeight() * 0.66f
+        );
+    }
+
+    private static class RewardOption {
+        private final int itemId;
+        private final String displayName;
+        private final Texture iconTexture;
+
+        RewardOption(int itemId, String displayName, Texture iconTexture) {
+            this.itemId = itemId;
+            this.displayName = displayName;
+            this.iconTexture = iconTexture;
+        }
+    }
+
+    private class RewardCardActor extends Actor {
+        private final RewardOption option;
+
+        RewardCardActor(RewardOption option) {
+            this.option = option;
+        }
+
+        @Override
+        public void draw(com.badlogic.gdx.graphics.g2d.Batch actorBatch, float parentAlpha) {
+            actorBatch.setColor(0.2f, 0.2f, 0.2f, 1f);
+            actorBatch.draw(player.debugPixel, getX(), getY(), getWidth(), getHeight());
+
+            actorBatch.setColor(1f, 1f, 1f, 1f);
+
+            float iconSize = Math.min(getWidth() * 0.4f, getHeight() * 0.55f);
+            float iconX = getX() + (getWidth() - iconSize) / 2f;
+            float iconY = getY() + getHeight() - iconSize - 24f;
+            actorBatch.draw(option.iconTexture, iconX, iconY, iconSize, iconSize);
+
+            glyphLayout.setText(font, option.displayName);
+            font.draw(
+                actorBatch,
+                glyphLayout,
+                getX() + (getWidth() - glyphLayout.width) / 2f,
+                getY() + 52f
+            );
+        }
     }
 
     @Override

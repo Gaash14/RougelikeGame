@@ -17,4 +17,9 @@ public class PoisonItem implements PassiveItem {
     public void onHitEnemy(Player player, Enemy enemy) {
         enemy.applyPoison(DURATION);
     }
+
+    @Override
+    public String getIconPath() {
+        return "items/poison.png";
+    }
 }

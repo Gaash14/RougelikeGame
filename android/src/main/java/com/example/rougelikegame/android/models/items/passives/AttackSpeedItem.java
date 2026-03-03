@@ -37,4 +37,9 @@ public class AttackSpeedItem implements PassiveItem {
     public void modifyRangedCooldown(Player player, CooldownContext ctx) {
         ctx.cooldown = Math.max(MIN_RANGED_COOLDOWN, ctx.cooldown - RANGED_REDUCTION);
     }
+
+    @Override
+    public String getIconPath() {
+        return "items/attack_speed.png";
+    }
 }

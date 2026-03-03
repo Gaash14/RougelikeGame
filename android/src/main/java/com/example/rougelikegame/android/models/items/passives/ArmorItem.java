@@ -28,4 +28,9 @@ public class ArmorItem implements PassiveItem {
     public void modifyBlockChance(Player player, BlockChanceContext ctx) {
         ctx.chance += BLOCK_CHANCE_BONUS;
     }
+
+    @Override
+    public String getIconPath() {
+        return "items/armor.png";
+    }
 }
