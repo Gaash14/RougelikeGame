@@ -1,5 +1,6 @@
 package com.example.rougelikegame.android.models.items.passives;
 
+import com.example.rougelikegame.android.models.items.ItemTier;
 import com.example.rougelikegame.android.models.items.PassiveItem;
 
 public class BeamItem implements PassiveItem {
@@ -24,5 +25,10 @@ public class BeamItem implements PassiveItem {
     @Override
     public String getIconPath() {
         return "items/beam.png";
+    }
+
+    @Override
+    public ItemTier getTier() {
+        return ItemTier.S;
     }
 }

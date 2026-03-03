@@ -11,6 +11,7 @@ public interface PassiveItem {
     String getKey(); // string key ("damage_up")
     String getDisplayName();
     String getIconPath();
+    ItemTier getTier();
 
     default void onPickup(Player player) {}
 

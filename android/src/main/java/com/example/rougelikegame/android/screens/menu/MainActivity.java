@@ -29,6 +29,7 @@ import com.example.rougelikegame.android.models.characters.Enemy;
 import com.example.rougelikegame.android.models.characters.GhostEnemy;
 import com.example.rougelikegame.android.models.input.GameInputController;
 import com.example.rougelikegame.android.models.input.Joystick;
+import com.example.rougelikegame.android.models.items.ItemTier;
 import com.example.rougelikegame.android.models.items.contexts.DamageContext;
 import com.example.rougelikegame.android.models.items.ItemRegistry;
 import com.example.rougelikegame.android.models.items.PassiveItem;
@@ -45,6 +46,7 @@ import com.example.rougelikegame.android.utils.SkinRegistry;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -841,7 +843,7 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
     }
 
     private boolean onWaveStarted(int waveNumber) {
-        if (waveNumber % 4 != 0) {
+        if (waveNumber % 2 != 0) {
             return false;
         }
 
@@ -916,26 +918,27 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
     private RewardOption[] pickRewardItemOptions() {
         Set<Integer> allIdsSet = ItemRegistry.getAllItemIds();
         List<Integer> allIds = new ArrayList<>(allIdsSet);
-        List<Integer> unowned = new ArrayList<>();
+        List<Integer> candidateIds = new ArrayList<>();
 
         for (Integer id : allIds) {
             if (!player.hasItem(id)) {
-                unowned.add(id);
+                candidateIds.add(id);
             }
         }
 
-        Collections.shuffle(unowned, rnd);
-        Collections.shuffle(allIds, rnd);
-
-        int[] optionIds = new int[2];
-        int index = 0;
-
-        while (index < 2 && !unowned.isEmpty()) {
-            optionIds[index++] = unowned.remove(0);
+        boolean ownsAllItems = candidateIds.isEmpty();
+        if (ownsAllItems) {
+            candidateIds.addAll(allIds);
         }
 
-        while (index < 2) {
-            optionIds[index++] = allIds.get(rnd.nextInt(allIds.size()));
+        int[] optionIds = new int[2];
+        Set<Integer> pickedIds = new HashSet<>();
+        for (int i = 0; i < optionIds.length; i++) {
+            int pickedId = pickItemIdByTierWeight(candidateIds, pickedIds, ownsAllItems);
+            optionIds[i] = pickedId;
+            if (!ownsAllItems) {
+                pickedIds.add(pickedId);
+            }
         }
 
         RewardOption[] options = new RewardOption[2];
@@ -944,11 +947,40 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
             options[i] = new RewardOption(
                 optionIds[i],
                 item.getDisplayName(),
+                item.getTier(),
                 getItemIconTexture(item.getIconPath())
             );
         }
 
         return options;
+    }
+
+    private int pickItemIdByTierWeight(List<Integer> candidateIds, Set<Integer> blockedIds, boolean allowBlocked) {
+        int totalWeight = 0;
+        for (int id : candidateIds) {
+            if (!allowBlocked && blockedIds.contains(id)) {
+                continue;
+            }
+            totalWeight += ItemRegistry.create(id).getTier().getWeight();
+        }
+
+        if (totalWeight <= 0) {
+            return candidateIds.get(rnd.nextInt(candidateIds.size()));
+        }
+
+        int roll = rnd.nextInt(totalWeight);
+        for (int id : candidateIds) {
+            if (!allowBlocked && blockedIds.contains(id)) {
+                continue;
+            }
+
+            roll -= ItemRegistry.create(id).getTier().getWeight();
+            if (roll < 0) {
+                return id;
+            }
+        }
+
+        return candidateIds.get(candidateIds.size() - 1);
     }
 
     private Texture getItemIconTexture(String iconPath) {
@@ -1002,11 +1034,13 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
     private static class RewardOption {
         private final int itemId;
         private final String displayName;
+        private final ItemTier tier;
         private final Texture iconTexture;
 
-        RewardOption(int itemId, String displayName, Texture iconTexture) {
+        RewardOption(int itemId, String displayName, ItemTier tier, Texture iconTexture) {
             this.itemId = itemId;
             this.displayName = displayName;
+            this.tier = tier;
             this.iconTexture = iconTexture;
         }
     }
@@ -1035,8 +1069,18 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
                 actorBatch,
                 glyphLayout,
                 getX() + (getWidth() - glyphLayout.width) / 2f,
-                getY() + 52f
+                getY() + 80f
             );
+
+            font.getData().setScale(0.8f);
+            glyphLayout.setText(font, "Tier " + option.tier.name());
+            font.draw(
+                actorBatch,
+                glyphLayout,
+                getX() + (getWidth() - glyphLayout.width) / 2f,
+                getY() + 30f
+            );
+            font.getData().setScale(1f);
         }
     }
 

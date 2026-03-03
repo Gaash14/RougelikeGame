@@ -1,6 +1,7 @@
 package com.example.rougelikegame.android.models.items.passives;
 
 import com.example.rougelikegame.android.models.characters.Player;
+import com.example.rougelikegame.android.models.items.ItemTier;
 import com.example.rougelikegame.android.models.items.PassiveItem;
 import com.example.rougelikegame.android.models.items.contexts.DamageContext;
 
@@ -26,6 +27,11 @@ public class DamageUpItem implements PassiveItem {
     @Override
     public String getIconPath() {
         return "pickups/pickup_damage.png";
+    }
+
+    @Override
+    public ItemTier getTier() {
+        return ItemTier.B;
     }
 
     @Override

@@ -2,6 +2,7 @@ package com.example.rougelikegame.android.models.items.passives;
 
 import com.example.rougelikegame.android.models.characters.Enemy;
 import com.example.rougelikegame.android.models.characters.Player;
+import com.example.rougelikegame.android.models.items.ItemTier;
 import com.example.rougelikegame.android.models.items.PassiveItem;
 
 public class PoisonItem implements PassiveItem {
@@ -21,5 +22,10 @@ public class PoisonItem implements PassiveItem {
     @Override
     public String getIconPath() {
         return "items/poison.png";
+    }
+
+    @Override
+    public ItemTier getTier() {
+        return ItemTier.B;
     }
 }
