@@ -306,6 +306,10 @@ public class Player {
         return ctx.damage;
     }
 
+    public void addCoins(int amount) {
+        coins += amount;
+    }
+
     public void addPassiveItem(PassiveItem item) {
         if (item == null) return;
 

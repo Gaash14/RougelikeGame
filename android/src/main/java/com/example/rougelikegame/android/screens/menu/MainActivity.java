@@ -597,7 +597,7 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
                 break;
 
             case COIN:
-                player.coins++;
+                player.addCoins(1);
                 if (player.coins >= 25) {
                     achievementManager.unlock("coins_25");
                 }
@@ -843,7 +843,7 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
     }
 
     private boolean onWaveStarted(int waveNumber) {
-        if (waveNumber % 2 != 0) {
+        if (waveNumber % 4 != 0) {
             return false;
         }
 

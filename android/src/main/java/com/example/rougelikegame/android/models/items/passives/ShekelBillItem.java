@@ -1,0 +1,42 @@
+package com.example.rougelikegame.android.models.items.passives;
+
+import com.badlogic.gdx.Gdx;
+import com.example.rougelikegame.android.models.characters.Player;
+import com.example.rougelikegame.android.models.items.ItemTier;
+import com.example.rougelikegame.android.models.items.PassiveItem;
+
+public class ShekelBillItem implements PassiveItem {
+
+    public static final int ID = 7;
+    private static final int COIN_BONUS = 20;
+
+    @Override
+    public int getItemId() {
+        return ID;
+    }
+
+    @Override
+    public String getKey() {
+        return "shekel_bill";
+    }
+
+    @Override
+    public String getDisplayName() {
+        return "20 Shekel Bill";
+    }
+
+    @Override
+    public String getIconPath() {
+        return "items/shekel_bill.png";
+    }
+
+    @Override
+    public ItemTier getTier() {
+        return ItemTier.C;
+    }
+
+    @Override
+    public void onPickup(Player player) {
+        player.addCoins(COIN_BONUS);
+    }
+}
