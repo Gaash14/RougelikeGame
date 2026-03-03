@@ -15,6 +15,9 @@ import com.example.rougelikegame.android.models.items.contexts.DamageContext;
 import com.example.rougelikegame.android.models.items.PassiveItem;
 import com.example.rougelikegame.android.models.world.Obstacle;
 
+import java.util.Objects;
+import java.util.Random;
+
 public class Player {
 
     public enum PlayerClass {
@@ -47,6 +50,7 @@ public class Player {
     public int attackBonus = 0;
 
     private final Array<PassiveItem> passiveItems = new Array<>();
+    private final Random randomSource;
 
     // collisions
     public final Rectangle bounds;
@@ -86,8 +90,9 @@ public class Player {
     private float immunityDuration = 0f;
     private boolean immune = false;
 
-    public Player(float x, float y) {
+    public Player(float x, float y, Random randomSource) {
         this.texture = new Texture("skins/player_default.png");
+        this.randomSource = Objects.requireNonNull(randomSource, "randomSource");
 
         this.x = x;
         this.y = y;
@@ -332,6 +337,10 @@ public class Player {
 
     public Array<PassiveItem> getPassiveItems() {
         return passiveItems;
+    }
+
+    public Random getRandomSource() {
+        return randomSource;
     }
 
     public void draw(SpriteBatch batch) {

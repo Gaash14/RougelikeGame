@@ -1,6 +1,7 @@
 package com.example.rougelikegame.android.models.characters;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.MathUtils;
@@ -37,7 +38,15 @@ public class Enemy {
 
     // Draw the enemy
     public void draw(SpriteBatch batch) {
+        if (effects.isBurning()) {
+            batch.setColor(1f, 0.65f, 0.45f, 1f);
+        } else if (effects.isPoisoned()) {
+            batch.setColor(0.8f, 0.55f, 1f, 1f);
+        }
         batch.draw(texture, x, y, width, height);
+        if (effects.isBurning() || effects.isPoisoned()) {
+            batch.setColor(Color.WHITE);
+        }
     }
 
     // Update enemy position
@@ -71,6 +80,8 @@ public class Enemy {
     public void applyPoison(float durationSeconds) {
         effects.applyPoison(durationSeconds);
     }
+
+    public void applyBurn(float durationSeconds) { effects.applyBurn(durationSeconds); }
 
     public void handleObstacleCollision(Array<Obstacle> obstacles) {
         for (Obstacle o : obstacles) {

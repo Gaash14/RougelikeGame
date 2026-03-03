@@ -3,6 +3,7 @@ package com.example.rougelikegame.android.models.items;
 import com.example.rougelikegame.android.models.items.passives.ArmorItem;
 import com.example.rougelikegame.android.models.items.passives.AttackSpeedItem;
 import com.example.rougelikegame.android.models.items.passives.BeamItem;
+import com.example.rougelikegame.android.models.items.passives.BurningCoreItem;
 import com.example.rougelikegame.android.models.items.passives.DamageUpItem;
 import com.example.rougelikegame.android.models.items.passives.PoisonItem;
 
@@ -22,6 +23,7 @@ public class ItemRegistry {
         register(AttackSpeedItem.ID, AttackSpeedItem::new);
         register(ArmorItem.ID, ArmorItem::new);
         register(BeamItem.ID, BeamItem::new);
+        register(BurningCoreItem.ID, BurningCoreItem::new);
     }
 
     private static void register(int id, Supplier<PassiveItem> supplier) {

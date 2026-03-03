@@ -226,7 +226,7 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
     }
 
     private void setupPlayerAndEnemies() {
-        player = new Player(100, 100);
+        player = new Player(100, 100, rnd);
         player.setTexture(playerTexture);
         player.playerClass = selectedClass;
 

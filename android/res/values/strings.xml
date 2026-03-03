@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">RougelikeGame</string>
+    <string name="app_name">Abyssal Waves</string>
 
     <!-- Image Selection -->
     <string name="image_source_title">Choose Image Source</string>
