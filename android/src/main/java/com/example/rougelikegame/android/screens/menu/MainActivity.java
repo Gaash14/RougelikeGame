@@ -44,7 +44,6 @@ import com.example.rougelikegame.android.models.world.WaveSpawner;
 import com.example.rougelikegame.android.utils.SkinRegistry;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -376,6 +375,7 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
     private void updateGame(float delta) {
         // Player
         player.update(joystick, delta);
+        inputController.update(delta);
         player.handleObstacleCollision(obstacles);
 
         // Enemies
@@ -843,7 +843,7 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
     }
 
     private boolean onWaveStarted(int waveNumber) {
-        if (waveNumber % 4 != 0) {
+        if (waveNumber % 2 != 0) {
             return false;
         }
 

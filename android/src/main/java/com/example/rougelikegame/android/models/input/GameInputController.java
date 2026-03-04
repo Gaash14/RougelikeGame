@@ -37,6 +37,7 @@ public class GameInputController {
 
     private boolean paused = false;
     private int attackPointer = -1;
+    private boolean rangedAttackHeld = false;
 
     public GameInputController(
         OrthographicCamera camera,
@@ -68,6 +69,14 @@ public class GameInputController {
 
     public boolean isPaused() {
         return paused;
+    }
+
+    public void update(float delta) {
+        if (paused) return;
+
+        if (rangedAttackHeld && player.playerClass == Player.PlayerClass.RANGED) {
+            fireRangedShots();
+        }
     }
 
     public InputMultiplexer buildProcessor() {
@@ -117,18 +126,9 @@ public class GameInputController {
 
                     } else if (player.playerClass == Player.PlayerClass.RANGED) {
 
-                        if (player.canShoot()) {
-                            Vector2 dir = player.getShootDirection(joystick);
-
-                            projectileSpawner.spawnProjectile(
-                                player.x + player.width / 2f,
-                                player.y + player.height / 2f,
-                                dir,
-                                player.getCurrentDamage()
-                            );
-
-                            player.triggerRangedCooldown();
-                        }
+                        attackPointer = pointer;
+                        rangedAttackHeld = true;
+                        fireRangedShots();
                     }
 
                     return true;
@@ -152,12 +152,15 @@ public class GameInputController {
 
                 if (pointer == attackPointer) {
                     attackPointer = -1;
-                    float chargePercent = player.releaseChargePercent();
+                    if (hasBeamItem()) {
+                        float chargePercent = player.releaseChargePercent();
 
-                    if (chargePercent >= (0.8f / 1.2f)) {
-                        Vector2 dir = player.getShootDirection(joystick);
-                        projectileSpawner.spawnBeam(dir, chargePercent);
+                        if (chargePercent >= (0.8f / 1.2f)) {
+                            Vector2 dir = player.getShootDirection(joystick);
+                            projectileSpawner.spawnBeam(dir, chargePercent);
+                        }
                     }
+                    rangedAttackHeld = false;
                 }
 
                 return true;
@@ -174,6 +177,21 @@ public class GameInputController {
         });
 
         return multiplexer;
+    }
+
+    private void fireRangedShots() {
+        while (player.canShoot()) {
+            Vector2 dir = player.getShootDirection(joystick);
+
+            projectileSpawner.spawnProjectile(
+                player.x + player.width / 2f,
+                player.y + player.height / 2f,
+                dir,
+                player.getCurrentDamage()
+            );
+
+            player.triggerRangedCooldown();
+        }
     }
 
     private boolean hasBeamItem() {
