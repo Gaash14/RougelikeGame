@@ -9,10 +9,10 @@ public class AttackSpeedItem implements PassiveItem {
 
     public static final int ID = 3;
 
-    private static final float MELEE_REDUCTION = 0.05f;
-    private static final float RANGED_REDUCTION = 0.08f;
-    private static final float MIN_MELEE_COOLDOWN = 0.2f;
-    private static final float MIN_RANGED_COOLDOWN = 0.3f;
+    public static final float MELEE_COOLDOWN_REDUCTION = 0.05f;
+    public static final float RANGED_COOLDOWN_REDUCTION = 0.08f;
+    public static final float MIN_MELEE_COOLDOWN = 0.2f;
+    public static final float MIN_RANGED_COOLDOWN = 0.3f;
 
     @Override
     public int getItemId() {
@@ -31,12 +31,12 @@ public class AttackSpeedItem implements PassiveItem {
 
     @Override
     public void modifyMeleeCooldown(Player player, CooldownContext ctx) {
-        ctx.cooldown = Math.max(MIN_MELEE_COOLDOWN, ctx.cooldown - MELEE_REDUCTION);
+        ctx.cooldown = Math.max(MIN_MELEE_COOLDOWN, ctx.cooldown - MELEE_COOLDOWN_REDUCTION);
     }
 
     @Override
     public void modifyRangedCooldown(Player player, CooldownContext ctx) {
-        ctx.cooldown = Math.max(MIN_RANGED_COOLDOWN, ctx.cooldown - RANGED_REDUCTION);
+        ctx.cooldown = Math.max(MIN_RANGED_COOLDOWN, ctx.cooldown - RANGED_COOLDOWN_REDUCTION);
     }
 
     @Override

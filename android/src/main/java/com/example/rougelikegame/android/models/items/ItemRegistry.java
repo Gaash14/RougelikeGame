@@ -1,5 +1,6 @@
 package com.example.rougelikegame.android.models.items;
 
+import com.example.rougelikegame.android.models.items.passives.AbyssalBlessingItem;
 import com.example.rougelikegame.android.models.items.passives.ArmorItem;
 import com.example.rougelikegame.android.models.items.passives.AttackSpeedItem;
 import com.example.rougelikegame.android.models.items.passives.BeamItem;
@@ -28,6 +29,7 @@ public class ItemRegistry {
         register(BurningCoreItem.ID, BurningCoreItem::new);
         register(ShekelBillItem.ID, ShekelBillItem::new);
         register(OverclockInjectorItem.ID, OverclockInjectorItem::new);
+        register(AbyssalBlessingItem.ID, AbyssalBlessingItem::new);
     }
 
     private static void register(int id, Supplier<PassiveItem> supplier) {
