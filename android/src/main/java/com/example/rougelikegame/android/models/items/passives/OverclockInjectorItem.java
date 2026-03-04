@@ -35,7 +35,7 @@ public class OverclockInjectorItem implements PassiveItem {
 
     @Override
     public ItemTier getTier() {
-        return ItemTier.D;
+        return ItemTier.B;
     }
 
     @Override

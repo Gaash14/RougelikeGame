@@ -33,6 +33,7 @@ import com.example.rougelikegame.android.models.items.ItemTier;
 import com.example.rougelikegame.android.models.items.contexts.DamageContext;
 import com.example.rougelikegame.android.models.items.ItemRegistry;
 import com.example.rougelikegame.android.models.items.PassiveItem;
+import com.example.rougelikegame.android.models.items.passives.BeamItem;
 import com.example.rougelikegame.android.models.meta.RunStats;
 import com.example.rougelikegame.android.models.meta.Skin;
 import com.example.rougelikegame.android.models.world.Obstacle;
@@ -721,6 +722,7 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
 
         drawDebugAttackHitbox(); // remove later/change to actual animation
         drawUI();
+        drawBeamChargeBar();
 
         if (inputController.isPaused()) {
             drawPauseOverlay();
@@ -794,6 +796,34 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
 
     }
 
+    private void drawBeamChargeBar() {
+        if (!hasBeamItemEquipped() && !player.isChargingBeam()) return;
+
+        float progress = player.getBeamChargeProgress();
+
+        float barWidth = 60f;
+        float barHeight = 8f;
+        float x = player.x + (player.width - barWidth) / 2f;
+        float y = player.y + player.height + 12f;
+
+        batch.setColor(0f, 0f, 0f, 0.7f);
+        batch.draw(player.debugPixel, x, y, barWidth, barHeight);
+
+        batch.setColor(0.3f, 0.85f, 1f, 0.95f);
+        batch.draw(player.debugPixel, x, y, barWidth * progress, barHeight);
+
+        batch.setColor(1f, 1f, 1f, 1f);
+    }
+
+    private boolean hasBeamItemEquipped() {
+        for (PassiveItem item : player.getPassiveItems()) {
+            if (item.getItemId() == BeamItem.ID) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private void drawBossHealthBar() {
         BossEnemy boss = getBoss();
         if (boss == null) return;
@@ -843,7 +873,7 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
     }
 
     private boolean onWaveStarted(int waveNumber) {
-        if (waveNumber % 2 != 0) {
+        if (waveNumber % 4 != 0) {
             return false;
         }
 

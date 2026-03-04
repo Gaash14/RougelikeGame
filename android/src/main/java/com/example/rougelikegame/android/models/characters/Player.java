@@ -83,7 +83,8 @@ public class Player {
     // charge attack
     private boolean charging = false;
     private float chargeTime = 0f;
-    private static final float MAX_CHARGE_TIME = 2.0f;
+    private static final float BASE_BEAM_CHARGE_TIME_SECONDS = 2.0f;
+    private static final float MIN_BEAM_CHARGE_TIME_SECONDS = 0.15f;
 
     // immunity
     private float immunityTimer = 0f;
@@ -230,16 +231,39 @@ public class Player {
 
     public void updateCharge(float delta) {
         if (!charging) return;
-        chargeTime = Math.min(chargeTime + delta, MAX_CHARGE_TIME);
+        chargeTime = Math.min(chargeTime + delta, getEffectiveBeamChargeTimeSeconds());
     }
 
     public float releaseChargePercent() {
         if (!charging) return 0f;
 
         charging = false;
-        float percent = chargeTime / MAX_CHARGE_TIME;
+        float percent = chargeTime / getEffectiveBeamChargeTimeSeconds();
         chargeTime = 0f;
         return MathUtils.clamp(percent, 0f, 1f);
+    }
+
+    public float getFinalAttackSpeed() {
+        float effectiveRangedCooldown = getEffectiveRangedCooldownTime();
+        if (effectiveRangedCooldown <= 0f) {
+            return 1f;
+        }
+        return Math.max(0.01f, rangedCooldownTime / effectiveRangedCooldown);
+    }
+
+    public float getEffectiveBeamChargeTimeSeconds() {
+        float attackSpeed = getFinalAttackSpeed();
+        float effectiveChargeTime = BASE_BEAM_CHARGE_TIME_SECONDS / Math.max(attackSpeed, 0.01f);
+        return Math.max(MIN_BEAM_CHARGE_TIME_SECONDS, effectiveChargeTime);
+    }
+
+    public float getBeamChargeProgress() {
+        float chargeProgress = chargeTime / getEffectiveBeamChargeTimeSeconds();
+        return MathUtils.clamp(chargeProgress, 0f, 1f);
+    }
+
+    public boolean isChargingBeam() {
+        return charging;
     }
 
     public float getEffectiveMeleeCooldownTime() {
