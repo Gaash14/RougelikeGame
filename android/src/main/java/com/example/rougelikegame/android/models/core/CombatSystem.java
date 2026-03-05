@@ -1,6 +1,7 @@
 package com.example.rougelikegame.android.models.core;
 
 import com.badlogic.gdx.utils.Array;
+import com.example.rougelikegame.android.managers.SoundManager;
 import com.example.rougelikegame.android.models.characters.Enemy;
 import com.example.rougelikegame.android.models.characters.Player;
 import com.example.rougelikegame.android.models.items.contexts.DamageContext;
@@ -63,6 +64,7 @@ public class CombatSystem {
                 if (player.damageCooldown <= 0) {
 
                     player.applyIncomingDamage(e.damage);
+                    SoundManager.play("player_hurt");
 
                     if (player.health <= 0) {
                         callbacks.onPlayerDied();
@@ -107,6 +109,7 @@ public class CombatSystem {
             }
 
             e.takeDamage(ctx.damage);
+            SoundManager.play("hit");
 
             e.hitThisSwing = true;
 

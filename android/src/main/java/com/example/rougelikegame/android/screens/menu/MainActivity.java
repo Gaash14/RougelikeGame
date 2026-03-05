@@ -20,6 +20,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.example.rougelikegame.android.managers.AchievementManager;
+import com.example.rougelikegame.android.managers.SoundManager;
 import com.example.rougelikegame.android.models.characters.EnemyFactory;
 import com.example.rougelikegame.android.models.core.CombatSystem;
 import com.example.rougelikegame.android.models.core.GameState;
@@ -141,6 +142,7 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
     @Override
     public void create() {
         batch = new SpriteBatch();
+        SoundManager.load();
 
         GameState gameState = new GameState(runSeed);
         rnd = gameState.getRandom();
@@ -209,6 +211,7 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
         ghostTexture.dispose();
         bossTexture.dispose();
         playerTexture.dispose();
+        SoundManager.dispose();
     }
 
     // Setup methods
@@ -254,6 +257,7 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
 
             @Override
             public void onEnemyKilled(Enemy enemy) {
+                SoundManager.play("enemy_death");
                 runStats.addKill();
 
                 if (runStats.getEnemiesKilled() >= 100) {
@@ -581,6 +585,8 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
     }
 
     private void applyPickupEffect(Pickup p) {
+        SoundManager.play("pickup");
+
         switch (p.type) {
             case HEALTH:
                 player.health += 5;
@@ -609,6 +615,8 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
 
     // Projectiles
     private void spawnProjectile(float x, float y, Vector2 dir, int baseDamage) {
+        SoundManager.play("shoot");
+
         DamageContext ctx = new DamageContext(baseDamage);
         for (PassiveItem it : player.getPassiveItems()) {
             it.modifyProjectileDamage(player, ctx);

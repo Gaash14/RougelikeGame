@@ -5,6 +5,7 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.math.Vector2;
+import com.example.rougelikegame.android.managers.SoundManager;
 import com.example.rougelikegame.android.models.characters.Enemy;
 import com.example.rougelikegame.android.models.characters.Player;
 import com.example.rougelikegame.android.models.items.PassiveItem;
@@ -93,6 +94,7 @@ public class ProjectileSystem {
                 if (p.getBounds().overlaps(e.getBounds())) {
 
                     e.takeDamage(p.damage);
+                    SoundManager.play("hit");
 
                     for (PassiveItem it : player.getPassiveItems()) {
                         it.onHitEnemy(player, e);
@@ -120,6 +122,7 @@ public class ProjectileSystem {
             if (!e.alive) continue;
             if (beamHitsEnemy(sampleRect, samplePoint, beam, e)) {
                 e.takeDamage(beam.damagePerTick);
+                SoundManager.play("hit", 0.4f);
                 for (PassiveItem it : player.getPassiveItems()) {
                     it.onHitEnemy(player, e);
                 }
@@ -149,6 +152,7 @@ public class ProjectileSystem {
 
             if (p.getBounds().overlaps(player.bounds)) {
                 player.applyIncomingDamage(p.damage);
+                SoundManager.play("player_hurt");
                 p.alive = false;
 
                 if (player.health <= 0) {
