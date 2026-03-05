@@ -4,25 +4,37 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:background="#121212"
-    android:padding="24dp">
+    android:padding="16dp">
 
     <!-- Title Card -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:gravity="center"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
         android:background="#1E1E1E"
         android:padding="12dp"
         android:layout_marginBottom="12dp">
 
         <TextView
             android:id="@+id/titleText"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
             android:text="Abyssal Waves"
             android:textSize="30sp"
             android:textStyle="bold"
+            android:textColor="#FFFFFF" />
+
+        <Button
+            android:id="@+id/openSoundSettingsButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="🔊"
+            android:textSize="18sp"
+            android:background="@android:color/transparent"
+            android:contentDescription="Open sound settings"
             android:textColor="#FFFFFF" />
     </LinearLayout>
 
@@ -33,7 +45,7 @@
         android:orientation="horizontal"
         android:layout_marginBottom="12dp">
 
-        <!-- Class Selection Card -->
+        <!-- Class card -->
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -61,7 +73,7 @@
                 android:textColor="#FFFFFF" />
         </LinearLayout>
 
-        <!-- Difficulty Selection Card -->
+        <!-- Difficulty card -->
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -123,7 +135,7 @@
         android:gravity="center_horizontal"
         android:background="#1E1E1E"
         android:padding="12dp"
-        android:layout_marginBottom="20dp">
+        android:layout_marginBottom="12dp">
 
         <Switch
             android:id="@+id/dailyChallengeSwitch"
@@ -152,13 +164,11 @@
             android:visibility="visible" />
     </LinearLayout>
 
-    <!-- Spacer -->
     <View
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1" />
 
-    <!-- Start Button -->
     <Button
         android:id="@+id/startGameButton"
         android:layout_width="match_parent"

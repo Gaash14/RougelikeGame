@@ -1,22 +1,31 @@
 package com.example.rougelikegame.android.screens.menu;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RadioGroup;
+import android.widget.SeekBar;
 import android.widget.Switch;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.rougelikegame.R;
+import com.example.rougelikegame.android.managers.SoundManager;
 import com.example.rougelikegame.android.models.characters.Player;
 import com.example.rougelikegame.android.screens.launcher.AndroidLauncher;
 
 public class ChooseDifficultyActivity extends AppCompatActivity {
+
+    private static final String PREFS_NAME = "settings";
+    private static final String KEY_SFX_VOLUME = "sfx_volume";
+    private static final String KEY_SFX_MUTED = "sfx_muted";
 
     private Switch classSwitch;
     private TextView classLabel;
@@ -28,6 +37,8 @@ public class ChooseDifficultyActivity extends AppCompatActivity {
     private TextView txtDailyReset;
     private final Handler handler = new Handler();
     private EditText seedInput;
+    private Button openSoundSettingsButton;
+    private SharedPreferences settingsPrefs;
 
     private Player.Difficulty selectedDifficulty = Player.Difficulty.NORMAL;
     private Player.PlayerClass selectedClass = Player.PlayerClass.MELEE;
@@ -42,6 +53,14 @@ public class ChooseDifficultyActivity extends AppCompatActivity {
 
         txtDailyReset = findViewById(R.id.txtDailyReset);
         seedInput = findViewById(R.id.seedInput);
+
+        openSoundSettingsButton = findViewById(R.id.openSoundSettingsButton);
+        settingsPrefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+
+        ensureSoundLoaded();
+        initializeSoundSettings();
+
+        openSoundSettingsButton.setOnClickListener(v -> showSoundSettingsDialog());
 
         // Toggle between MELEE / RANGED
         classSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
@@ -119,6 +138,91 @@ public class ChooseDifficultyActivity extends AppCompatActivity {
             startActivity(intent);
         });
     }
+
+    private void ensureSoundLoaded() {
+        try {
+            SoundManager.load();
+        } catch (RuntimeException ignored) {
+            // Safe fallback for cases where LibGDX audio isn't ready yet.
+        }
+    }
+
+    private void initializeSoundSettings() {
+        int savedVolume = settingsPrefs.getInt(KEY_SFX_VOLUME, Math.round(SoundManager.getSfxVolume() * 100f));
+        boolean savedMuted = settingsPrefs.getBoolean(KEY_SFX_MUTED, SoundManager.isMuted());
+
+        int clampedVolume = Math.max(0, Math.min(savedVolume, 100));
+
+        applySoundSettings(clampedVolume, savedMuted);
+    }
+
+    private void showSoundSettingsDialog() {
+        View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_sound_settings, null);
+
+        TextView volumeLabel = dialogView.findViewById(R.id.sfxVolumeLabel);
+        SeekBar volumeSeekBar = dialogView.findViewById(R.id.sfxVolumeSeekBar);
+        Switch muteSwitch = dialogView.findViewById(R.id.sfxMuteSwitch);
+
+        int savedVolume = settingsPrefs.getInt(KEY_SFX_VOLUME, Math.round(SoundManager.getSfxVolume() * 100f));
+        boolean savedMuted = settingsPrefs.getBoolean(KEY_SFX_MUTED, SoundManager.isMuted());
+        int clampedVolume = Math.max(0, Math.min(savedVolume, 100));
+
+        volumeSeekBar.setMax(100);
+        volumeSeekBar.setProgress(clampedVolume);
+        updateSfxVolumeLabel(volumeLabel, clampedVolume);
+
+        muteSwitch.setChecked(savedMuted);
+        volumeSeekBar.setEnabled(!savedMuted);
+
+        volumeSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                updateSfxVolumeLabel(volumeLabel, progress);
+                SoundManager.setSfxVolume(progress / 100f);
+                persistSoundSettings(progress, muteSwitch.isChecked());
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+                // no-op
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                // no-op
+            }
+        });
+
+        muteSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            SoundManager.setMuted(isChecked);
+            volumeSeekBar.setEnabled(!isChecked);
+            persistSoundSettings(volumeSeekBar.getProgress(), isChecked);
+        });
+
+        AlertDialog soundDialog = new AlertDialog.Builder(this)
+            .setView(dialogView)
+            .setPositiveButton("Close", null)
+            .create();
+
+        soundDialog.show();
+    }
+
+    private void applySoundSettings(int volumePercent, boolean muted) {
+        SoundManager.setSfxVolume(volumePercent / 100f);
+        SoundManager.setMuted(muted);
+    }
+
+    private void persistSoundSettings(int volumePercent, boolean muted) {
+        settingsPrefs.edit()
+            .putInt(KEY_SFX_VOLUME, volumePercent)
+            .putBoolean(KEY_SFX_MUTED, muted)
+            .apply();
+    }
+
+    private void updateSfxVolumeLabel(TextView volumeLabel, int volumePercent) {
+        volumeLabel.setText("SFX Volume: " + volumePercent + "%");
+    }
+
 
     private void startDailyCountdown() {
         txtDailyReset.setVisibility(View.VISIBLE);
