@@ -256,6 +256,11 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
             }
 
             @Override
+            public void onPlayerDamaged(int damageTaken) {
+                MainActivity.this.onPlayerDamaged(damageTaken);
+            }
+
+            @Override
             public void onEnemyKilled(Enemy enemy) {
                 SoundManager.play("enemy_death");
                 runStats.addKill();
@@ -358,7 +363,7 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
 
         projectileSystem.update(delta);
         projectileSystem.handlePlayerProjectilesHitEnemies(player, enemies);
-        projectileSystem.handleEnemyProjectilesHitPlayer(player, this::onPlayerDied);
+        projectileSystem.handleEnemyProjectilesHitPlayer(player, this::onPlayerDied, this::onPlayerDamaged);
 
         checkPickups();
 
@@ -645,6 +650,16 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
 
         player.meleeCooldown = player.getEffectiveMeleeCooldownTime();
         player.triggerRangedCooldown();
+    }
+
+    private void onPlayerDamaged(int damageTaken) {
+        for (PassiveItem item : player.getPassiveItems()) {
+            item.onPlayerDamaged(player, damageTaken);
+        }
+    }
+
+    public void spawnCoinAtPlayerPosition() {
+        pickups.add(new Pickup(Pickup.Type.COIN, player.x, player.y));
     }
 
     // Game over / boss defeat

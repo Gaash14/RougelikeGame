@@ -13,6 +13,7 @@ public class CombatSystem {
         void onPlayerDied();
         void onBossDefeated();
         void onEnemyKilled(Enemy enemy);
+        void onPlayerDamaged(int damageTaken);
     }
 
     private final Callbacks callbacks;
@@ -63,8 +64,12 @@ public class CombatSystem {
 
                 if (player.damageCooldown <= 0) {
 
-                    player.applyIncomingDamage(e.damage);
+                    int damageTaken = player.applyIncomingDamage(e.damage);
                     SoundManager.play("player_hurt");
+
+                    if (damageTaken > 0) {
+                        callbacks.onPlayerDamaged(damageTaken);
+                    }
 
                     if (player.health <= 0) {
                         callbacks.onPlayerDied();

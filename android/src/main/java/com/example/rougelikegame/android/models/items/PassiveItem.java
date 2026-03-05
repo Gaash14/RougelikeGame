@@ -23,4 +23,5 @@ public interface PassiveItem {
     default void modifyRangedCooldown(Player player, CooldownContext ctx) {}
 
     default void onHitEnemy(Player player, Enemy enemy) {}
+    default void onPlayerDamaged(Player player, int damageTaken) {}
 }
