@@ -6,6 +6,7 @@ import com.example.rougelikegame.android.models.items.passives.AttackSpeedItem;
 import com.example.rougelikegame.android.models.items.passives.BeamItem;
 import com.example.rougelikegame.android.models.items.passives.BurningCoreItem;
 import com.example.rougelikegame.android.models.items.passives.DamageUpItem;
+import com.example.rougelikegame.android.models.items.passives.DarkBargainItem;
 import com.example.rougelikegame.android.models.items.passives.OverclockInjectorItem;
 import com.example.rougelikegame.android.models.items.passives.PiggyBankItem;
 import com.example.rougelikegame.android.models.items.passives.PoisonItem;
@@ -32,6 +33,7 @@ public class ItemRegistry {
         register(OverclockInjectorItem.ID, OverclockInjectorItem::new);
         register(AbyssalBlessingItem.ID, AbyssalBlessingItem::new);
         register(PiggyBankItem.ID, PiggyBankItem::new);
+        register(DarkBargainItem.ID, DarkBargainItem::new);
     }
 
     private static void register(int id, Supplier<PassiveItem> supplier) {
