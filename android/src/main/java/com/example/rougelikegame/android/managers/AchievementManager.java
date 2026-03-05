@@ -69,6 +69,7 @@ public class AchievementManager {
 
     public void unlock(String id) {
         Achievement achievement = achievements.get(id);
+        persistUnlockedAchievementLocally(achievement.getId());
 
         if (achievement == null) return;
         if (achievement.isUnlocked()) return;
@@ -114,6 +115,21 @@ public class AchievementManager {
 
         // mark unlocked WITHOUT triggering unlock logic
         achievement.setUnlocked(true);
+        persistUnlockedAchievementLocally(id);
+    }
+
+    private void persistUnlockedAchievementLocally(String achievementId) {
+        if (context == null) return;
+
+        User user = SharedPreferencesUtil.getUser(context);
+        if (user == null) return;
+
+        if (user.getAchievements() == null) {
+            user.setAchievements(new HashMap<>());
+        }
+
+        user.getAchievements().put(achievementId, true);
+        SharedPreferencesUtil.saveUser(context, user);
     }
 
     public void reset() {

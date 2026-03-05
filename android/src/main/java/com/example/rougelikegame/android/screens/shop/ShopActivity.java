@@ -1,6 +1,8 @@
 package com.example.rougelikegame.android.screens.shop;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -9,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.rougelikegame.R;
 import com.example.rougelikegame.android.adapters.SkinAdapter;
+import com.example.rougelikegame.android.screens.profile.SkinsActivity;
 import com.example.rougelikegame.android.services.DatabaseService;
 import com.example.rougelikegame.android.utils.SkinRegistry;
 import com.example.rougelikegame.android.utils.SharedPreferencesUtil;
@@ -22,6 +25,7 @@ public class ShopActivity extends AppCompatActivity {
 
     private TextView txtCoins;
     private RecyclerView recyclerSkins;
+    private Button btnGoToSkins;
 
     private User user;
     private List<Skin> skins;
@@ -33,8 +37,14 @@ public class ShopActivity extends AppCompatActivity {
 
         txtCoins = findViewById(R.id.txtCoins);
         recyclerSkins = findViewById(R.id.recyclerSkins);
+        btnGoToSkins = findViewById(R.id.btnGoToSkins);
 
         recyclerSkins.setLayoutManager(new LinearLayoutManager(this));
+
+        btnGoToSkins.setOnClickListener(v -> {
+            startActivity(new Intent(this, SkinsActivity.class));
+            finish();
+        });
 
         user = SharedPreferencesUtil.getUser(this);
         if (user == null) return;
@@ -61,6 +71,7 @@ public class ShopActivity extends AppCompatActivity {
             skins,
             user,
             true,
+            false,
             new SkinAdapter.SkinActionListener() {
 
                 @Override
@@ -82,13 +93,7 @@ public class ShopActivity extends AppCompatActivity {
 
                 @Override
                 public void onEquip(Skin skin) {
-                    user.setEquippedSkinId(skin.getId());
-
-                    SharedPreferencesUtil.saveUser(ShopActivity.this, user);
-                    DatabaseService.getInstance()
-                        .setEquippedSkin(user.getUid(), skin.getId());
-
-                    recyclerSkins.getAdapter().notifyDataSetChanged();
+                    // Equipping is NOT allowed in shop
                 }
             }
         );

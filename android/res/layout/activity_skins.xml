@@ -27,6 +27,13 @@
         android:layout_marginTop="4dp"
         android:layout_marginBottom="12dp" />
 
+    <Button
+        android:id="@+id/btnGoToShop"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Go to Shop"
+        android:layout_marginBottom="12dp"/>
+
     <!-- Skins list -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerSkins"

@@ -1,6 +1,8 @@
 package com.example.rougelikegame.android.screens.profile;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -23,6 +25,7 @@ public class SkinsActivity extends AppCompatActivity {
     private User user;
 
     private TextView txtSkinsProgress;
+    private Button btnGoToShop;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,6 +36,12 @@ public class SkinsActivity extends AppCompatActivity {
         recyclerSkins.setLayoutManager(new LinearLayoutManager(this));
 
         txtSkinsProgress = findViewById(R.id.txtSkinsProgress);
+        btnGoToShop = findViewById(R.id.btnGoToShop);
+
+        btnGoToShop.setOnClickListener(v -> {
+            startActivity(new Intent(this, com.example.rougelikegame.android.screens.shop.ShopActivity.class));
+            finish();
+        });
 
         user = SharedPreferencesUtil.getUser(this);
         if (user == null) return;
@@ -49,6 +58,7 @@ public class SkinsActivity extends AppCompatActivity {
             allSkins,
             user,
             false,
+            true,
             new SkinAdapter.SkinActionListener() {
 
                 @Override

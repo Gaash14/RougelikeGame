@@ -20,7 +20,7 @@
             android:orientation="horizontal"
             android:gravity="center_vertical"
             android:padding="12dp"
-            android:background="#1E1E1E">
+            android:background="@drawable/card_gradient">
 
             <ImageView
                 android:id="@+id/imgAvatar"
@@ -87,7 +87,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:background="#1E1E1E"
+                    android:background="@drawable/card_gradient"
                     android:padding="12dp">
 
                     <!-- LEFT: Stats -->
@@ -144,7 +144,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:background="#1E1E1E"
+                    android:background="@drawable/card_gradient"
                     android:padding="12dp"
                     android:layout_marginTop="10dp">
 
@@ -171,7 +171,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:background="#1E1E1E"
+                    android:background="@drawable/card_gradient"
                     android:padding="12dp"
                     android:minHeight="75dp"
                     android:layout_marginTop="10dp">
@@ -209,7 +209,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:background="#1E1E1E"
+                    android:background="@drawable/card_gradient"
                     android:padding="12dp">
 
                     <TextView
@@ -266,7 +266,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:background="#1E1E1E"
+                    android:background="@drawable/card_gradient"
                     android:padding="12dp"
                     android:layout_marginTop="10dp">
 
@@ -294,7 +294,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:background="#1E1E1E"
+                    android:background="@drawable/card_gradient"
                     android:padding="12dp"
                     android:minHeight="75dp"
                     android:layout_marginTop="10dp">

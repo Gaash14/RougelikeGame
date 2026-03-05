@@ -6,6 +6,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.graphics.BitmapFactory;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -14,6 +15,8 @@ import com.example.rougelikegame.R;
 import com.example.rougelikegame.android.models.meta.Skin;
 import com.example.rougelikegame.android.models.meta.User;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 
 public class SkinAdapter extends RecyclerView.Adapter<SkinAdapter.SkinViewHolder> {
@@ -27,11 +30,17 @@ public class SkinAdapter extends RecyclerView.Adapter<SkinAdapter.SkinViewHolder
     private final User user;
     private final SkinActionListener listener;
     private final boolean allowBuying;
+    private final boolean allowEquipping;
 
-    public SkinAdapter(List<Skin> skins, User user, boolean allowBuying, SkinActionListener listener) {
+    public SkinAdapter(List<Skin> skins,
+                       User user,
+                       boolean allowBuying,
+                       boolean allowEquipping,
+                       SkinActionListener listener) {
         this.skins = skins;
         this.user = user;
         this.allowBuying = allowBuying;
+        this.allowEquipping = allowEquipping;
         this.listener = listener;
     }
 
@@ -48,6 +57,7 @@ public class SkinAdapter extends RecyclerView.Adapter<SkinAdapter.SkinViewHolder
         Skin skin = skins.get(position);
 
         holder.txtName.setText(skin.getName());
+        bindSkinPreview(holder.imgSkin, skin.getTexturePath());
 
         boolean owned = user.getOwnedSkins().containsKey(skin.getId());
         boolean equipped = skin.getId().equals(user.getEquippedSkinId());
@@ -63,8 +73,13 @@ public class SkinAdapter extends RecyclerView.Adapter<SkinAdapter.SkinViewHolder
         else if (skin.getUnlockType() == Skin.UnlockType.SHOP) {
             if (owned) {
                 holder.txtPrice.setText(equipped ? "Equipped" : "Owned");
-                holder.btnAction.setText(equipped ? "EQUIPPED" : "EQUIP");
-                holder.btnAction.setEnabled(!equipped);
+                if (allowEquipping) {
+                    holder.btnAction.setText(equipped ? "EQUIPPED" : "EQUIP");
+                    holder.btnAction.setEnabled(!equipped);
+                } else {
+                    holder.btnAction.setText("GO TO SKINS");
+                    holder.btnAction.setEnabled(false);
+                }
             } else {
                 if (allowBuying) {
                     holder.txtPrice.setText("Price: " + skin.getPrice());
@@ -82,8 +97,13 @@ public class SkinAdapter extends RecyclerView.Adapter<SkinAdapter.SkinViewHolder
         else {
             if (owned) {
                 holder.txtPrice.setText(equipped ? "Equipped" : "Unlocked");
-                holder.btnAction.setText(equipped ? "EQUIPPED" : "EQUIP");
-                holder.btnAction.setEnabled(!equipped);
+                if (allowEquipping) {
+                    holder.btnAction.setText(equipped ? "EQUIPPED" : "EQUIP");
+                    holder.btnAction.setEnabled(!equipped);
+                } else {
+                    holder.btnAction.setText("GO TO SKINS");
+                    holder.btnAction.setEnabled(false);
+                }
             } else {
                 holder.txtPrice.setText("Locked (Achievement)");
                 holder.btnAction.setText("LOCKED");
@@ -94,10 +114,18 @@ public class SkinAdapter extends RecyclerView.Adapter<SkinAdapter.SkinViewHolder
         holder.btnAction.setOnClickListener(v -> {
             if (!owned && allowBuying && skin.getUnlockType() == Skin.UnlockType.SHOP) {
                 listener.onBuy(skin);
-            } else if (owned && !equipped) {
+            } else if (owned && !equipped && allowEquipping) {
                 listener.onEquip(skin);
             }
         });
+    }
+
+    private void bindSkinPreview(ImageView imageView, String texturePath) {
+        try (InputStream stream = imageView.getContext().getAssets().open(texturePath)) {
+            imageView.setImageBitmap(BitmapFactory.decodeStream(stream));
+        } catch (IOException e) {
+            imageView.setImageResource(android.R.drawable.ic_menu_report_image);
+        }
     }
 
     @Override
