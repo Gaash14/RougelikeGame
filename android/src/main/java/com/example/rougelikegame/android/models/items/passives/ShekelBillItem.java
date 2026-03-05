@@ -1,6 +1,7 @@
 package com.example.rougelikegame.android.models.items.passives;
 
 import com.badlogic.gdx.Gdx;
+import com.example.rougelikegame.android.managers.AchievementManager;
 import com.example.rougelikegame.android.models.characters.Player;
 import com.example.rougelikegame.android.models.items.ItemTier;
 import com.example.rougelikegame.android.models.items.PassiveItem;
@@ -9,6 +10,8 @@ public class ShekelBillItem implements PassiveItem {
 
     public static final int ID = 7;
     private static final int COIN_BONUS = 20;
+    private final AchievementManager achievementManager =
+        AchievementManager.getInstance();
 
     @Override
     public int getItemId() {
@@ -38,5 +41,8 @@ public class ShekelBillItem implements PassiveItem {
     @Override
     public void onPickup(Player player) {
         player.addCoins(COIN_BONUS);
+        if (player.coins >= 25) {
+            achievementManager.unlock("coins_25");
+        }
     }
 }
