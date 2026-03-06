@@ -7,12 +7,14 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
+import com.example.rougelikegame.android.models.core.TargetingHelper;
 import com.example.rougelikegame.android.models.input.Joystick;
 import com.example.rougelikegame.android.models.items.ItemRegistry;
 import com.example.rougelikegame.android.models.items.contexts.BlockChanceContext;
 import com.example.rougelikegame.android.models.items.contexts.CooldownContext;
 import com.example.rougelikegame.android.models.items.contexts.DamageContext;
 import com.example.rougelikegame.android.models.items.PassiveItem;
+import com.example.rougelikegame.android.models.items.contexts.HomingContext;
 import com.example.rougelikegame.android.models.world.Obstacle;
 
 import java.util.Objects;
@@ -182,7 +184,7 @@ public class Player {
         return meleeCooldown <= 0f;
     }
 
-    public void meleeAttack(Joystick joystick) {
+    public void meleeAttack(Joystick joystick, Array<Enemy> enemies) {
         if (!canMelee()) return;
 
         meleeCooldown = getEffectiveMeleeCooldownTime();
@@ -198,9 +200,37 @@ public class Player {
             dy = 0;
         }
 
+        Vector2 attackDirection = new Vector2(dx, dy).nor();
+        HomingContext homing = getEffectiveHomingContext();
+
+        if (homing.enabled && homing.meleeAimAssistRange > 0f && homing.meleeAimAssistStrength > 0f) {
+            float playerCenterX = x + width * 0.5f;
+            float playerCenterY = y + height * 0.5f;
+
+            Enemy nearestEnemy = TargetingHelper.getNearestEnemyWithinRange(
+                playerCenterX,
+                playerCenterY,
+                homing.meleeAimAssistRange,
+                enemies
+            );
+
+            if (nearestEnemy != null) {
+                Vector2 desiredDirection = new Vector2(
+                    nearestEnemy.getX() + nearestEnemy.width * 0.5f - playerCenterX,
+                    nearestEnemy.getY() + nearestEnemy.height * 0.5f - playerCenterY
+                );
+
+                if (!desiredDirection.isZero(0.01f)) {
+                    desiredDirection.nor();
+                    float assistStrength = MathUtils.clamp(homing.meleeAimAssistStrength, 0f, 0.75f);
+                    attackDirection.lerp(desiredDirection, assistStrength).nor();
+                }
+            }
+        }
+
         attackHitbox.setPosition(
-            x + dx * width,
-            y + dy * height
+            x + attackDirection.x * width,
+            y + attackDirection.y * height
         );
     }
 
@@ -284,6 +314,24 @@ public class Player {
         }
 
         return ctx.cooldown;
+    }
+
+    public HomingContext getEffectiveHomingContext() {
+        HomingContext ctx = new HomingContext();
+
+        for (PassiveItem it : passiveItems) {
+            it.modifyHoming(this, ctx);
+        }
+
+        if (!ctx.enabled) return ctx;
+
+        ctx.homingRange = Math.max(0f, ctx.homingRange);
+        ctx.homingStrength = MathUtils.clamp(ctx.homingStrength, 0f, 6f);
+        ctx.maxTurnRateDeg = MathUtils.clamp(ctx.maxTurnRateDeg, 0f, 720f);
+        ctx.meleeAimAssistRange = Math.max(0f, ctx.meleeAimAssistRange);
+        ctx.meleeAimAssistStrength = MathUtils.clamp(ctx.meleeAimAssistStrength, 0f, 0.9f);
+
+        return ctx;
     }
 
     public void giveImmunity(float seconds) {

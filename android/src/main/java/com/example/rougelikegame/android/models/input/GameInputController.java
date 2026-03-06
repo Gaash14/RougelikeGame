@@ -121,7 +121,7 @@ public class GameInputController {
                             for (Enemy e : enemies) {
                                 e.hitThisSwing = false;
                             }
-                            player.meleeAttack(joystick);
+                            player.meleeAttack(joystick, enemies);
                         }
 
                     } else if (player.playerClass == Player.PlayerClass.RANGED) {

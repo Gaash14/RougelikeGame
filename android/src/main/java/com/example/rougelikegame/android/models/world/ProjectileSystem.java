@@ -9,6 +9,7 @@ import com.example.rougelikegame.android.managers.SoundManager;
 import com.example.rougelikegame.android.models.characters.Enemy;
 import com.example.rougelikegame.android.models.characters.Player;
 import com.example.rougelikegame.android.models.items.PassiveItem;
+import com.example.rougelikegame.android.models.items.contexts.HomingContext;
 
 public class ProjectileSystem {
 
@@ -46,8 +47,18 @@ public class ProjectileSystem {
 
     // ----- Spawning -----
 
-    public void spawnPlayerProjectile(float x, float y, Vector2 dir, int damage) {
-        Projectile p = new Projectile(x, y, dir.x, dir.y, damage);
+    public void spawnPlayerProjectile(float x, float y, Vector2 dir, int damage, HomingContext homingContext) {
+        Projectile p = new Projectile(
+            x,
+            y,
+            dir.x,
+            dir.y,
+            damage,
+            homingContext != null && homingContext.enabled,
+            homingContext != null ? homingContext.homingRange : 0f,
+            homingContext != null ? homingContext.homingStrength : 0f,
+            homingContext != null ? homingContext.maxTurnRateDeg : 0f
+        );
         playerProjectiles.add(p);
     }
 
@@ -57,9 +68,9 @@ public class ProjectileSystem {
         activeBeams.add(new Beam(x, y, dir, damagePerTick));
     }
 
-    public void update(float delta) {
-        updateList(playerProjectiles, delta);
-        updateList(enemyProjectiles, delta);
+    public void update(float delta, Array<Enemy> enemies) {
+        updateList(playerProjectiles, delta, enemies);
+        updateList(enemyProjectiles, delta, null);
 
         for (int i = activeBeams.size - 1; i >= 0; i--) {
             Beam beam = activeBeams.get(i);
@@ -72,10 +83,10 @@ public class ProjectileSystem {
         }
     }
 
-    private void updateList(Array<Projectile> list, float delta) {
+    private void updateList(Array<Projectile> list, float delta, Array<Enemy> enemies) {
         for (int i = list.size - 1; i >= 0; i--) {
             Projectile p = list.get(i);
-            p.update(delta);
+            p.update(delta, enemies);
             if (!p.alive) {
                 list.removeIndex(i);
             }

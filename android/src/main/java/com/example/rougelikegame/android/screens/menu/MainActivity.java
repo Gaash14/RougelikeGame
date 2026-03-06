@@ -1,5 +1,7 @@
 package com.example.rougelikegame.android.screens.menu;
 
+import android.content.ClipData;
+
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
@@ -34,7 +36,9 @@ import com.example.rougelikegame.android.models.items.ItemTier;
 import com.example.rougelikegame.android.models.items.contexts.DamageContext;
 import com.example.rougelikegame.android.models.items.ItemRegistry;
 import com.example.rougelikegame.android.models.items.PassiveItem;
+import com.example.rougelikegame.android.models.items.contexts.HomingContext;
 import com.example.rougelikegame.android.models.items.passives.BeamItem;
+import com.example.rougelikegame.android.models.items.passives.HomingLensItem;
 import com.example.rougelikegame.android.models.meta.RunStats;
 import com.example.rougelikegame.android.models.meta.Skin;
 import com.example.rougelikegame.android.models.world.Obstacle;
@@ -361,7 +365,7 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
     private void update(float delta) {
         updateGame(delta);
 
-        projectileSystem.update(delta);
+        projectileSystem.update(delta, enemies);
         projectileSystem.handlePlayerProjectilesHitEnemies(player, enemies);
         projectileSystem.handleEnemyProjectilesHitPlayer(player, this::onPlayerDied, this::onPlayerDamaged);
 
@@ -626,7 +630,8 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
         for (PassiveItem it : player.getPassiveItems()) {
             it.modifyProjectileDamage(player, ctx);
         }
-        projectileSystem.spawnPlayerProjectile(x, y, dir, ctx.damage);
+        HomingContext homingContext = player.getEffectiveHomingContext();
+        projectileSystem.spawnPlayerProjectile(x, y, dir, ctx.damage, homingContext);
     }
 
     private void spawnBeam(Vector2 dir, float chargePercent) {
