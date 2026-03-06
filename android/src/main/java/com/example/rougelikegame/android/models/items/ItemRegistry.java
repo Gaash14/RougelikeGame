@@ -11,6 +11,7 @@ import com.example.rougelikegame.android.models.items.passives.HomingLensItem;
 import com.example.rougelikegame.android.models.items.passives.OverclockInjectorItem;
 import com.example.rougelikegame.android.models.items.passives.PiggyBankItem;
 import com.example.rougelikegame.android.models.items.passives.PoisonItem;
+import com.example.rougelikegame.android.models.items.passives.ProtectiveSpellItem;
 import com.example.rougelikegame.android.models.items.passives.ShekelBillItem;
 
 import java.util.HashMap;
@@ -36,6 +37,7 @@ public class ItemRegistry {
         register(PiggyBankItem.ID, PiggyBankItem::new);
         register(DarkBargainItem.ID, DarkBargainItem::new);
         register(HomingLensItem.ID, HomingLensItem::new);
+        register(ProtectiveSpellItem.ID, ProtectiveSpellItem::new);
     }
 
     private static void register(int id, Supplier<PassiveItem> supplier) {

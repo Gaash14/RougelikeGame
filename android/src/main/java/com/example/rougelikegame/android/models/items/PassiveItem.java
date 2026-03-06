@@ -6,6 +6,7 @@ import com.example.rougelikegame.android.models.items.contexts.BlockChanceContex
 import com.example.rougelikegame.android.models.items.contexts.CooldownContext;
 import com.example.rougelikegame.android.models.items.contexts.DamageContext;
 import com.example.rougelikegame.android.models.items.contexts.HomingContext;
+import com.example.rougelikegame.android.models.items.contexts.IncomingDamageContext;
 
 public interface PassiveItem {
     int getItemId(); // numeric ID
@@ -23,6 +24,7 @@ public interface PassiveItem {
     default void modifyMeleeCooldown(Player player, CooldownContext ctx) {}
     default void modifyRangedCooldown(Player player, CooldownContext ctx) {}
     default void modifyHoming(Player player, HomingContext ctx) {}
+    default void modifyIncomingDamage(Player player, IncomingDamageContext ctx) {}
 
     default void onHitEnemy(Player player, Enemy enemy) {}
     default void onPlayerDamaged(Player player, int damageTaken) {}

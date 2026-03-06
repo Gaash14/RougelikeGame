@@ -15,6 +15,7 @@ import com.example.rougelikegame.android.models.items.contexts.CooldownContext;
 import com.example.rougelikegame.android.models.items.contexts.DamageContext;
 import com.example.rougelikegame.android.models.items.PassiveItem;
 import com.example.rougelikegame.android.models.items.contexts.HomingContext;
+import com.example.rougelikegame.android.models.items.contexts.IncomingDamageContext;
 import com.example.rougelikegame.android.models.world.Obstacle;
 
 import java.util.Objects;
@@ -359,7 +360,13 @@ public class Player {
             return 0;
         }
 
-        return baseDamage;
+        IncomingDamageContext ctx = new IncomingDamageContext(baseDamage);
+
+        for (PassiveItem it : passiveItems) {
+            it.modifyIncomingDamage(this, ctx);
+        }
+
+        return Math.max(0, Math.min(ctx.damage, ctx.maxDamage));
     }
 
     public int applyIncomingDamage(int baseDamage) {
