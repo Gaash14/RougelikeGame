@@ -10,6 +10,7 @@ import android.widget.ImageButton;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.rougelikegame.R;
+import com.example.rougelikegame.android.screens.menu.ItemsActivity;
 import com.example.rougelikegame.android.screens.shop.ShopActivity;
 import com.example.rougelikegame.android.utils.ImageUtil;
 import com.example.rougelikegame.android.utils.SharedPreferencesUtil;
@@ -80,6 +81,10 @@ public class ProfileActivity extends AppCompatActivity {
 
         findViewById(R.id.btnSkins).setOnClickListener(v -> {
             startActivity(new Intent(this, SkinsActivity.class));
+        });
+
+        findViewById(R.id.btnOpenItems).setOnClickListener(v -> {
+            startActivity(new Intent(this, ItemsActivity.class));
         });
 
     }
