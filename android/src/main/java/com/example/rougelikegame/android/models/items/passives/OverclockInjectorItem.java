@@ -29,6 +29,11 @@ public class OverclockInjectorItem implements PassiveItem {
     }
 
     @Override
+    public String getDescription() {
+        return "Massive attack speed boost at a heavy damage cost.";
+    }
+
+    @Override
     public String getIconPath() {
         return "items/overclock_injector.png";
     }

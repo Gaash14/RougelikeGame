@@ -31,6 +31,12 @@ public class ArmorItem implements PassiveItem {
     }
 
     @Override
+    public String getDescription() {
+        return "Increases your chance to block incoming hits.";
+    }
+
+
+    @Override
     public String getIconPath() {
         return "items/armor.png";
     }

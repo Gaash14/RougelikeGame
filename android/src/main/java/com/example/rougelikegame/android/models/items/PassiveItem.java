@@ -14,6 +14,7 @@ public interface PassiveItem {
     String getDisplayName();
     String getIconPath();
     ItemTier getTier();
+    String getDescription();
 
     default void onPickup(Player player) {}
 

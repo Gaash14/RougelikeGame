@@ -25,6 +25,11 @@ public class DamageUpItem implements PassiveItem {
     }
 
     @Override
+    public String getDescription() {
+        return "Raises melee and ranged damage output.";
+    }
+
+    @Override
     public String getIconPath() {
         return "pickups/pickup_damage.png";
     }

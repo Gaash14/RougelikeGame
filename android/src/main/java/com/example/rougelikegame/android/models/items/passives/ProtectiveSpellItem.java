@@ -37,6 +37,12 @@ public class ProtectiveSpellItem implements PassiveItem {
     }
 
     @Override
+    public String getDescription() {
+        return "Caps incoming hit damage and grants bonus health.";
+    }
+
+
+    @Override
     public String getIconPath() {
         return "items/protective_spell.png";
     }

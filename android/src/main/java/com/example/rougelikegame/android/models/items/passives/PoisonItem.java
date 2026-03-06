@@ -20,6 +20,11 @@ public class PoisonItem implements PassiveItem {
     }
 
     @Override
+    public String getDescription() {
+        return "Applies poison to enemies on hit.";
+    }
+
+    @Override
     public String getIconPath() {
         return "items/poison.png";
     }

@@ -69,6 +69,11 @@ public class AbyssalBlessingItem implements PassiveItem {
     }
 
     @Override
+    public String getDescription() {
+        return "Boosts health, damage, speed, and grants bonus coins.";
+    }
+
+    @Override
     public String getIconPath() {
         return "items/abyssal_blessing.png";
     }

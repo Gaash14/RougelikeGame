@@ -27,6 +27,11 @@ public class PiggyBankItem implements PassiveItem {
     }
 
     @Override
+    public String getDescription() {
+        return "Taking damage can spawn extra coins.";
+    }
+
+    @Override
     public String getIconPath() {
         return "items/piggy_bank.png";
     }

@@ -44,6 +44,11 @@ public class DarkBargainItem implements PassiveItem {
     }
 
     @Override
+    public String getDescription() {
+        return "Greatly buffs one stat while weakening another.";
+    }
+
+    @Override
     public String getIconPath() {
         return "items/dark_bargain.png";
     }

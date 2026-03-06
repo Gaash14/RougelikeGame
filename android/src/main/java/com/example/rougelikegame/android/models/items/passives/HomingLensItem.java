@@ -32,6 +32,11 @@ public class HomingLensItem implements PassiveItem {
     }
 
     @Override
+    public String getDescription() {
+        return "Projectiles and melee attacks gain homing assist.";
+    }
+
+    @Override
     public String getIconPath() {
         return "items/homing_lens.png";
     }

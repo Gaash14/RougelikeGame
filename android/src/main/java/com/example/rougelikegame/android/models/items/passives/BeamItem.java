@@ -23,6 +23,11 @@ public class BeamItem implements PassiveItem {
     }
 
     @Override
+    public String getDescription() {
+        return "Unlocks a piercing light beam attack.";
+    }
+
+    @Override
     public String getIconPath() {
         return "items/beam.png";
     }

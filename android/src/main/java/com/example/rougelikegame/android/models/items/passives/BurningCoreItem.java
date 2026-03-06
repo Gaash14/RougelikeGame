@@ -34,6 +34,11 @@ public class BurningCoreItem implements PassiveItem {
     }
 
     @Override
+    public String getDescription() {
+        return "Hits have a chance to ignite enemies over time.";
+    }
+
+    @Override
     public String getIconPath() {
         return "items/burning_core.png";
     }

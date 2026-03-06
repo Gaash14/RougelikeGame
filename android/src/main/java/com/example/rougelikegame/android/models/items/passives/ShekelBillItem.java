@@ -29,6 +29,11 @@ public class ShekelBillItem implements PassiveItem {
     }
 
     @Override
+    public String getDescription() {
+        return "Instantly grants 20 bonus coins on pickup.";
+    }
+
+    @Override
     public String getIconPath() {
         return "items/shekel_bill.png";
     }

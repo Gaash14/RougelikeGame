@@ -40,6 +40,11 @@ public class AttackSpeedItem implements PassiveItem {
     }
 
     @Override
+    public String getDescription() {
+        return "Reduces melee and ranged attack cooldowns.";
+    }
+
+    @Override
     public String getIconPath() {
         return "items/attack_speed.png";
     }
