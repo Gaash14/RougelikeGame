@@ -2,6 +2,7 @@ package com.example.rougelikegame.android.screens.menu;
 
 import android.content.ClipData;
 
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
@@ -119,6 +120,12 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
     private Texture enemyTexture;
     private Texture ghostTexture;
     private Texture bossTexture;
+    private Texture backgroundTexture;
+    private Texture hpIcon;
+    private Texture waveIcon;
+    private Texture damageIcon;
+    private Texture speedIcon;
+    private Texture coinsIcon;
 
     // Game state
     private final long runSeed;
@@ -161,8 +168,8 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
 
         setupCamera();
         loadTextures();
-        setupPlayerAndEnemies();
         setupPickupsAndObstacles();
+        setupPlayerAndEnemies();
         setupStageAndJoystick();
         setupPauseButtons();
         setupAttackButton();
@@ -179,7 +186,7 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
             runStats.addTime(delta);
         }
 
-        ScreenUtils.clear(0.3f, 0.3f, 0.3f, 1);
+        ScreenUtils.clear(0.05f, 0.05f, 0.08f, 1);
 
         if (!rewardScreenActive && !inputController.isPaused()) {
             update(delta);
@@ -192,7 +199,7 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
 
     @Override
     public void dispose() {
-        batch.dispose();
+        if (batch != null) batch.dispose();
         for (Enemy e : enemies) {
             e.dispose();
         }
@@ -205,8 +212,8 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
         if (projectileSystem != null) projectileSystem.disposeShared();
 
         player.dispose();
-        font.dispose();
-        stage.dispose();
+        if (font != null) font.dispose();
+        if (stage != null) stage.dispose();
         if (rewardStage != null) rewardStage.dispose();
         for (Texture tex : itemIconCache.values()) {
             if (tex != null && tex != fallbackItemTexture) {
@@ -215,12 +222,18 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
         }
         itemIconCache.clear();
         if (fallbackItemTexture != null) fallbackItemTexture.dispose();
-        joystick.dispose();
-        attackBtnTexture.dispose();
-        enemyTexture.dispose();
-        ghostTexture.dispose();
-        bossTexture.dispose();
-        playerTexture.dispose();
+        if (joystick != null) joystick.dispose();
+        if (attackBtnTexture != null) attackBtnTexture.dispose();
+        if (enemyTexture != null) enemyTexture.dispose();
+        if (ghostTexture != null) ghostTexture.dispose();
+        if (bossTexture != null) bossTexture.dispose();
+        if (playerTexture != null) playerTexture.dispose();
+        if (hpIcon != null) hpIcon.dispose();
+        if (waveIcon != null) waveIcon.dispose();
+        if (damageIcon != null) damageIcon.dispose();
+        if (speedIcon != null) speedIcon.dispose();
+        if (coinsIcon != null) coinsIcon.dispose();
+        if (backgroundTexture != null) backgroundTexture.dispose();
         SoundManager.dispose();
     }
 
@@ -235,7 +248,22 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
         ghostTexture = new Texture("enemies/ghost_enemy.png");
         bossTexture  = new Texture("enemies/boss.png");
         playerTexture = getPlayerTextureForSkin();
+
         fallbackItemTexture = new Texture("items/error.png");
+
+        backgroundTexture = new Texture("backgrounds/abyss_cave_bg.png");
+
+        hpIcon = new Texture("ui/hp_icon.png");
+        waveIcon = new Texture("ui/wave_icon.png");
+        damageIcon = new Texture("ui/damage_icon.png");
+        speedIcon = new Texture("ui/speed_icon.png");
+        coinsIcon = new Texture("ui/coin_icon.png");
+
+        hpIcon.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+        waveIcon.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+        damageIcon.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+        speedIcon.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+        coinsIcon.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
     }
 
     private void setupPlayerAndEnemies() {
@@ -294,7 +322,6 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
     private void setupPickupsAndObstacles() {
         pickups = new Array<>();
         obstacles = new Array<>();
-        spawnRandomObstacles();
     }
 
     private void setupStageAndJoystick() {
@@ -409,7 +436,11 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
     private void spawnRandomObstacles() {
         if (player == null) return;
 
-        obstacles.clear();
+        if (obstacles == null) {
+            obstacles = new Array<>();
+        } else {
+            obstacles.clear();
+        }
 
         int numObstacles = 5;
 
@@ -417,7 +448,7 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
             float x = miscRnd.nextInt(Gdx.graphics.getWidth() - 128);
             float y = miscRnd.nextInt(Gdx.graphics.getHeight() - 128);
 
-            // avoid spawning right on top of player
+            // avoid spawning on top of player
             if (Math.abs(x - player.x) < 200 && Math.abs(y - player.y) < 200) {
                 i--;
                 continue;
@@ -434,6 +465,8 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
         if (rewardScreenActive && waveNumber == pendingWaveToSpawn) {
             return;
         }
+
+        spawnRandomObstacles();
 
         // Boss wave
         if (allowBoss && waveManager.isBossWave()) {
@@ -711,6 +744,15 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
     private void drawGame() {
         batch.begin();
 
+        // background
+        batch.draw(
+            backgroundTexture,
+            0, 0,
+            Gdx.graphics.getWidth(),
+            Gdx.graphics.getHeight()
+        );
+
+
         // world
         player.draw(batch);
 
@@ -812,16 +854,48 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
     }
 
     private void drawUI() {
-        float screenH = Gdx.graphics.getHeight();
-        float y = screenH - 20;
-        float lineHeight = 70;
+        final float panelX = 12f;
+        final float panelPadding = 14f;
+        final float panelTopMargin = 12f;
+        final float iconSize = 64f;
+        final float rowCount = 5f;
+        final float lineHeight = 54f;
+        final float textX = panelX + panelPadding + iconSize + 12f;
+        final float panelWidth = 360f;
+        final float panelHeight = panelPadding * 2f + (rowCount * lineHeight);
+        final float panelY = Gdx.graphics.getHeight() - panelTopMargin - panelHeight;
+        final float firstRowBaselineY = panelY + panelHeight - panelPadding - 6f;
+        final float iconX = panelX + panelPadding;
 
-        font.draw(batch, "HP: " + player.health, 20, y); y -= lineHeight;
-        font.draw(batch, "Wave: " + waveManager.getWave(), 20, y); y -= lineHeight;
-        font.draw(batch, "Damage: " + player.getDisplayedDamage(), 20, y); y -= lineHeight;
-        font.draw(batch, "Speed: " + player.speed, 20, y); y -= lineHeight;
-        font.draw(batch, "Coins: " + player.coins, 20, y);
+        batch.setColor(0f, 0f, 0f, 0.55f);
+        batch.draw(player.debugPixel, panelX, panelY, panelWidth, panelHeight);
+        batch.setColor(Color.WHITE);
 
+        float textY = firstRowBaselineY;
+        float iconY = textY - iconSize + 6f;
+
+        batch.draw(hpIcon, iconX, iconY, iconSize, iconSize);
+        font.draw(batch, "HP: " + player.health, textX, textY);
+
+        textY -= lineHeight;
+        iconY -= lineHeight;
+        batch.draw(waveIcon, iconX, iconY, iconSize, iconSize);
+        font.draw(batch, "Wave: " + waveManager.getWave(), textX, textY);
+
+        textY -= lineHeight;
+        iconY -= lineHeight;
+        batch.draw(damageIcon, iconX, iconY, iconSize, iconSize);
+        font.draw(batch, "Damage: " + player.getDisplayedDamage(), textX, textY);
+
+        textY -= lineHeight;
+        iconY -= lineHeight;
+        batch.draw(speedIcon, iconX, iconY, iconSize, iconSize);
+        font.draw(batch, "Speed: " + player.speed, textX, textY);
+
+        textY -= lineHeight;
+        iconY -= lineHeight;
+        batch.draw(coinsIcon, iconX, iconY, iconSize, iconSize);
+        font.draw(batch, "Coins: " + player.coins, textX, textY);
     }
 
     private void drawBeamChargeBar() {
@@ -901,7 +975,7 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
     }
 
     private boolean onWaveStarted(int waveNumber) {
-        if (waveNumber % 2 != 0) {
+        if (waveNumber % 4 != 0) {
             return false;
         }
 

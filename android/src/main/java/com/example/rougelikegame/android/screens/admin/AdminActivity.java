@@ -136,14 +136,19 @@ public class AdminActivity extends AppCompatActivity {
                         Map<String, Object> updates = new HashMap<>();
                         updates.put("highestWave", 0);
                         updates.put("bestTime", 0);
-                        updates.put("enemiesKilled", 0);
-                        updates.put("pickupsPicked", 0);
                         updates.put("numOfAttempts", 0);
                         updates.put("numOfWins", 0);
-                        updates.put("bestStreak", 0);
                         updates.put("currentStreak", 0);
+                        updates.put("bestStreak", 0);
                         updates.put("pickedRanged", 0);
+                        updates.put("enemiesKilled", 0);
+                        updates.put("pickupsPicked", 0);
+                        updates.put("itemsPicked", 0);
                         updates.put("numOfCoins", 0);
+                        updates.put("dailyChallengesCompleted", 0);
+                        updates.put("dailyStreak", 0);
+                        updates.put("bestDailyStreak", 0);
+                        updates.put("lastDailyCompletionDate", null);
 
                         FirebaseDatabase.getInstance()
                             .getReference("users")
@@ -152,14 +157,19 @@ public class AdminActivity extends AppCompatActivity {
                             .addOnSuccessListener(v -> {
                                 user.setHighestWave(0);
                                 user.setBestTime(0);
-                                user.setEnemiesKilled(0);
-                                user.setPickupsPicked(0);
                                 user.setNumOfAttempts(0);
                                 user.setNumOfWins(0);
-                                user.setPickedRanged(0);
                                 user.setCurrentStreak(0);
                                 user.setBestStreak(0);
+                                user.setPickedRanged(0);
+                                user.setEnemiesKilled(0);
+                                user.setPickupsPicked(0);
+                                user.setItemsPicked(0);
                                 user.setNumOfCoins(0);
+                                user.setDailyChallengesCompleted(0);
+                                user.setDailyStreak(0);
+                                user.setBestDailyStreak(0);
+                                user.setLastDailyCompletionDate(null);
                                 userAdapter.updateUser(user);
                             });
                     })

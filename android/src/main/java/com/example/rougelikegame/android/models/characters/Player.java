@@ -94,6 +94,10 @@ public class Player {
     private float immunityDuration = 0f;
     private boolean immune = false;
 
+    // visual feedback
+    private static final float DAMAGE_FLASH_DURATION_SECONDS = 0.25f;
+    private float damageFlashTimer = 0f;
+
     public Player(float x, float y, Random randomSource) {
         this.texture = new Texture("skins/player_default.png");
         this.randomSource = Objects.requireNonNull(randomSource, "randomSource");
@@ -117,6 +121,8 @@ public class Player {
         if (meleeCooldown > 0) meleeCooldown -= delta;
         if (rangedCooldown > 0) rangedCooldown -= delta;
         if (damageCooldown > 0) damageCooldown -= delta;
+        if (damageFlashTimer > 0f) damageFlashTimer -= delta;
+
 
         updateCharge(delta);
 
@@ -372,6 +378,9 @@ public class Player {
     public int applyIncomingDamage(int baseDamage) {
         int finalDamage = getEffectiveIncomingDamage(baseDamage);
         health -= finalDamage;
+        if (finalDamage > 0) {
+            damageFlashTimer = DAMAGE_FLASH_DURATION_SECONDS;
+        }
         return finalDamage;
     }
 
@@ -427,7 +436,13 @@ public class Player {
     }
 
     public void draw(SpriteBatch batch) {
+        if (damageFlashTimer > 0f) {
+            batch.setColor(1f, 0.35f, 0.35f, 1f);
+        }
         batch.draw(texture, x, y, width, height);
+        if (damageFlashTimer > 0f) {
+            batch.setColor(1f, 1f, 1f, 1f);
+        }
     }
 
     public void setTexture(Texture newTexture) {
