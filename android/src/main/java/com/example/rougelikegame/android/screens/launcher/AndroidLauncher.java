@@ -65,6 +65,7 @@ public class AndroidLauncher extends AndroidApplication {
                 int bestTimeSeconds,
                 int enemiesKilled,
                 int pickupsPicked,
+                int itemsPicked,
                 int coinsPicked,
                 boolean win,
                 boolean rangedChosen )
@@ -174,6 +175,10 @@ public class AndroidLauncher extends AndroidApplication {
 
                 user.setPickupsPicked(
                     user.getPickupsPicked() + pickupsPicked
+                );
+
+                user.setItemsPicked(
+                    user.getItemsPicked() + itemsPicked
                 );
 
                 user.setNumOfCoins(

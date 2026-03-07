@@ -27,7 +27,7 @@ public class ProfileActivity extends AppCompatActivity {
 
     // Stats
     private TextView txtRuns, txtWinsLosses, txtWinRate;
-    private TextView txtKills, txtPickups, txtCoins;
+    private TextView txtKills, txtPickups, txtItemsPicked, txtCoins;
     private TextView txtHighestWave, txtBestTime;
     private TextView txtRangedPicks, txtMeleePicks;
     private TextView txtCurrentStreak, txtBestStreak;
@@ -55,6 +55,7 @@ public class ProfileActivity extends AppCompatActivity {
         txtKills = findViewById(R.id.txtKills);
         txtPickups = findViewById(R.id.txtPickups);
         txtCoins = findViewById(R.id.txtCoins);
+        txtItemsPicked = findViewById(R.id.txtItemsPicked);
 
         txtHighestWave = findViewById(R.id.txtHighestWave);
         txtBestTime = findViewById(R.id.txtBestTime);
@@ -136,6 +137,7 @@ public class ProfileActivity extends AppCompatActivity {
             txtKills.setText("Enemies Killed: 0 (0.00 / run)");
             txtPickups.setText("Pickups: 0 (0.00 / run)");
             txtCoins.setText("Coins 0");
+            txtItemsPicked.setText("Items Picked: 0 (0.00 / run)");
 
             txtHighestWave.setText("Highest Wave: 0");
             txtBestTime.setText("Best Time: —");
@@ -225,6 +227,7 @@ public class ProfileActivity extends AppCompatActivity {
         int enemiesKilled = user.getEnemiesKilled();
         int pickupsPicked = user.getPickupsPicked();
         int numOfCoins = user.getNumOfCoins();
+        int itemsPicked = user.getItemsPicked();
 
         double killsPerRun = (runs > 0)
             ? (enemiesKilled * 1.0 / runs)
@@ -232,6 +235,10 @@ public class ProfileActivity extends AppCompatActivity {
 
         double pickupsPerRun = (runs > 0)
             ? (pickupsPicked * 1.0 / runs)
+            : 0.0;
+
+        double itemsPickedPerRun = (runs > 0)
+            ? (itemsPicked * 1.0 / runs)
             : 0.0;
 
         txtKills.setText(String.format(
@@ -249,6 +256,13 @@ public class ProfileActivity extends AppCompatActivity {
         ));
 
         txtCoins.setText("Coins: " + numOfCoins);
+
+        txtItemsPicked.setText(String.format(
+            Locale.US,
+            "Items Picked: %d (%.2f / run)",
+            itemsPicked,
+            itemsPickedPerRun
+        ));
 
         // ---------- BESTS ----------
         txtHighestWave.setText("Highest Wave: " + user.getHighestWave());

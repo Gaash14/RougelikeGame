@@ -11,7 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:padding="12dp">
 
         <!-- Header -->
         <LinearLayout
@@ -74,19 +74,17 @@
                     android:src="@android:drawable/ic_menu_agenda"
                     app:tint="#FFFFFF" />
 
-                <!-- Update User -->
                 <ImageButton
                     android:id="@+id/btnUpdateUser"
                     android:layout_width="40dp"
                     android:layout_height="40dp"
-                    android:layout_marginStart="8dp"
+                    android:layout_marginStart="6dp"
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:contentDescription="Update user"
                     android:padding="8dp"
                     android:scaleType="centerInside"
                     android:src="@android:drawable/ic_menu_edit"
                     app:tint="#FFFFFF" />
-
             </LinearLayout>
         </LinearLayout>
 
@@ -95,7 +93,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_marginTop="12dp">
+            android:layout_marginTop="10dp"
+            android:baselineAligned="false">
 
             <!-- LEFT COLUMN -->
             <LinearLayout
@@ -104,15 +103,16 @@
                 android:layout_weight="1"
                 android:orientation="vertical">
 
-                <!-- Runs / Wins / Win Rate + Skins -->
+                <!-- Top left card -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:minHeight="108dp"
                     android:orientation="horizontal"
+                    android:gravity="center_vertical"
                     android:background="@drawable/card_gradient"
-                    android:padding="12dp">
+                    android:padding="10dp">
 
-                    <!-- LEFT: Stats -->
                     <LinearLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
@@ -125,50 +125,50 @@
                             android:layout_height="wrap_content"
                             android:text="Runs: 0"
                             android:textColor="#FFFFFF"
-                            android:textSize="16sp" />
+                            android:textSize="14sp" />
 
                         <TextView
                             android:id="@+id/txtWinsLosses"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
                             android:text="Wins: 0 | Losses: 0"
                             android:textColor="#FFFFFF"
-                            android:textSize="16sp"
-                            android:layout_marginTop="4dp" />
+                            android:textSize="14sp" />
 
                         <TextView
                             android:id="@+id/txtWinRate"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
                             android:text="Win Rate: 0%"
                             android:textColor="#FFFFFF"
-                            android:textSize="16sp"
-                            android:layout_marginTop="4dp" />
+                            android:textSize="14sp" />
                     </LinearLayout>
 
-                    <!-- RIGHT: Skins button -->
                     <TextView
                         android:id="@+id/btnSkins"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="👕 SKINS"
                         android:textColor="#BBBBBB"
-                        android:textSize="14sp"
-                        android:paddingStart="12dp"
-                        android:paddingEnd="0dp"
+                        android:textSize="13sp"
+                        android:paddingStart="10dp"
                         android:gravity="center"
                         android:clickable="true"
                         android:focusable="true" />
                 </LinearLayout>
 
-                <!-- Streaks -->
+                <!-- Middle left card -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:minHeight="76dp"
                     android:orientation="vertical"
+                    android:gravity="center_vertical"
                     android:background="@drawable/card_gradient"
-                    android:padding="12dp"
-                    android:layout_marginTop="10dp">
+                    android:padding="10dp"
+                    android:layout_marginTop="8dp">
 
                     <TextView
                         android:id="@+id/txtCurrentStreak"
@@ -176,27 +176,28 @@
                         android:layout_height="wrap_content"
                         android:text="Current Streak: 0"
                         android:textColor="#FFFFFF"
-                        android:textSize="15sp" />
+                        android:textSize="14sp" />
 
                     <TextView
                         android:id="@+id/txtBestStreak"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
                         android:text="Best Streak: 0"
                         android:textColor="#FFFFFF"
-                        android:textSize="15sp"
-                        android:layout_marginTop="4dp" />
+                        android:textSize="14sp" />
                 </LinearLayout>
 
-                <!-- Bests -->
+                <!-- Bottom left card -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:minHeight="76dp"
                     android:orientation="vertical"
+                    android:gravity="center_vertical"
                     android:background="@drawable/card_gradient"
-                    android:padding="12dp"
-                    android:minHeight="75dp"
-                    android:layout_marginTop="10dp">
+                    android:padding="10dp"
+                    android:layout_marginTop="8dp">
 
                     <TextView
                         android:id="@+id/txtHighestWave"
@@ -204,16 +205,16 @@
                         android:layout_height="wrap_content"
                         android:text="Highest Wave: 0"
                         android:textColor="#FFFFFF"
-                        android:textSize="16sp" />
+                        android:textSize="14sp" />
 
                     <TextView
                         android:id="@+id/txtBestTime"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
                         android:text="Best Time: —"
                         android:textColor="#FFFFFF"
-                        android:textSize="16sp"
-                        android:layout_marginTop="4dp" />
+                        android:textSize="14sp" />
                 </LinearLayout>
 
             </LinearLayout>
@@ -224,39 +225,50 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:orientation="vertical"
-                android:layout_marginStart="12dp">
+                android:layout_marginStart="8dp">
 
-                <!-- Kills / Pickups -->
+                <!-- Top right card -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:minHeight="108dp"
                     android:orientation="vertical"
+                    android:gravity="center_vertical"
                     android:background="@drawable/card_gradient"
-                    android:padding="12dp">
+                    android:padding="10dp">
 
                     <TextView
                         android:id="@+id/txtKills"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Enemies Killed: 0 (0.00 / run)"
+                        android:text="Kills: 0 (0.00/run)"
                         android:textColor="#FFFFFF"
-                        android:textSize="16sp" />
+                        android:textSize="14sp" />
+
+                    <TextView
+                        android:id="@+id/txtItemsPicked"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="Items: 0 (0.00/run)"
+                        android:textColor="#FFFFFF"
+                        android:textSize="14sp" />
 
                     <TextView
                         android:id="@+id/txtPickups"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Pickups: 0 (0.00 / run)"
+                        android:layout_marginTop="2dp"
+                        android:text="Pickups: 0 (0.00/run)"
                         android:textColor="#FFFFFF"
-                        android:textSize="16sp"
-                        android:layout_marginTop="4dp" />
+                        android:textSize="14sp" />
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
                         android:orientation="horizontal"
-                        android:gravity="center_vertical"
-                        android:layout_marginTop="4dp">
+                        android:gravity="center_vertical">
 
                         <TextView
                             android:id="@+id/txtCoins"
@@ -265,7 +277,7 @@
                             android:layout_weight="1"
                             android:text="Coins: 0"
                             android:textColor="#FFFFFF"
-                            android:textSize="16sp" />
+                            android:textSize="14sp" />
 
                         <TextView
                             android:id="@+id/btnOpenShop"
@@ -273,9 +285,8 @@
                             android:layout_height="wrap_content"
                             android:text="SHOP"
                             android:textColor="#BBBBBB"
-                            android:textSize="14sp"
+                            android:textSize="13sp"
                             android:paddingStart="8dp"
-                            android:paddingEnd="0dp"
                             android:minHeight="0dp"
                             android:minWidth="0dp"
                             android:clickable="true"
@@ -283,14 +294,16 @@
                     </LinearLayout>
                 </LinearLayout>
 
-                <!-- Class Picks -->
+                <!-- Middle right card -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:minHeight="76dp"
                     android:orientation="vertical"
+                    android:gravity="center_vertical"
                     android:background="@drawable/card_gradient"
-                    android:padding="12dp"
-                    android:layout_marginTop="10dp">
+                    android:padding="10dp"
+                    android:layout_marginTop="8dp">
 
                     <TextView
                         android:id="@+id/txtRangedPicks"
@@ -298,28 +311,29 @@
                         android:layout_height="wrap_content"
                         android:text="Ranged: 0 (0%)"
                         android:textColor="#FFFFFF"
-                        android:textSize="15sp" />
+                        android:textSize="14sp" />
 
                     <TextView
                         android:id="@+id/txtMeleePicks"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
                         android:text="Melee: 0 (0%)"
                         android:textColor="#FFFFFF"
-                        android:textSize="15sp"
-                        android:layout_marginTop="4dp" />
+                        android:textSize="14sp" />
                 </LinearLayout>
 
-                <!-- Daily Challenge -->
+                <!-- Bottom right card -->
                 <LinearLayout
                     android:id="@+id/cardDaily"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:minHeight="76dp"
                     android:orientation="vertical"
+                    android:gravity="center_vertical"
                     android:background="@drawable/card_gradient"
-                    android:padding="12dp"
-                    android:minHeight="75dp"
-                    android:layout_marginTop="10dp">
+                    android:padding="10dp"
+                    android:layout_marginTop="8dp">
 
                     <TextView
                         android:id="@+id/txtDailyTitle"
@@ -328,18 +342,17 @@
                         android:text="Daily Challenge"
                         android:textColor="#FFFFFF"
                         android:textStyle="bold"
-                        android:textSize="15sp" />
+                        android:textSize="14sp" />
 
                     <TextView
                         android:id="@+id/txtDailyStats"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
                         android:text="Completed: 0 • 🔥 Streak: 0"
                         android:textColor="#BBBBBB"
-                        android:textSize="14sp"
-                        android:layout_marginTop="4dp" />
+                        android:textSize="13sp" />
                 </LinearLayout>
-
 
             </LinearLayout>
 

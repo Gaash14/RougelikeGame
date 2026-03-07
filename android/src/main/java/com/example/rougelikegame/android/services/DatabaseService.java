@@ -406,6 +406,13 @@ public class DatabaseService {
                     )
                 );
 
+                currentUser.setItemsPicked(
+                    Math.max(
+                        currentUser.getItemsPicked(),
+                        incomingUser.getItemsPicked()
+                    )
+                );
+
                 currentUser.setNumOfCoins(
                     Math.max(
                         currentUser.getNumOfCoins(),

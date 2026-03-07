@@ -5,6 +5,7 @@ public interface ScoreReporter {
         int wave,
         int time,
         int enemiesKilled,
+        int itemsPicked,
         int pickupsPicked,
         int coinsPicked,
         boolean win,

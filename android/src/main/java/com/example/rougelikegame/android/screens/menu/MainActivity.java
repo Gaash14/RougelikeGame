@@ -689,6 +689,7 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
                 win ? (int) runStats.getRunTime() : 0, // if won, time = runtime. else, time = 0
                 runStats.getEnemiesKilled(),
                 runStats.getPickupsPicked(),
+                runStats.getItemsPicked(),
                 player.coins,
                 win,
                 rangedChosen
@@ -700,6 +701,7 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
                 " time=" + runStats.getRunTime() +
                 " kills=" + runStats.getEnemiesKilled() +
                 " pickups=" + runStats.getPickupsPicked() +
+                " itemsPicked=" + runStats.getItemsPicked() +
                 " coins=" + player.coins +
                 " win=" + win
         );
@@ -899,7 +901,7 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
     }
 
     private boolean onWaveStarted(int waveNumber) {
-        if (waveNumber % 4 != 0) {
+        if (waveNumber % 2 != 0) {
             return false;
         }
 
@@ -955,6 +957,7 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
 
     private void onRewardItemSelected(int itemId) {
         player.addPassiveItem(ItemRegistry.create(itemId));
+        runStats.addItemPicked();
         rewardScreenActive = false;
 
         if (rewardStage != null) {

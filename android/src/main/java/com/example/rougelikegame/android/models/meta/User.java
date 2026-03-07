@@ -32,6 +32,7 @@ public class User implements Serializable {
     private int pickedRanged;
     private int enemiesKilled;
     private int pickupsPicked;
+    private int itemsPicked;
     private int numOfCoins;
 
     // daily challenge
@@ -60,6 +61,7 @@ public class User implements Serializable {
                 int pickedRanged,
                 int enemiesKilled,
                 int pickupsPicked,
+                int itemsPicked,
                 int numOfCoins) {
 
         this.uid = uid;
@@ -79,6 +81,7 @@ public class User implements Serializable {
         this.pickedRanged = pickedRanged;
         this.enemiesKilled = enemiesKilled;
         this.pickupsPicked = pickupsPicked;
+        this.itemsPicked = itemsPicked;
         this.numOfCoins = numOfCoins;
 
         this.ownedSkins = new HashMap<>();
@@ -236,6 +239,7 @@ public class User implements Serializable {
     public int getPickedRanged() { return pickedRanged; }
     public int getEnemiesKilled() { return enemiesKilled; }
     public int getPickupsPicked() { return pickupsPicked; }
+    public int getItemsPicked() { return itemsPicked; }
 
     // setters
     public void setHighestWave(int highestWave) {
@@ -251,4 +255,5 @@ public class User implements Serializable {
     public void setPickedRanged(int pickedRanged) { this.pickedRanged = pickedRanged;}
     public void setEnemiesKilled(int enemiesKilled) { this.enemiesKilled = enemiesKilled;}
     public void setPickupsPicked(int pickupsPicked) { this.pickupsPicked = pickupsPicked;}
+    public void setItemsPicked(int itemsPicked) { this.itemsPicked = itemsPicked;}
 }

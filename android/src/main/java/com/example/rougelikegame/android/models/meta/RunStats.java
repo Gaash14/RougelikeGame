@@ -4,6 +4,7 @@ public class RunStats {
 
     private int enemiesKilled;
     private int pickupsPicked;
+    private int itemsPicked;
     private float runTime;
 
     public void addKill() {
@@ -12,6 +13,10 @@ public class RunStats {
 
     public void addPickup() {
         pickupsPicked++;
+    }
+
+    public void addItemPicked() {
+        itemsPicked++;
     }
 
     public void addTime(float delta) {
@@ -24,6 +29,10 @@ public class RunStats {
 
     public int getPickupsPicked() {
         return pickupsPicked;
+    }
+
+    public int getItemsPicked() {
+        return itemsPicked;
     }
 
     public float getRunTime() {
