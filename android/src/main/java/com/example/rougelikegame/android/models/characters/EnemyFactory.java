@@ -5,15 +5,12 @@ import com.badlogic.gdx.utils.Array;
 import com.example.rougelikegame.android.models.world.Projectile;
 import com.example.rougelikegame.android.screens.menu.MainActivity;
 
-import java.util.Random;
-
 public class EnemyFactory {
 
     private final Texture enemyTexture;
     private final Texture ghostTexture;
     private final Texture bossTexture;
     private final Array<Projectile> enemyProjectiles;
-    private final Random rnd = new Random();
 
     public EnemyFactory(
         Texture enemyTexture,

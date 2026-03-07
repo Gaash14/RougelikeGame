@@ -9,7 +9,6 @@ public class Pickup {
     public enum Type {
         HEALTH,
         SPEED,
-        DAMAGE,
         COIN
     }
 
@@ -30,9 +29,6 @@ public class Pickup {
                 break;
             case SPEED:
                 texture = new Texture("pickups/pickup_speed.png");
-                break;
-            case DAMAGE:
-                texture = new Texture("pickups/pickup_damage.png");
                 break;
             case COIN:
                 texture = new Texture("pickups/pickup_coin.png");

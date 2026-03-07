@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.SeekBar;
 import android.widget.Switch;
@@ -27,8 +28,10 @@ public class ChooseDifficultyActivity extends AppCompatActivity {
     private static final String KEY_SFX_VOLUME = "sfx_volume";
     private static final String KEY_SFX_MUTED = "sfx_muted";
 
-    private Switch classSwitch;
-    private TextView classLabel;
+    private RadioGroup classGroup;
+    private RadioButton classMelee;
+    private RadioButton classRanged;
+
     private Button startGameButton;
     private RadioGroup difficultyGroup;
 
@@ -48,8 +51,9 @@ public class ChooseDifficultyActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_choose_difficulty);
 
-        classSwitch = findViewById(R.id.classSwitch);
-        classLabel = findViewById(R.id.classLabel);
+        classGroup = findViewById(R.id.classGroup);
+        classMelee = findViewById(R.id.classMelee);
+        classRanged = findViewById(R.id.classRanged);
 
         txtDailyReset = findViewById(R.id.txtDailyReset);
         seedInput = findViewById(R.id.seedInput);
@@ -63,13 +67,11 @@ public class ChooseDifficultyActivity extends AppCompatActivity {
         openSoundSettingsButton.setOnClickListener(v -> showSoundSettingsDialog());
 
         // Toggle between MELEE / RANGED
-        classSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            if (isChecked) {
+        classGroup.setOnCheckedChangeListener((group, checkedId) -> {
+            if (checkedId == R.id.classRanged) {
                 selectedClass = Player.PlayerClass.RANGED;
-                classLabel.setText("Class: RANGED");
             } else {
                 selectedClass = Player.PlayerClass.MELEE;
-                classLabel.setText("Class: MELEE");
             }
         });
 

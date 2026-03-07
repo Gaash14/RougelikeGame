@@ -61,20 +61,36 @@
             android:layout_marginEnd="8dp">
 
             <TextView
-                android:id="@+id/classLabel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Class: MELEE"
+                android:text="Class"
                 android:textSize="18sp"
                 android:textColor="#FFFFFF"
                 android:layout_marginBottom="8dp" />
 
-            <Switch
-                android:id="@+id/classSwitch"
+            <RadioGroup
+                android:id="@+id/classGroup"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Ranged"
-                android:textColor="#FFFFFF" />
+                android:orientation="horizontal"
+                android:gravity="center">
+
+                <RadioButton
+                    android:id="@+id/classMelee"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Melee"
+                    android:textColor="#FFFFFF"
+                    android:checked="true"
+                    android:layout_marginEnd="8dp" />
+
+                <RadioButton
+                    android:id="@+id/classRanged"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Ranged"
+                    android:textColor="#FFFFFF" />
+            </RadioGroup>
         </LinearLayout>
 
         <!-- Difficulty card -->

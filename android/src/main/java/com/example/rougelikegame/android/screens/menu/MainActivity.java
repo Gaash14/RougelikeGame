@@ -125,7 +125,10 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
     private static final boolean DEBUG = false;
     private final RunStats runStats = new RunStats();
     private final boolean dailyChallenge;
-    private Random rnd;
+    private Random itemRnd;
+    private Random pickupRnd;
+    private Random enemyRnd;
+    private Random miscRnd;
     public Player.Difficulty getDifficulty() { return difficulty; }
 
     private final AchievementManager achievementManager =
@@ -149,7 +152,10 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
         SoundManager.load();
 
         GameState gameState = new GameState(runSeed);
-        rnd = gameState.getRandom();
+        itemRnd = gameState.getItemRandom();
+        pickupRnd = gameState.getPickupRandom();
+        enemyRnd = gameState.getEnemyRandom();
+        miscRnd = gameState.getMiscRandom();
 
         Gdx.app.log("SEED", "Run seed = " + runSeed);
 
@@ -233,7 +239,7 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
     }
 
     private void setupPlayerAndEnemies() {
-        player = new Player(100, 100, rnd);
+        player = new Player(100, 100, miscRnd);
         player.setTexture(playerTexture);
         player.playerClass = selectedClass;
 
@@ -408,8 +414,8 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
         int numObstacles = 5;
 
         for (int i = 0; i < numObstacles; i++) {
-            float x = rnd.nextInt(Gdx.graphics.getWidth() - 128);
-            float y = rnd.nextInt(Gdx.graphics.getHeight() - 128);
+            float x = miscRnd.nextInt(Gdx.graphics.getWidth() - 128);
+            float y = miscRnd.nextInt(Gdx.graphics.getHeight() - 128);
 
             // avoid spawning right on top of player
             if (Math.abs(x - player.x) < 200 && Math.abs(y - player.y) < 200) {
@@ -457,8 +463,8 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
         int bonusEnemyDamage = waveManager.getWave() / 5; // +1 enemy dmg every 5 waves
 
         for (int i = 0; i < enemyCount; i++) {
-            float x = rnd.nextInt(Gdx.graphics.getWidth() - 128);
-            float y = rnd.nextInt(Gdx.graphics.getHeight() - 128);
+            float x = enemyRnd.nextInt(Gdx.graphics.getWidth() - 128);
+            float y = enemyRnd.nextInt(Gdx.graphics.getHeight() - 128);
 
             // avoid spawning right on top of player
             if (Math.abs(x - player.x) < 200 && Math.abs(y - player.y) < 200) {
@@ -466,7 +472,7 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
                 continue;
             }
 
-            if (rnd.nextFloat() < ghostChance) {
+            if (enemyRnd.nextFloat() < ghostChance) {
                 enemies.add(
                     enemyFactory.createGhostEnemy(
                         x,
@@ -549,8 +555,8 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
         int numPickups = 2 + waveNumber / 2;
 
         for (int i = 0; i < numPickups; i++) {
-            float x = rnd.nextInt(Gdx.graphics.getWidth() - 64);
-            float y = rnd.nextInt(Gdx.graphics.getHeight() - 64);
+            float x = pickupRnd.nextInt(Gdx.graphics.getWidth() - 64);
+            float y = pickupRnd.nextInt(Gdx.graphics.getHeight() - 64);
 
             Pickup.Type randomType = getRandomPickupType(player.speed);
 
@@ -569,16 +575,13 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
         pool.add(Pickup.Type.HEALTH);
         pool.add(Pickup.Type.HEALTH);
 
-        pool.add(Pickup.Type.DAMAGE);
-        pool.add(Pickup.Type.DAMAGE);
-
         if (allowSpeed) {
             pool.add(Pickup.Type.SPEED);
         }
 
         pool.add(Pickup.Type.COIN);  // 1 coin vs 2+ of others
 
-        return pool.get(rnd.nextInt(pool.size));
+        return pool.get(pickupRnd.nextInt(pool.size));
     }
 
     private void checkPickups() {
@@ -598,18 +601,13 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
 
         switch (p.type) {
             case HEALTH:
-                player.health += 5;
+                player.health += 3;
                 if (DEBUG) Gdx.app.log("Pickups", "Picked up health → player HP = " + player.health);
                 break;
 
             case SPEED:
-                player.speed += 50;
+                player.speed += 10;
                 if (DEBUG) Gdx.app.log("Pickups", "Picked up speed → new speed = " + player.speed);
-                break;
-
-            case DAMAGE:
-                player.attackBonus += 5;
-                if (DEBUG) Gdx.app.log("Pickups", "Picked up damage → new bonus = " + player.attackBonus);
                 break;
 
             case COIN:
@@ -1023,10 +1021,10 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
         }
 
         if (totalWeight <= 0) {
-            return candidateIds.get(rnd.nextInt(candidateIds.size()));
+            return candidateIds.get(itemRnd.nextInt(candidateIds.size()));
         }
 
-        int roll = rnd.nextInt(totalWeight);
+        int roll = itemRnd.nextInt(totalWeight);
         for (int id : candidateIds) {
             if (!allowBlocked && blockedIds.contains(id)) {
                 continue;
