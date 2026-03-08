@@ -13,6 +13,7 @@ import com.example.rougelikegame.android.models.items.passives.PiggyBankItem;
 import com.example.rougelikegame.android.models.items.passives.PoisonItem;
 import com.example.rougelikegame.android.models.items.passives.ProtectiveSpellItem;
 import com.example.rougelikegame.android.models.items.passives.ShekelBillItem;
+import com.example.rougelikegame.android.models.items.passives.TitansCoreItem;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -38,6 +39,7 @@ public class ItemRegistry {
         register(DarkBargainItem.ID, DarkBargainItem::new);
         register(HomingLensItem.ID, HomingLensItem::new);
         register(ProtectiveSpellItem.ID, ProtectiveSpellItem::new);
+        register(TitansCoreItem.ID, TitansCoreItem::new);
     }
 
     private static void register(int id, Supplier<PassiveItem> supplier) {
