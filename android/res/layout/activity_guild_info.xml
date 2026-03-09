@@ -82,6 +82,66 @@
                     android:textColor="#FFFFFF"
                     android:textSize="16sp" />
 
+                <TextView
+                    android:id="@+id/txtGuildChatTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginBottom="10dp"
+                    android:text="Guild Chat"
+                    android:textColor="#FFFFFF"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/recyclerGuildChat"
+                    android:layout_width="match_parent"
+                    android:layout_height="280dp"
+                    android:background="#12000000"
+                    android:clipToPadding="false"
+                    android:padding="8dp"
+                    android:scrollbars="vertical" />
+
+                <TextView
+                    android:id="@+id/txtGuildChatStatus"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="Chat unavailable"
+                    android:textColor="#FFB3B3B3"
+                    android:visibility="gone" />
+
+                <LinearLayout
+                    android:id="@+id/layoutGuildChatInput"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <EditText
+                        android:id="@+id/edtGuildMessage"
+                        android:layout_width="0dp"
+                        android:layout_height="48dp"
+                        android:layout_weight="1"
+                        android:background="#22000000"
+                        android:ems="10"
+                        android:hint="Write a message..."
+                        android:inputType="textCapSentences|textMultiLine"
+                        android:maxLength="300"
+                        android:paddingHorizontal="12dp"
+                        android:textColor="#FFFFFF"
+                        android:textColorHint="#99FFFFFF" />
+
+                    <Button
+                        android:id="@+id/btnSendGuildMessage"
+                        android:layout_width="wrap_content"
+                        android:layout_height="48dp"
+                        android:layout_marginStart="8dp"
+                        android:minWidth="72dp"
+                        android:text="Send" />
+                </LinearLayout>
+
                 <Button
                     android:id="@+id/btnLeaveGuild"
                     android:layout_width="match_parent"
