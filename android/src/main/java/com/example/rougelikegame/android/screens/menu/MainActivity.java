@@ -493,7 +493,7 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
         int enemyCount = calculateEnemyCount(waveNumber);
 
         float ghostChance = 0.10f; // 10% chance to spawn a ghost
-        int bonusEnemyDamage = waveManager.getWave() / 5; // +1 enemy dmg every 5 waves
+        int bonusEnemyDamage = waveManager.getWave() / 6; // +1 enemy dmg every 6 waves
 
         for (int i = 0; i < enemyCount; i++) {
             float x = enemyRnd.nextInt(Gdx.graphics.getWidth() - 128);
@@ -531,22 +531,20 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
     }
 
     private int calculateEnemyCount(int waveNumber) {
-        int baseEnemyCount = 3 + (waveNumber - 1) * 2; // wave 1=3, 2=5, 3=7...
-        if (waveNumber > 15) {
-            baseEnemyCount = 31; // don't increase enemy count after wave 15
-        }
+        int cappedWave = Math.min(waveNumber, 15);
+        int baseEnemyCount = 3 + ((cappedWave - 1) * 3) / 2; // wave 1=3, 2=4, 3=6...
 
         float multiplier = 1f;
         switch (this.getDifficulty()) {
             case EASY:
-                multiplier = 0.75f; // EASY: wave 1=2, 2=4, 3=5...
+                multiplier = 0.75f; // EASY: wave 1=2, 2=3, 3=5...
                 break;
             case HARD:
-                multiplier = 1.4f; // HARD: wave 1=4 2=7 3=10...
+                multiplier = 1.35f; // HARD: wave 1=4, 2=5, 3=8...
                 break;
             case NORMAL:
             default:
-                // NORMAL: wave 1=3, 2=5, 3=7...
+                // NORMAL: wave 1=3, 2=4, 3=6...
                 break;
         }
 
@@ -634,7 +632,7 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
 
         switch (p.type) {
             case HEALTH:
-                player.health += 3;
+                player.health += 4;
                 if (DEBUG) Gdx.app.log("Pickups", "Picked up health → player HP = " + player.health);
                 break;
 
@@ -975,7 +973,7 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
     }
 
     private boolean onWaveStarted(int waveNumber) {
-        if (waveNumber % 4 != 0) {
+        if (waveNumber % 3 != 0) {
             return false;
         }
 
