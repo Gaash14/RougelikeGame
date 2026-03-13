@@ -13,19 +13,26 @@ import androidx.annotation.NonNull;
 import com.example.rougelikegame.R;
 import com.example.rougelikegame.android.models.meta.User;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 public class LeaderboardAdapter extends ArrayAdapter<User> {
 
     private final String currentUserUid;
+    private final Map<String, String> guildNamesById;
 
     public LeaderboardAdapter(
         @NonNull Context context,
         @NonNull List<User> users,
-        String currentUserUid
+        String currentUserUid,
+        Map<String, String> guildNamesById
     ) {
         super(context, 0, users);
         this.currentUserUid = currentUserUid;
+        this.guildNamesById = guildNamesById == null
+            ? Collections.emptyMap()
+            : guildNamesById;
     }
 
     @NonNull
@@ -73,6 +80,15 @@ public class LeaderboardAdapter extends ArrayAdapter<User> {
 
         if (user.getBestTime() > 0 && user.getBestTime() < 999999) {
             stats += "  •  " + formatTime(user.getBestTime());
+        }
+
+        String guildId = user.getGuildId();
+        String guildName = guildId == null
+            ? null
+            : guildNamesById.get(guildId);
+
+        if (guildName != null && !guildName.trim().isEmpty()) {
+            stats += "  •  Guild: " + guildName;
         }
 
         tvStats.setText(stats);

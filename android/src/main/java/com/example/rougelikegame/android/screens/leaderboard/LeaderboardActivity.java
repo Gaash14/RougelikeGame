@@ -12,6 +12,7 @@ import com.example.rougelikegame.R;
 import com.example.rougelikegame.android.adapters.DailyLeaderboardAdapter;
 import com.example.rougelikegame.android.adapters.LeaderboardAdapter;
 import com.example.rougelikegame.android.models.meta.DailyRun;
+import com.example.rougelikegame.android.models.meta.Guild;
 import com.example.rougelikegame.android.models.meta.User;
 import com.example.rougelikegame.android.services.DatabaseService;
 import com.example.rougelikegame.android.utils.SharedPreferencesUtil;
@@ -20,7 +21,9 @@ import android.widget.Button;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class LeaderboardActivity extends AppCompatActivity {
     private enum Mode {
@@ -118,13 +121,8 @@ public class LeaderboardActivity extends AppCompatActivity {
                 String currentUid =
                     SharedPreferencesUtil.getUserId(LeaderboardActivity.this);
 
-                LeaderboardAdapter adapter = new LeaderboardAdapter(
-                    LeaderboardActivity.this,
-                    scoredUsers,
-                    currentUid
-                );
 
-                listLeaderboard.setAdapter(adapter);
+                loadGuildNamesAndBindLeaderboard(scoredUsers, currentUid);
             }
 
             @Override
@@ -135,6 +133,52 @@ public class LeaderboardActivity extends AppCompatActivity {
                     Toast.LENGTH_SHORT
                 ).show();
                 e.printStackTrace();
+            }
+        });
+    }
+
+    private void loadGuildNamesAndBindLeaderboard(
+        List<User> scoredUsers,
+        String currentUid
+    ) {
+        databaseService.getGuildList(new DatabaseService.DatabaseCallback<List<Guild>>() {
+            @Override
+            public void onCompleted(List<Guild> guilds) {
+                Map<String, String> guildNamesById = new HashMap<>();
+
+                if (guilds != null) {
+                    for (Guild guild : guilds) {
+                        if (guild == null) continue;
+
+                        String guildId = guild.getGuildId();
+                        String guildName = guild.getName();
+
+                        if (guildId != null && guildName != null && !guildName.trim().isEmpty()) {
+                            guildNamesById.put(guildId, guildName);
+                        }
+                    }
+                }
+
+                LeaderboardAdapter adapter = new LeaderboardAdapter(
+                    LeaderboardActivity.this,
+                    scoredUsers,
+                    currentUid,
+                    guildNamesById
+                );
+
+                listLeaderboard.setAdapter(adapter);
+            }
+
+            @Override
+            public void onFailed(Exception e) {
+                LeaderboardAdapter adapter = new LeaderboardAdapter(
+                    LeaderboardActivity.this,
+                    scoredUsers,
+                    currentUid,
+                    null
+                );
+
+                listLeaderboard.setAdapter(adapter);
             }
         });
     }
