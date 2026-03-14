@@ -625,6 +625,41 @@ public class DatabaseService {
             });
     }
 
+    public void saveDailyRunIfBetter(
+        String dateKey,
+        DailyRun run,
+        DatabaseCallback<Void> callback
+    ) {
+        FirebaseDatabase.getInstance()
+            .getReference("daily_runs")
+            .child(dateKey)
+            .child(run.uid)
+            .addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    DailyRun existingRun = snapshot.getValue(DailyRun.class);
+
+                    boolean shouldSave = existingRun == null
+                        || run.wave > existingRun.wave
+                        || (run.wave == existingRun.wave
+                        && run.time > 0
+                        && (existingRun.time <= 0 || run.time < existingRun.time));
+
+                    if (!shouldSave) {
+                        if (callback != null) callback.onCompleted(null);
+                        return;
+                    }
+
+                    saveDailyRun(dateKey, run, callback);
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+                    if (callback != null) callback.onFailed(error.toException());
+                }
+            });
+    }
+
     public void getDailyRuns(
         String dateKey,
         DatabaseCallback<List<DailyRun>> callback

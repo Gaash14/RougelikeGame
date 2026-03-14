@@ -74,7 +74,7 @@ public class AndroidLauncher extends AndroidApplication {
                 if (user == null) return;
 
                 // daily challenge save
-                if (dailyChallenge && win) {
+                if (dailyChallenge) {
 
                     String today = java.time.LocalDate.now().toString(); // yyyy-MM-dd
 
@@ -87,102 +87,61 @@ public class AndroidLauncher extends AndroidApplication {
                         rangedChosen ? "RANGED" : "MELEE"
                     );
 
-                    DatabaseService.getInstance().saveDailyRun(
+                    DatabaseService.getInstance().saveDailyRunIfBetter(
                         today,
                         dailyRun,
                         null
                     );
 
-                    // only count completion & streak once per day
-                    if (!today.equals(user.getLastDailyCompletionDate())) {
-                        // daily completion count
-                        user.setDailyChallengesCompleted(
-                            user.getDailyChallengesCompleted() + 1
-                        );
+                    if (win) {
+                        // only count completion & streak once per day
+                        if (!today.equals(user.getLastDailyCompletionDate())) {
+                            // daily completion count
+                            user.setDailyChallengesCompleted(
+                                user.getDailyChallengesCompleted() + 1
+                            );
 
-                        // daily streak logic
-                        String lastDate = user.getLastDailyCompletionDate();
+                            // daily streak logic
+                            String lastDate = user.getLastDailyCompletionDate();
 
-                        if (lastDate != null) {
-                            java.time.LocalDate last =
-                                java.time.LocalDate.parse(lastDate);
+                            if (lastDate != null) {
+                                java.time.LocalDate last =
+                                    java.time.LocalDate.parse(lastDate);
 
-                            if (last.plusDays(1).equals(java.time.LocalDate.now())) {
-                                user.setDailyStreak(user.getDailyStreak() + 1);
+                                if (last.plusDays(1).equals(java.time.LocalDate.now())) {
+                                    user.setDailyStreak(user.getDailyStreak() + 1);
+                                } else {
+                                    user.setDailyStreak(1);
+                                }
                             } else {
                                 user.setDailyStreak(1);
                             }
-                        } else {
-                            user.setDailyStreak(1);
+
+                            user.setBestDailyStreak(
+                                Math.max(
+                                    user.getBestDailyStreak(),
+                                    user.getDailyStreak()
+                                )
+                            );
+
+                            user.setLastDailyCompletionDate(today);
                         }
 
-                        user.setBestDailyStreak(
-                            Math.max(
-                                user.getBestDailyStreak(),
-                                user.getDailyStreak()
-                            )
-                        );
-
-                        user.setLastDailyCompletionDate(today);
-                    }
-
-                    SharedPreferencesUtil.saveUser(AndroidLauncher.this, user);
-                    DatabaseService.getInstance().updateUser(user, true, null);
-
-                    return;
-                }
-
-                // highest wave
-                if (wave > user.getHighestWave()) {
-                    user.setHighestWave(wave);
-                }
-
-                // best time (only when boss is defeated)
-                if (win && bestTimeSeconds > 0) {
-                    int currentBest = user.getBestTime();
-                    if (currentBest == 0 || bestTimeSeconds < currentBest) {
-                        user.setBestTime(bestTimeSeconds);
+                        SharedPreferencesUtil.saveUser(AndroidLauncher.this, user);
+                        DatabaseService.getInstance().updateUser(user, true, null);
                     }
                 }
 
-                // attempts
-                user.setNumOfAttempts(user.getNumOfAttempts() + 1);
-
-                if (win) {
-                    // wins
-                    user.setNumOfWins(user.getNumOfWins() + 1);
-
-                    // streak logic
-                    int newStreak = user.getCurrentStreak() + 1;
-                    user.setCurrentStreak(newStreak);
-
-                    user.setBestStreak(
-                        Math.max(user.getBestStreak(), newStreak)
-                    );
-                } else {
-                    // loss resets streak
-                    user.setCurrentStreak(0);
-                }
-
-                if (rangedChosen) {
-                    user.setPickedRanged(user.getPickedRanged() + 1);
-                }
-
-                // cumulative stats
-                user.setEnemiesKilled(
-                    user.getEnemiesKilled() + enemiesKilled
-                );
-
-                user.setPickupsPicked(
-                    user.getPickupsPicked() + pickupsPicked
-                );
-
-                user.setItemsPicked(
-                    user.getItemsPicked() + itemsPicked
-                );
-
-                user.setNumOfCoins(
-                    user.getNumOfCoins() + coinsPicked
+                updateNormalRunStats(
+                    user,
+                    wave,
+                    bestTimeSeconds,
+                    enemiesKilled,
+                    pickupsPicked,
+                    itemsPicked,
+                    coinsPicked,
+                    win,
+                    rangedChosen
                 );
 
                 SharedPreferencesUtil.saveUser(AndroidLauncher.this, user);
@@ -211,20 +170,72 @@ public class AndroidLauncher extends AndroidApplication {
                     );
                 }
             }
-
-            @Override
-            public void reportHighestWave(int wave) {
-                User user = SharedPreferencesUtil.getUser(AndroidLauncher.this);
-                if (user == null) return;
-
-                if (wave > user.getHighestWave()) {
-                    user.setHighestWave(wave);
-                    SharedPreferencesUtil.saveUser(AndroidLauncher.this, user);
-                    DatabaseService.getInstance().updateUser(user, true, null);
-                }
-            }
-
         },
         selectedClass, difficulty, equippedSkinId, dailyChallenge, runSeed), configuration);
+    }
+
+    private void updateNormalRunStats(
+        User user,
+        int wave,
+        int bestTimeSeconds,
+        int enemiesKilled,
+        int pickupsPicked,
+        int itemsPicked,
+        int coinsPicked,
+        boolean win,
+        boolean rangedChosen
+    ) {
+        // highest wave
+        if (wave > user.getHighestWave()) {
+            user.setHighestWave(wave);
+        }
+
+        // best time (only when boss is defeated)
+        if (win && bestTimeSeconds > 0) {
+            int currentBest = user.getBestTime();
+            if (currentBest == 0 || bestTimeSeconds < currentBest) {
+                user.setBestTime(bestTimeSeconds);
+            }
+        }
+
+        // attempts
+        user.setNumOfAttempts(user.getNumOfAttempts() + 1);
+
+        if (win) {
+            // wins
+            user.setNumOfWins(user.getNumOfWins() + 1);
+
+            // streak logic
+            int newStreak = user.getCurrentStreak() + 1;
+            user.setCurrentStreak(newStreak);
+
+            user.setBestStreak(
+                Math.max(user.getBestStreak(), newStreak)
+            );
+        } else {
+            // loss resets streak
+            user.setCurrentStreak(0);
+        }
+
+        if (rangedChosen) {
+            user.setPickedRanged(user.getPickedRanged() + 1);
+        }
+
+        // cumulative stats
+        user.setEnemiesKilled(
+            user.getEnemiesKilled() + enemiesKilled
+        );
+
+        user.setPickupsPicked(
+            user.getPickupsPicked() + pickupsPicked
+        );
+
+        user.setItemsPicked(
+            user.getItemsPicked() + itemsPicked
+        );
+
+        user.setNumOfCoins(
+            user.getNumOfCoins() + coinsPicked
+        );
     }
 }

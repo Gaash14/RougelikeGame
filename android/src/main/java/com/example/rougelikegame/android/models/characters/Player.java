@@ -49,8 +49,8 @@ public class Player {
     public int health = 10;
     public int speed = 400;
     public final int maxSpeed = 600;
-    public int coins = 80;
-    public int attackBonus = 50;
+    public int coins = 0;
+    public int attackBonus = 0;
     private boolean equalItemWeights = false;
 
     private final Array<PassiveItem> passiveItems = new Array<>();

@@ -377,7 +377,7 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
                     MainActivity.this.spawnBeam(dir, chargePercent);
                 }
             },
-            () -> Gdx.app.exit()
+            this::exitRun
         );
 
         Gdx.input.setInputProcessor(inputController.buildProcessor());
@@ -702,8 +702,13 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
     }
 
     // Game over / boss defeat
+    private void exitRun() {
+        finishRun(bossDefeated);
+        Gdx.app.exit();
+    }
+
     private void onPlayerDied() {
-        finishRun(false);
+        finishRun(bossDefeated);
 
         Gdx.app.postRunnable(() -> Gdx.app.exit());
     }
@@ -711,7 +716,6 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
     private void onBossDefeat() {
         bossDefeated = true;
         achievementManager.unlock("first_win");
-        finishRun(true);
     }
 
     private void finishRun(boolean win) {

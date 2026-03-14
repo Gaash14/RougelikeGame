@@ -11,6 +11,4 @@ public interface ScoreReporter {
         boolean win,
         boolean rangedChosen
     );
-
-    void reportHighestWave(int wave);
 }
