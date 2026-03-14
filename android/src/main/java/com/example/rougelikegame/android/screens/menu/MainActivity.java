@@ -39,7 +39,6 @@ import com.example.rougelikegame.android.models.items.ItemRegistry;
 import com.example.rougelikegame.android.models.items.PassiveItem;
 import com.example.rougelikegame.android.models.items.contexts.HomingContext;
 import com.example.rougelikegame.android.models.items.passives.BeamItem;
-import com.example.rougelikegame.android.models.items.passives.HomingLensItem;
 import com.example.rougelikegame.android.models.meta.RunStats;
 import com.example.rougelikegame.android.models.meta.Skin;
 import com.example.rougelikegame.android.models.world.Obstacle;
@@ -101,6 +100,10 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
     private int pendingWaveToSpawn = -1;
     private final Map<String, Texture> itemIconCache = new HashMap<>();
     private Texture fallbackItemTexture;
+    private RewardOption[] currentRewardOptions;
+    private RewardRerollButtonActor rerollButton;
+    private int rewardRerollsUsed = 0;
+    private String rewardStatusMessage = "";
     Joystick joystick;
     BitmapFont font;
 
@@ -130,6 +133,8 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
     // Game state
     private final long runSeed;
     private static final boolean DEBUG = false;
+    private static final int REWARD_REROLL_COST = 20;
+    private static final int MAX_REWARD_REROLLS = 3;
     private final RunStats runStats = new RunStats();
     private final boolean dailyChallenge;
     private Random itemRnd;
@@ -992,7 +997,9 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
 
         rewardStage = new Stage(new ScreenViewport());
 
-        RewardOption[] options = pickRewardItemOptions();
+        rewardRerollsUsed = 0;
+        rewardStatusMessage = "";
+        currentRewardOptions = pickRewardItemOptions();
 
         float screenW = Gdx.graphics.getWidth();
         float screenH = Gdx.graphics.getHeight();
@@ -1003,26 +1010,40 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
         float startX = (screenW - totalW) / 2f;
         float y = (screenH - cardH) / 2f - 20f;
 
-        RewardCardActor left = new RewardCardActor(options[0]);
+        RewardCardActor left = new RewardCardActor(0);
         left.setBounds(startX, y, cardW, cardH);
         left.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                onRewardItemSelected(options[0].itemId);
+                onRewardItemSelected(currentRewardOptions[0].itemId);
             }
         });
 
-        RewardCardActor right = new RewardCardActor(options[1]);
+        RewardCardActor right = new RewardCardActor(1);
         right.setBounds(startX + cardW + gap, y, cardW, cardH);
         right.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                onRewardItemSelected(options[1].itemId);
+                onRewardItemSelected(currentRewardOptions[1].itemId);
             }
         });
 
         rewardStage.addActor(left);
         rewardStage.addActor(right);
+
+        rerollButton = new RewardRerollButtonActor();
+        rerollButton.setSize(320f, 72f);
+        rerollButton.setPosition((screenW - rerollButton.getWidth()) / 2f, y - 100f);
+        rerollButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                if (!rerollButton.isDisabled()) {
+                    onRewardRerollRequested();
+                }
+            }
+        });
+        updateRerollButtonState();
+        rewardStage.addActor(rerollButton);
 
         Gdx.input.setInputProcessor(rewardStage);
     }
@@ -1044,6 +1065,45 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
         rewardWave = -1;
 
         Gdx.input.setInputProcessor(inputController.buildProcessor());
+    }
+
+    private void onRewardRerollRequested() {
+        if (!rewardScreenActive) {
+            return;
+        }
+
+        if (rewardRerollsUsed >= MAX_REWARD_REROLLS) {
+            rewardStatusMessage = "No rerolls left";
+            updateRerollButtonState();
+            return;
+        }
+
+        if (!player.spendCoins(REWARD_REROLL_COST)) {
+            rewardStatusMessage = "Not enough coins";
+            updateRerollButtonState();
+            return;
+        }
+
+        rewardRerollsUsed++;
+        rewardStatusMessage = "";
+        currentRewardOptions = pickRewardItemOptions();
+        updateRerollButtonState();
+    }
+
+    private void updateRerollButtonState() {
+        if (rerollButton == null) {
+            return;
+        }
+
+        boolean hasRerollsLeft = rewardRerollsUsed < MAX_REWARD_REROLLS;
+        boolean canAfford = player.coins >= REWARD_REROLL_COST;
+        rerollButton.setDisabled(!(hasRerollsLeft && canAfford));
+
+        if (!hasRerollsLeft) {
+            rerollButton.setLabel("Reroll (max used)");
+        } else {
+            rerollButton.setLabel("Reroll (20 coins)");
+        }
     }
 
     private RewardOption[] pickRewardItemOptions() {
@@ -1087,12 +1147,13 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
     }
 
     private int pickItemIdByTierWeight(List<Integer> candidateIds, Set<Integer> blockedIds, boolean allowBlocked) {
+        boolean equalItemWeights = player.hasEqualItemWeights();
         int totalWeight = 0;
         for (int id : candidateIds) {
             if (!allowBlocked && blockedIds.contains(id)) {
                 continue;
             }
-            totalWeight += ItemRegistry.create(id).getTier().getWeight();
+            totalWeight += getItemSelectionWeight(id, equalItemWeights);
         }
 
         if (totalWeight <= 0) {
@@ -1105,13 +1166,20 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
                 continue;
             }
 
-            roll -= ItemRegistry.create(id).getTier().getWeight();
+            roll -= getItemSelectionWeight(id, equalItemWeights);
             if (roll < 0) {
                 return id;
             }
         }
 
         return candidateIds.get(candidateIds.size() - 1);
+    }
+
+    private int getItemSelectionWeight(int itemId, boolean equalItemWeights) {
+        if (equalItemWeights) {
+            return 1;
+        }
+        return ItemRegistry.create(itemId).getTier().getWeight();
     }
 
     private Texture getItemIconTexture(String iconPath) {
@@ -1160,6 +1228,24 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
             (Gdx.graphics.getWidth() - glyphLayout.width) / 2f,
             Gdx.graphics.getHeight() * 0.66f
         );
+
+        glyphLayout.setText(font, "Rerolls: " + rewardRerollsUsed + "/" + MAX_REWARD_REROLLS);
+        font.draw(
+            batch,
+            glyphLayout,
+            (Gdx.graphics.getWidth() - glyphLayout.width) / 2f,
+            Gdx.graphics.getHeight() * 0.61f
+        );
+
+        if (!rewardStatusMessage.isEmpty()) {
+            glyphLayout.setText(font, rewardStatusMessage);
+            font.draw(
+                batch,
+                glyphLayout,
+                (Gdx.graphics.getWidth() - glyphLayout.width) / 2f,
+                Gdx.graphics.getHeight() * 0.25f
+            );
+        }
     }
 
     private static class RewardOption {
@@ -1177,14 +1263,20 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
     }
 
     private class RewardCardActor extends Actor {
-        private final RewardOption option;
+        private final int optionIndex;
 
-        RewardCardActor(RewardOption option) {
-            this.option = option;
+        RewardCardActor(int optionIndex) {
+            this.optionIndex = optionIndex;
         }
+
 
         @Override
         public void draw(com.badlogic.gdx.graphics.g2d.Batch actorBatch, float parentAlpha) {
+            if (currentRewardOptions == null || optionIndex >= currentRewardOptions.length) {
+                return;
+            }
+            RewardOption option = currentRewardOptions[optionIndex];
+
             actorBatch.setColor(0.2f, 0.2f, 0.2f, 1f);
             actorBatch.draw(player.debugPixel, getX(), getY(), getWidth(), getHeight());
 
@@ -1212,6 +1304,42 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
                 getY() + 30f
             );
             font.getData().setScale(1f);
+        }
+    }
+
+    private class RewardRerollButtonActor extends Actor {
+        private boolean disabled;
+        private String label = "Reroll (20 coins)";
+
+        boolean isDisabled() {
+            return disabled;
+        }
+
+        void setDisabled(boolean disabled) {
+            this.disabled = disabled;
+        }
+
+        void setLabel(String label) {
+            this.label = label;
+        }
+
+        @Override
+        public void draw(com.badlogic.gdx.graphics.g2d.Batch actorBatch, float parentAlpha) {
+            if (disabled) {
+                actorBatch.setColor(0.2f, 0.2f, 0.2f, 0.8f);
+            } else {
+                actorBatch.setColor(0.18f, 0.38f, 0.22f, 1f);
+            }
+            actorBatch.draw(player.debugPixel, getX(), getY(), getWidth(), getHeight());
+
+            actorBatch.setColor(1f, 1f, 1f, 1f);
+            glyphLayout.setText(font, label);
+            font.draw(
+                actorBatch,
+                glyphLayout,
+                getX() + (getWidth() - glyphLayout.width) / 2f,
+                getY() + (getHeight() + glyphLayout.height) / 2f
+            );
         }
     }
 

@@ -49,8 +49,9 @@ public class Player {
     public int health = 10;
     public int speed = 400;
     public final int maxSpeed = 600;
-    public int coins = 0;
-    public int attackBonus = 0;
+    public int coins = 80;
+    public int attackBonus = 50;
+    private boolean equalItemWeights = false;
 
     private final Array<PassiveItem> passiveItems = new Array<>();
     private final Random randomSource;
@@ -398,6 +399,18 @@ public class Player {
         coins += amount;
     }
 
+    public boolean spendCoins(int amount) {
+        if (amount <= 0) {
+            return true;
+        }
+        if (coins < amount) {
+            return false;
+        }
+
+        coins -= amount;
+        return true;
+    }
+
     public void addPassiveItem(PassiveItem item) {
         if (item == null) return;
 
@@ -429,6 +442,14 @@ public class Player {
 
     public Array<PassiveItem> getPassiveItems() {
         return passiveItems;
+    }
+
+    public boolean hasEqualItemWeights() {
+        return equalItemWeights;
+    }
+
+    public void setEqualItemWeights(boolean equalItemWeights) {
+        this.equalItemWeights = equalItemWeights;
     }
 
     public Random getRandomSource() {
