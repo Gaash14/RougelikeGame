@@ -4,7 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.example.rougelikegame.android.models.characters.Player;
 import com.example.rougelikegame.android.models.items.ItemTier;
 import com.example.rougelikegame.android.models.items.PassiveItem;
-import com.example.rougelikegame.android.screens.menu.MainActivity;
+import com.example.rougelikegame.android.screens.game.GameScreen;
 
 public class PiggyBankItem implements PassiveItem {
 
@@ -46,8 +46,8 @@ public class PiggyBankItem implements PassiveItem {
         if (damageTaken <= 0) return;
 
         if (player.getRandomSource().nextFloat() < COIN_SPAWN_CHANCE) {
-            if (Gdx.app.getApplicationListener() instanceof MainActivity) {
-                MainActivity game = (MainActivity) Gdx.app.getApplicationListener();
+            if (Gdx.app.getApplicationListener() instanceof GameScreen) {
+                GameScreen game = (GameScreen) Gdx.app.getApplicationListener();
                 game.spawnCoinAtPlayerPosition();
             }
         }

@@ -5,7 +5,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Array;
 import com.example.rougelikegame.android.models.world.Projectile;
-import com.example.rougelikegame.android.screens.menu.MainActivity;
+import com.example.rougelikegame.android.screens.game.GameScreen;
 
 public class BossEnemy extends Enemy {
 
@@ -15,12 +15,12 @@ public class BossEnemy extends Enemy {
 
     private boolean reinforcementsSummoned = false;
     private final int maxHealth;
-    private final MainActivity game;
+    private final GameScreen game;
 
     private final Array<Projectile> projectiles;
 
     public BossEnemy(Texture texture, float startX, float startY, Array<Projectile> projectiles,
-                     int health, int damage, MainActivity game) {
+                     int health, int damage, GameScreen game) {
         super(texture, startX, startY,70f,
             256f,256f, health, damage);
 

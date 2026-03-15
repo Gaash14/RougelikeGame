@@ -17,7 +17,7 @@ public class WaveManager {
 
     private int wave = 1;
 
-    private final float timeBetweenWaves = 2f;
+    private final float timeBetweenWaves = 2f; // 2 seconds
     private float waveTimer = 0f;
     private boolean waitingForNextWave = false;
 
@@ -60,7 +60,7 @@ public class WaveManager {
                     player.giveImmunity(1.0f); // 1 second wave-start immunity
 
                     spawner.spawnWave(wave, enemies, player, difficulty, true);
-                    spawner.spawnWavePickups(wave);
+                    spawner.spawnWavePickups(wave, player);
                 }
 
                 waitingForNextWave = false;
