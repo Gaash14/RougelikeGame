@@ -12,7 +12,7 @@ import androidx.core.app.NotificationCompat;
 
 import com.example.rougelikegame.R;
 import com.example.rougelikegame.android.screens.auth.SplashActivity;
-import com.example.rougelikegame.android.screens.menu.MainMenu;
+import com.example.rougelikegame.android.screens.menu.MainActivity;
 
 public class ReminderReceiver extends BroadcastReceiver {
     private static final String CHANNEL_ID = "daily_reminder_channel";
@@ -54,6 +54,6 @@ public class ReminderReceiver extends BroadcastReceiver {
 
         notificationManager.notify(100, builder.build());
 
-        MainMenu.scheduleDailyReminder(context);
+        MainActivity.scheduleDailyReminder(context);
     }
 }

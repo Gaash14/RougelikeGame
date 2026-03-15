@@ -28,14 +28,14 @@ import com.example.rougelikegame.android.models.meta.User;
 
 import java.util.Calendar;
 
-public class MainMenu extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainMenu";
     private static final int PERMISSION_REQUEST_CODE = 101;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main_menu);
+        setContentView(R.layout.activity_main);
 
         checkPermissionsAndScheduleAlarm();
 
@@ -53,7 +53,7 @@ public class MainMenu extends AppCompatActivity {
             adminPanel.setVisibility(View.VISIBLE);
 
             adminPanel.setOnClickListener(v -> {
-                Intent intent = new Intent(MainMenu.this, AdminActivity.class);
+                Intent intent = new Intent(MainActivity.this, AdminActivity.class);
                 startActivity(intent);
             });
         } else {
@@ -68,7 +68,7 @@ public class MainMenu extends AppCompatActivity {
 
             // set active user
             manager.setUserUid(currentUser.getUid());
-            manager.setContext(MainMenu.this);
+            manager.setContext(MainActivity.this);
 
             // load achievements from Firebase
             if (currentUser.getAchievements() != null) {
@@ -108,10 +108,10 @@ public class MainMenu extends AppCompatActivity {
         signOut.setOnClickListener(v -> {
             Log.d(TAG, "Sign out button clicked");
             AchievementManager.getInstance().reset();
-            SharedPreferencesUtil.signOutUser(MainMenu.this);
+            SharedPreferencesUtil.signOutUser(MainActivity.this);
 
             Log.d(TAG, "User signed out, redirecting to LandingActivity");
-            Intent landingIntent = new Intent(MainMenu.this, LandingActivity.class);
+            Intent landingIntent = new Intent(MainActivity.this, LandingActivity.class);
             landingIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(landingIntent);
         });
