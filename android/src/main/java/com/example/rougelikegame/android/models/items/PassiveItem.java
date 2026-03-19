@@ -1,5 +1,6 @@
 package com.example.rougelikegame.android.models.items;
 
+import com.badlogic.gdx.utils.Array;
 import com.example.rougelikegame.android.models.characters.Enemy;
 import com.example.rougelikegame.android.models.characters.Player;
 import com.example.rougelikegame.android.models.items.contexts.BlockChanceContext;
@@ -28,5 +29,8 @@ public interface PassiveItem {
     default void modifyIncomingDamage(Player player, IncomingDamageContext ctx) {}
 
     default void onHitEnemy(Player player, Enemy enemy) {}
+    default void onHitEnemy(Player player, Enemy enemy, Array<Enemy> enemies, int damageDealt) {
+        onHitEnemy(player, enemy);
+    }
     default void onPlayerDamaged(Player player, int damageTaken) {}
 }

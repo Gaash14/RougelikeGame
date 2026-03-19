@@ -110,11 +110,14 @@ public class CombatSystem {
 
             for (PassiveItem it : player.getPassiveItems()) {
                 it.modifyMeleeDamage(player, ctx);
-                it.onHitEnemy(player, e);
             }
 
             e.takeDamage(ctx.damage);
             SoundManager.play("hit");
+
+            for (PassiveItem it : player.getPassiveItems()) {
+                it.onHitEnemy(player, e, enemies, ctx.damage);
+            }
 
             e.hitThisSwing = true;
 

@@ -9,6 +9,7 @@ import com.example.rougelikegame.android.models.items.passives.ChaosDiceItem;
 import com.example.rougelikegame.android.models.items.passives.DamageUpItem;
 import com.example.rougelikegame.android.models.items.passives.DarkBargainItem;
 import com.example.rougelikegame.android.models.items.passives.HomingLensItem;
+import com.example.rougelikegame.android.models.items.passives.LightningChainItem;
 import com.example.rougelikegame.android.models.items.passives.OverclockInjectorItem;
 import com.example.rougelikegame.android.models.items.passives.PiggyBankItem;
 import com.example.rougelikegame.android.models.items.passives.PoisonItem;
@@ -42,6 +43,7 @@ public class ItemRegistry {
         register(ProtectiveSpellItem.ID, ProtectiveSpellItem::new);
         register(TitansCoreItem.ID, TitansCoreItem::new);
         register(ChaosDiceItem.ID, ChaosDiceItem::new);
+        register(LightningChainItem.ID, LightningChainItem::new);
     }
 
     private static void register(int id, Supplier<PassiveItem> supplier) {
