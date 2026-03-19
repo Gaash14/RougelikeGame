@@ -1,8 +1,5 @@
 package com.example.rougelikegame.android.screens.menu;
 
-import android.content.ClipData;
-
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
@@ -23,6 +20,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.example.rougelikegame.android.managers.AchievementManager;
+import com.example.rougelikegame.android.managers.MusicManager;
 import com.example.rougelikegame.android.managers.SoundManager;
 import com.example.rougelikegame.android.models.characters.EnemyFactory;
 import com.example.rougelikegame.android.models.core.CombatSystem;
@@ -162,6 +160,8 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
     public void create() {
         batch = new SpriteBatch();
         SoundManager.load();
+        MusicManager.load();
+        MusicManager.playBackgroundMusic();
 
         GameState gameState = new GameState(runSeed);
         itemRnd = gameState.getItemRandom();
@@ -239,6 +239,7 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
         if (speedIcon != null) speedIcon.dispose();
         if (coinsIcon != null) coinsIcon.dispose();
         if (backgroundTexture != null) backgroundTexture.dispose();
+        MusicManager.dispose();
         SoundManager.dispose();
     }
 
@@ -475,6 +476,7 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
 
         // Boss wave
         if (allowBoss && waveManager.isBossWave()) {
+            MusicManager.playBossMusic();
             float bossWidth = 256;
             float bossHeight = 256;
 
@@ -715,6 +717,7 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
 
     private void onBossDefeat() {
         bossDefeated = true;
+        MusicManager.playBackgroundMusic();
         achievementManager.unlock("first_win");
     }
 
@@ -956,6 +959,39 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
 
         // Reset color
         batch.setColor(1, 1, 1, 1);
+
+        final String BOSS_NAME = "The Sugar-Fueled Anomaly, Reaper of Souls";
+
+        float originalScaleX = font.getData().scaleX;
+        float originalScaleY = font.getData().scaleY;
+        Color originalFontColor = font.getColor().cpy();
+
+        font.getData().setScale(1.15f, 1.15f);
+        glyphLayout.setText(font, BOSS_NAME);
+
+        float textX = x + (barWidth - glyphLayout.width) / 2f;
+        float textY = y - 18f;
+        float labelPaddingX = 20f;
+        float labelPaddingY = 12f;
+        float labelX = textX - labelPaddingX;
+        float labelY = textY - glyphLayout.height - labelPaddingY;
+        float labelWidth = glyphLayout.width + (labelPaddingX * 2f);
+        float labelHeight = glyphLayout.height + (labelPaddingY * 2f);
+
+        batch.setColor(0.04f, 0f, 0f, 0.72f);
+        batch.draw(player.debugPixel, labelX, labelY, labelWidth, labelHeight);
+
+        batch.setColor(0.55f, 0f, 0f, 0.95f);
+        batch.draw(player.debugPixel, labelX, labelY + labelHeight - 4f, labelWidth, 4f);
+        batch.draw(player.debugPixel, labelX, labelY, labelWidth, 4f);
+
+        batch.setColor(1, 1, 1, 1);
+
+        font.setColor(0.92f, 0.12f, 0.12f, 1f);
+        font.draw(batch, glyphLayout, textX, textY);
+
+        font.getData().setScale(originalScaleX, originalScaleY);
+        font.setColor(originalFontColor);
     }
 
     private BossEnemy getBoss() {

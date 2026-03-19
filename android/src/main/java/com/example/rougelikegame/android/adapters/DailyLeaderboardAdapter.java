@@ -69,11 +69,13 @@ public class DailyLeaderboardAdapter extends BaseAdapter {
 
         txtName.setText(medal + run.name);
 
-        txtStats.setText(
-            "Wave " + run.wave +
-                " • " + formatTime(run.time) +
-                " • " + run.playerClass
-        );
+        String stats = "Wave " + run.wave;
+        if (run.time > 0) {
+            stats += " • " + formatTime(run.time);
+        }
+        stats += " • " + run.playerClass;
+
+        txtStats.setText(stats);
 
         // reset background
         convertView.setBackgroundColor(0xFF2A2A2A);

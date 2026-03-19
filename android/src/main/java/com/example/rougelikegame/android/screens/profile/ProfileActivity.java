@@ -14,6 +14,7 @@ import com.example.rougelikegame.android.screens.menu.ItemsActivity;
 import com.example.rougelikegame.android.screens.shop.ShopActivity;
 import com.example.rougelikegame.android.utils.ImageUtil;
 import com.example.rougelikegame.android.utils.SharedPreferencesUtil;
+import com.example.rougelikegame.android.models.meta.Guild;
 import com.example.rougelikegame.android.models.meta.User;
 
 import java.util.Locale;
@@ -22,7 +23,7 @@ public class ProfileActivity extends AppCompatActivity {
 
     // Header
     private ImageView imgAvatar;
-    private TextView txtName, txtSubtitle;
+    private TextView txtName, txtSubtitle, txtGuildName;
     private ImageButton btnUpdateUser;
 
     // Stats
@@ -46,6 +47,7 @@ public class ProfileActivity extends AppCompatActivity {
         imgAvatar = findViewById(R.id.imgAvatar);
         txtName = findViewById(R.id.txtName);
         txtSubtitle = findViewById(R.id.txtSubtitle);
+        txtGuildName = findViewById(R.id.txtGuildName);
         btnUpdateUser = findViewById(R.id.btnUpdateUser);
 
         txtRuns = findViewById(R.id.txtRuns);
@@ -68,7 +70,7 @@ public class ProfileActivity extends AppCompatActivity {
 
         txtDailyStats = findViewById(R.id.txtDailyStats);
 
-        // Placeholder avatar (until image upload is added)
+        // Placeholder avatar
         imgAvatar.setImageResource(android.R.drawable.ic_menu_myplaces);
 
         btnUpdateUser.setOnClickListener(v -> {
@@ -129,6 +131,7 @@ public class ProfileActivity extends AppCompatActivity {
         if (user == null) {
             txtName.setText("Guest");
             txtSubtitle.setText("Not logged in");
+            txtGuildName.setText("No Guild");
 
             txtRuns.setText("Runs: 0");
             txtWinsLosses.setText("Wins: 0 | Losses: 0");
@@ -155,6 +158,7 @@ public class ProfileActivity extends AppCompatActivity {
         // ---------- NAME ----------
         txtName.setText(user.getFullName());
         txtSubtitle.setText("Profile");
+        bindGuildName(user.getGuildId());
 
         // ---------- PROFILE IMAGE ----------
         if (user.getProfileImage() != null && !user.getProfileImage().isEmpty()) {
@@ -273,6 +277,32 @@ public class ProfileActivity extends AppCompatActivity {
         } else {
             txtBestTime.setText("Best Time: " + formatTime(bestTimeSec));
         }
+    }
+
+    private void bindGuildName(String guildId) {
+        if (guildId == null || guildId.trim().isEmpty()) {
+            txtGuildName.setText("No Guild");
+            return;
+        }
+
+        txtGuildName.setText("Guild...");
+
+        com.google.firebase.database.FirebaseDatabase.getInstance()
+            .getReference("guilds")
+            .child(guildId)
+            .get()
+            .addOnSuccessListener(snapshot -> {
+                Guild guild = snapshot.getValue(Guild.class);
+                String guildName = guild != null ? guild.getName() : null;
+
+                if (guildName == null || guildName.trim().isEmpty()) {
+                    txtGuildName.setText("Unknown Guild");
+                    return;
+                }
+
+                txtGuildName.setText(guildName.trim());
+            })
+            .addOnFailureListener(e -> txtGuildName.setText("Unknown Guild"));
     }
 
     private static String formatTime(int seconds) {

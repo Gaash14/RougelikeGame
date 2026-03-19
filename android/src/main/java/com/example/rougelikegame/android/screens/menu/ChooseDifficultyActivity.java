@@ -18,6 +18,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.rougelikegame.R;
+import com.example.rougelikegame.android.managers.MusicManager;
 import com.example.rougelikegame.android.managers.SoundManager;
 import com.example.rougelikegame.android.models.characters.Player;
 import com.example.rougelikegame.android.screens.launcher.AndroidLauncher;
@@ -27,6 +28,8 @@ public class ChooseDifficultyActivity extends AppCompatActivity {
     private static final String PREFS_NAME = "settings";
     private static final String KEY_SFX_VOLUME = "sfx_volume";
     private static final String KEY_SFX_MUTED = "sfx_muted";
+    private static final String KEY_MUSIC_VOLUME = "music_volume";
+    private static final String KEY_MUSIC_MUTED = "music_muted";
 
     private RadioGroup classGroup;
     private RadioButton classMelee;
@@ -61,8 +64,8 @@ public class ChooseDifficultyActivity extends AppCompatActivity {
         openSoundSettingsButton = findViewById(R.id.openSoundSettingsButton);
         settingsPrefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
 
-        ensureSoundLoaded();
-        initializeSoundSettings();
+        ensureAudioLoaded();
+        initializeAudioSettings();
 
         openSoundSettingsButton.setOnClickListener(v -> showSoundSettingsDialog());
 
@@ -141,47 +144,70 @@ public class ChooseDifficultyActivity extends AppCompatActivity {
         });
     }
 
-    private void ensureSoundLoaded() {
+    private void ensureAudioLoaded() {
         try {
             SoundManager.load();
         } catch (RuntimeException ignored) {
             // Safe fallback for cases where LibGDX audio isn't ready yet.
         }
+
+        try {
+            MusicManager.load();
+        } catch (RuntimeException ignored) {
+            // Safe fallback for cases where LibGDX audio isn't ready yet.
+        }
     }
 
-    private void initializeSoundSettings() {
+    private void initializeAudioSettings() {
         int savedVolume = settingsPrefs.getInt(KEY_SFX_VOLUME, Math.round(SoundManager.getSfxVolume() * 100f));
         boolean savedMuted = settingsPrefs.getBoolean(KEY_SFX_MUTED, SoundManager.isMuted());
+        int savedMusicVolume = settingsPrefs.getInt(KEY_MUSIC_VOLUME, Math.round(MusicManager.getMusicVolume() * 100f));
+        boolean savedMusicMuted = settingsPrefs.getBoolean(KEY_MUSIC_MUTED, MusicManager.isMuted());
 
         int clampedVolume = Math.max(0, Math.min(savedVolume, 100));
+        int clampedMusicVolume = Math.max(0, Math.min(savedMusicVolume, 100));
 
-        applySoundSettings(clampedVolume, savedMuted);
+        applyAudioSettings(clampedVolume, savedMuted, clampedMusicVolume, savedMusicMuted);
     }
 
     private void showSoundSettingsDialog() {
         View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_sound_settings, null);
 
-        TextView volumeLabel = dialogView.findViewById(R.id.sfxVolumeLabel);
-        SeekBar volumeSeekBar = dialogView.findViewById(R.id.sfxVolumeSeekBar);
-        Switch muteSwitch = dialogView.findViewById(R.id.sfxMuteSwitch);
+        TextView sfxVolumeLabel = dialogView.findViewById(R.id.sfxVolumeLabel);
+        SeekBar sfxVolumeSeekBar = dialogView.findViewById(R.id.sfxVolumeSeekBar);
+        Switch sfxMuteSwitch = dialogView.findViewById(R.id.sfxMuteSwitch);
+        TextView musicVolumeLabel = dialogView.findViewById(R.id.musicVolumeLabel);
+        SeekBar musicVolumeSeekBar = dialogView.findViewById(R.id.musicVolumeSeekBar);
+        Switch musicMuteSwitch = dialogView.findViewById(R.id.musicMuteSwitch);
 
         int savedVolume = settingsPrefs.getInt(KEY_SFX_VOLUME, Math.round(SoundManager.getSfxVolume() * 100f));
         boolean savedMuted = settingsPrefs.getBoolean(KEY_SFX_MUTED, SoundManager.isMuted());
+        int savedMusicVolume = settingsPrefs.getInt(KEY_MUSIC_VOLUME, Math.round(MusicManager.getMusicVolume() * 100f));
+        boolean savedMusicMuted = settingsPrefs.getBoolean(KEY_MUSIC_MUTED, MusicManager.isMuted());
         int clampedVolume = Math.max(0, Math.min(savedVolume, 100));
+        int clampedMusicVolume = Math.max(0, Math.min(savedMusicVolume, 100));
 
-        volumeSeekBar.setMax(100);
-        volumeSeekBar.setProgress(clampedVolume);
-        updateSfxVolumeLabel(volumeLabel, clampedVolume);
+        sfxVolumeSeekBar.setMax(100);
+        sfxVolumeSeekBar.setProgress(clampedVolume);
+        updateSfxVolumeLabel(sfxVolumeLabel, clampedVolume);
 
-        muteSwitch.setChecked(savedMuted);
-        volumeSeekBar.setEnabled(!savedMuted);
+        sfxMuteSwitch.setChecked(savedMuted);
+        sfxVolumeSeekBar.setEnabled(!savedMuted);
 
-        volumeSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+        musicVolumeSeekBar.setMax(100);
+        musicVolumeSeekBar.setProgress(clampedMusicVolume);
+        updateMusicVolumeLabel(musicVolumeLabel, clampedMusicVolume);
+
+        musicMuteSwitch.setChecked(savedMusicMuted);
+        musicVolumeSeekBar.setEnabled(!savedMusicMuted);
+
+        sfxVolumeSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                updateSfxVolumeLabel(volumeLabel, progress);
+                updateSfxVolumeLabel(sfxVolumeLabel, progress);
                 SoundManager.setSfxVolume(progress / 100f);
-                persistSoundSettings(progress, muteSwitch.isChecked());
+                persistAudioSettings(progress, sfxMuteSwitch.isChecked(),
+                    musicVolumeSeekBar.getProgress(), musicMuteSwitch.isChecked());
             }
 
             @Override
@@ -195,10 +221,38 @@ public class ChooseDifficultyActivity extends AppCompatActivity {
             }
         });
 
-        muteSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+        sfxMuteSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
             SoundManager.setMuted(isChecked);
-            volumeSeekBar.setEnabled(!isChecked);
-            persistSoundSettings(volumeSeekBar.getProgress(), isChecked);
+            sfxVolumeSeekBar.setEnabled(!isChecked);
+            persistAudioSettings(sfxVolumeSeekBar.getProgress(), isChecked,
+                musicVolumeSeekBar.getProgress(), musicMuteSwitch.isChecked());
+        });
+
+        musicVolumeSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                updateMusicVolumeLabel(musicVolumeLabel, progress);
+                MusicManager.setMusicVolume(progress / 100f);
+                persistAudioSettings(sfxVolumeSeekBar.getProgress(), sfxMuteSwitch.isChecked(),
+                    progress, musicMuteSwitch.isChecked());
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+                // no-op
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                // no-op
+            }
+        });
+
+        musicMuteSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            MusicManager.setMuted(isChecked);
+            musicVolumeSeekBar.setEnabled(!isChecked);
+            persistAudioSettings(sfxVolumeSeekBar.getProgress(), sfxMuteSwitch.isChecked(),
+                musicVolumeSeekBar.getProgress(), isChecked);
         });
 
         AlertDialog soundDialog = new AlertDialog.Builder(this)
@@ -209,21 +263,31 @@ public class ChooseDifficultyActivity extends AppCompatActivity {
         soundDialog.show();
     }
 
-    private void applySoundSettings(int volumePercent, boolean muted) {
-        SoundManager.setSfxVolume(volumePercent / 100f);
-        SoundManager.setMuted(muted);
+    private void applyAudioSettings(int sfxVolumePercent, boolean sfxMuted, int musicVolumePercent, boolean musicMuted) {
+        SoundManager.setSfxVolume(sfxVolumePercent / 100f);
+        SoundManager.setMuted(sfxMuted);
+
+        MusicManager.setMusicVolume(musicVolumePercent / 100f);
+        MusicManager.setMuted(musicMuted);
     }
 
-    private void persistSoundSettings(int volumePercent, boolean muted) {
+    private void persistAudioSettings(int sfxVolumePercent, boolean sfxMuted, int musicVolumePercent, boolean musicMuted) {
         settingsPrefs.edit()
-            .putInt(KEY_SFX_VOLUME, volumePercent)
-            .putBoolean(KEY_SFX_MUTED, muted)
+            .putInt(KEY_SFX_VOLUME, sfxVolumePercent)
+            .putBoolean(KEY_SFX_MUTED, sfxMuted)
+            .putInt(KEY_MUSIC_VOLUME, musicVolumePercent)
+            .putBoolean(KEY_MUSIC_MUTED, musicMuted)
             .apply();
+    }
+
+    private void updateMusicVolumeLabel(TextView volumeLabel, int volumePercent) {
+        volumeLabel.setText("Music Volume: " + volumePercent + "%");
     }
 
     private void updateSfxVolumeLabel(TextView volumeLabel, int volumePercent) {
         volumeLabel.setText("SFX Volume: " + volumePercent + "%");
     }
+
 
 
     private void startDailyCountdown() {

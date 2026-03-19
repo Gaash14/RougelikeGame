@@ -48,6 +48,8 @@ public class AchievementManager {
             "Collect 25 coins in one run","skin_25_coins"));
         add(new Achievement("first_win","Champion",
             "Defeat the boss","skin_first_win"));
+        add(new Achievement("pickup_s_tier","Treasure Hunter",
+            "Pick up an S tier item",null));
     }
 
     private void add(Achievement achievement) {

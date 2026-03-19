@@ -7,9 +7,11 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
+import com.example.rougelikegame.android.managers.AchievementManager;
 import com.example.rougelikegame.android.models.core.TargetingHelper;
 import com.example.rougelikegame.android.models.input.Joystick;
 import com.example.rougelikegame.android.models.items.ItemRegistry;
+import com.example.rougelikegame.android.models.items.ItemTier;
 import com.example.rougelikegame.android.models.items.contexts.BlockChanceContext;
 import com.example.rougelikegame.android.models.items.contexts.CooldownContext;
 import com.example.rougelikegame.android.models.items.contexts.DamageContext;
@@ -420,6 +422,10 @@ public class Player {
 
         passiveItems.add(item);
         item.onPickup(this);
+
+        if (item.getTier() == ItemTier.S) {
+            AchievementManager.getInstance().unlock("pickup_s_tier");
+        }
     }
 
     public boolean hasItem(int itemId) {
