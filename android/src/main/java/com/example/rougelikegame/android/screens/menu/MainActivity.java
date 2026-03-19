@@ -12,10 +12,7 @@ import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
@@ -31,7 +28,6 @@ import com.example.rougelikegame.android.models.characters.Enemy;
 import com.example.rougelikegame.android.models.characters.GhostEnemy;
 import com.example.rougelikegame.android.models.input.GameInputController;
 import com.example.rougelikegame.android.models.input.Joystick;
-import com.example.rougelikegame.android.models.items.ItemTier;
 import com.example.rougelikegame.android.models.items.contexts.DamageContext;
 import com.example.rougelikegame.android.models.items.ItemRegistry;
 import com.example.rougelikegame.android.models.items.PassiveItem;
@@ -92,18 +88,9 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
     SpriteBatch batch;
     OrthographicCamera camera;
     Stage stage;
-    private Stage rewardStage;
-    private Stage victoryStage;
-    private boolean rewardScreenActive = false;
-    private boolean victoryScreenActive = false;
-    private int rewardWave = -1;
     private int pendingWaveToSpawn = -1;
     private final Map<String, Texture> itemIconCache = new HashMap<>();
     private Texture fallbackItemTexture;
-    private RewardOption[] currentRewardOptions;
-    private RewardRerollButtonActor rerollButton;
-    private int rewardRerollsUsed = 0;
-    private String rewardStatusMessage = "";
     Joystick joystick;
     BitmapFont font;
 
@@ -133,8 +120,6 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
     // Game state
     private final long runSeed;
     private static final boolean DEBUG = false;
-    private static final int REWARD_REROLL_COST = 20;
-    private static final int MAX_REWARD_REROLLS = 3;
     private final RunStats runStats = new RunStats();
     private final boolean dailyChallenge;
     private Random itemRnd;
@@ -148,6 +133,7 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
 
     private boolean bossDefeated = false;
     private float victoryRunTimeSeconds = 0f;
+    private GameOverlayScreens overlayScreens;
 
     // Attack button
     Texture attackBtnTexture;
@@ -183,6 +169,7 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
         setupAttackButton();
         setupInput();
         setupFont();
+        setupOverlayScreens();
 
         Gdx.input.setCatchKey(Input.Keys.BACK, true);
     }
@@ -190,18 +177,16 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
     @Override
     public void render() {
         float delta = Gdx.graphics.getDeltaTime();
-        if (!bossDefeated && !rewardScreenActive && !victoryScreenActive) {
+        if (!bossDefeated && !overlayScreens.isAnyOverlayActive()) {
             runStats.addTime(delta);
         }
 
         ScreenUtils.clear(0.05f, 0.05f, 0.08f, 1);
 
-        if (!rewardScreenActive && !victoryScreenActive && !inputController.isPaused()) {
+        if (!overlayScreens.isAnyOverlayActive() && !inputController.isPaused()) {
             update(delta);
-        } else if (rewardScreenActive && rewardStage != null) {
-            rewardStage.act(delta);
-        } else if (victoryScreenActive && victoryStage != null) {
-            victoryStage.act(delta);
+        } else {
+            overlayScreens.act(delta);
         }
 
         drawGame();
@@ -224,8 +209,7 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
         player.dispose();
         if (font != null) font.dispose();
         if (stage != null) stage.dispose();
-        if (rewardStage != null) rewardStage.dispose();
-        if (victoryStage != null) victoryStage.dispose();
+        if (overlayScreens != null) overlayScreens.dispose();
         for (Texture tex : itemIconCache.values()) {
             if (tex != null && tex != fallbackItemTexture) {
                 tex.dispose();
@@ -390,6 +374,41 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
         Gdx.input.setInputProcessor(inputController.buildProcessor());
     }
 
+    private void setupOverlayScreens() {
+        overlayScreens = new GameOverlayScreens(font, glyphLayout, player.debugPixel, new GameOverlayScreens.OverlayCallbacks() {
+            @Override
+            public void onRewardSelected(int itemId) {
+                MainActivity.this.onRewardItemSelected(itemId);
+            }
+
+            @Override
+            public boolean canAffordRewardReroll() {
+                return player.coins >= 20;
+            }
+
+            @Override
+            public GameOverlayScreens.RewardOption[] onRewardRerollRequested() {
+                return MainActivity.this.onRewardRerollRequested();
+            }
+
+            @Override
+            public void onVictoryMainMenuSelected() {
+                MainActivity.this.onVictoryMainMenuSelected();
+            }
+
+            @Override
+            public void onVictoryEndlessModeSelected() {
+                MainActivity.this.onVictoryEndlessModeSelected();
+            }
+
+            @Override
+            public void onDeathMainMenuSelected() {
+                MainActivity.this.onDeathMainMenuSelected();
+            }
+
+        });
+    }
+
     private void setupFont() {
         FreeTypeFontGenerator generator =
             new FreeTypeFontGenerator(Gdx.files.internal("fonts/Roboto-Regular.ttf"));
@@ -474,7 +493,9 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
                            Player player,
                            Player.Difficulty difficulty,
                           boolean allowBoss) {
-        if (rewardScreenActive && waveNumber == pendingWaveToSpawn) {
+        if (overlayScreens != null
+            && overlayScreens.isRewardScreenActive()
+            && waveNumber == pendingWaveToSpawn) {
             return;
         }
 
@@ -717,8 +738,7 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
 
     private void onPlayerDied() {
         finishRun(bossDefeated);
-
-        Gdx.app.postRunnable(() -> Gdx.app.exit());
+        showDeathScreen();
     }
 
     private void onBossDefeat() {
@@ -759,44 +779,8 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
     }
 
     private void showVictoryScreen() {
-        victoryScreenActive = true;
         inputController.setPaused(false);
-
-        if (victoryStage != null) {
-            victoryStage.dispose();
-        }
-
-        victoryStage = new Stage(new ScreenViewport());
-
-        float screenW = Gdx.graphics.getWidth();
-        float screenH = Gdx.graphics.getHeight();
-        float buttonWidth = Math.min(620f, screenW * 0.72f);
-        float buttonHeight = 96f;
-        float centerX = (screenW - buttonWidth) / 2f;
-        float firstButtonY = screenH * 0.38f;
-        float secondButtonY = firstButtonY - buttonHeight - 32f;
-
-        VictoryButtonActor mainMenuButton = new VictoryButtonActor("Main Menu");
-        mainMenuButton.setBounds(centerX, firstButtonY, buttonWidth, buttonHeight);
-        mainMenuButton.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                onVictoryMainMenuSelected();
-            }
-        });
-
-        VictoryButtonActor endlessModeButton = new VictoryButtonActor("Continue Endless Mode");
-        endlessModeButton.setBounds(centerX, secondButtonY, buttonWidth, buttonHeight);
-        endlessModeButton.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                onVictoryEndlessModeSelected();
-            }
-        });
-
-        victoryStage.addActor(mainMenuButton);
-        victoryStage.addActor(endlessModeButton);
-        Gdx.input.setInputProcessor(victoryStage);
+        overlayScreens.showVictoryScreen();
     }
 
     private void onVictoryMainMenuSelected() {
@@ -805,13 +789,7 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
     }
 
     private void onVictoryEndlessModeSelected() {
-        victoryScreenActive = false;
-
-        if (victoryStage != null) {
-            victoryStage.dispose();
-            victoryStage = null;
-        }
-
+        overlayScreens.hideVictoryScreen();
         Gdx.input.setInputProcessor(inputController.buildProcessor());
         // stop sending input to the victory menu and start sending input back to the gameplay controls
     }
@@ -874,26 +852,14 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
             drawPauseOverlay();
         }
 
-        if (rewardScreenActive) {
-            drawRewardOverlay();
-        }
-
-        if (victoryScreenActive) {
-            drawVictoryOverlay();
-        }
+        overlayScreens.drawOverlay(batch);
 
         batch.end();
 
         stage.act(Gdx.graphics.getDeltaTime());
         stage.draw();
 
-        if (rewardScreenActive && rewardStage != null) {
-            rewardStage.draw();
-        }
-
-        if (victoryScreenActive && victoryStage != null) {
-            victoryStage.draw();
-        }
+        overlayScreens.drawStage();
     }
 
     private void drawPauseOverlay() {
@@ -1096,161 +1062,39 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
             return false;
         }
 
-        rewardWave = waveNumber;
         pendingWaveToSpawn = waveNumber;
-        showRewardScreen();
+        showRewardScreen(waveNumber);
         return true;
     }
 
-    private void drawVictoryOverlay() {
-        batch.setColor(0f, 0f, 0f, 0.78f);
-        batch.draw(
-            player.debugPixel,
-            0, 0,
-            Gdx.graphics.getWidth(),
-            Gdx.graphics.getHeight()
-        );
-        batch.setColor(1f, 1f, 1f, 1f);
-
-        font.getData().setScale(1.45f);
-        glyphLayout.setText(font, "You won!");
-        font.draw(
-            batch,
-            glyphLayout,
-            (Gdx.graphics.getWidth() - glyphLayout.width) / 2f,
-            Gdx.graphics.getHeight() * 0.7f
-        );
-
-        font.getData().setScale(0.9f);
-        glyphLayout.setText(font, "Choose what happens next.");
-        font.draw(
-            batch,
-            glyphLayout,
-            (Gdx.graphics.getWidth() - glyphLayout.width) / 2f,
-            Gdx.graphics.getHeight() * 0.61f
-        );
-        font.getData().setScale(1f);
+    private void showRewardScreen(int waveNumber) {
+        overlayScreens.showRewardScreen(waveNumber, pickRewardItemOptions());
     }
 
-    private void showRewardScreen() {
-        rewardScreenActive = true;
+    private void showDeathScreen() {
+        inputController.setPaused(false);
+        overlayScreens.showDeathScreen();
+    }
 
-        if (rewardStage != null) {
-            rewardStage.dispose();
-        }
-
-        rewardStage = new Stage(new ScreenViewport());
-
-        rewardRerollsUsed = 0;
-        rewardStatusMessage = "";
-        currentRewardOptions = pickRewardItemOptions();
-
-        float screenW = Gdx.graphics.getWidth();
-        float screenH = Gdx.graphics.getHeight();
-        float cardW = Math.min(420f, screenW * 0.4f);
-        float cardH = 180f;
-        float gap = 80f;
-        float totalW = (cardW * 2f) + gap;
-        float startX = (screenW - totalW) / 2f;
-        float y = (screenH - cardH) / 2f - 20f;
-
-        RewardCardActor left = new RewardCardActor(0);
-        left.setBounds(startX, y, cardW, cardH);
-        left.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                onRewardItemSelected(currentRewardOptions[0].itemId);
-            }
-        });
-
-        RewardCardActor right = new RewardCardActor(1);
-        right.setBounds(startX + cardW + gap, y, cardW, cardH);
-        right.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                onRewardItemSelected(currentRewardOptions[1].itemId);
-            }
-        });
-
-        rewardStage.addActor(left);
-        rewardStage.addActor(right);
-
-        rerollButton = new RewardRerollButtonActor();
-        rerollButton.setSize(320f, 72f);
-        rerollButton.setPosition((screenW - rerollButton.getWidth()) / 2f, y - 100f);
-        rerollButton.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                if (!rerollButton.isDisabled()) {
-                    onRewardRerollRequested();
-                }
-            }
-        });
-        updateRerollButtonState();
-        rewardStage.addActor(rerollButton);
-
-        Gdx.input.setInputProcessor(rewardStage);
+    private void onDeathMainMenuSelected() {
+        finishRun(bossDefeated);
+        Gdx.app.postRunnable(() -> Gdx.app.exit());
     }
 
     private void onRewardItemSelected(int itemId) {
         player.addPassiveItem(ItemRegistry.create(itemId));
         runStats.addItemPicked();
-        rewardScreenActive = false;
-
-        if (rewardStage != null) {
-            rewardStage.dispose();
-            rewardStage = null;
-        }
+        overlayScreens.hideRewardScreen();
 
         player.giveImmunity(1.0f);
         spawnWave(pendingWaveToSpawn, enemies, player, difficulty, true);
         spawnWavePickups(pendingWaveToSpawn);
         pendingWaveToSpawn = -1;
-        rewardWave = -1;
 
         Gdx.input.setInputProcessor(inputController.buildProcessor());
     }
 
-    private void onRewardRerollRequested() {
-        if (!rewardScreenActive) {
-            return;
-        }
-
-        if (rewardRerollsUsed >= MAX_REWARD_REROLLS) {
-            rewardStatusMessage = "No rerolls left";
-            updateRerollButtonState();
-            return;
-        }
-
-        if (!player.spendCoins(REWARD_REROLL_COST)) {
-            rewardStatusMessage = "Not enough coins";
-            updateRerollButtonState();
-            return;
-        }
-
-        rewardRerollsUsed++;
-        rewardStatusMessage = "";
-        currentRewardOptions = pickRewardItemOptions();
-        updateRerollButtonState();
-    }
-
-    private void updateRerollButtonState() {
-        if (rerollButton == null) {
-            return;
-        }
-
-        boolean hasRerollsLeft = rewardRerollsUsed < MAX_REWARD_REROLLS;
-        boolean canAfford = player.coins >= REWARD_REROLL_COST;
-        rerollButton.setDisabled(!(hasRerollsLeft && canAfford));
-
-        if (!hasRerollsLeft) {
-            rerollButton.setLabel("Reroll (max used)");
-        } else {
-            rerollButton.setLabel("Reroll (20 coins)");
-        }
-    }
-
-    private RewardOption[] pickRewardItemOptions() {
+    private GameOverlayScreens.RewardOption[] pickRewardItemOptions() {
         Set<Integer> allIdsSet = ItemRegistry.getAllItemIds();
         List<Integer> allIds = new ArrayList<>(allIdsSet);
         List<Integer> candidateIds = new ArrayList<>();
@@ -1276,10 +1120,10 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
             }
         }
 
-        RewardOption[] options = new RewardOption[2];
+        GameOverlayScreens.RewardOption[] options = new GameOverlayScreens.RewardOption[2];
         for (int i = 0; i < 2; i++) {
             PassiveItem item = ItemRegistry.create(optionIds[i]);
-            options[i] = new RewardOption(
+            options[i] = new GameOverlayScreens.RewardOption(
                 optionIds[i],
                 item.getDisplayName(),
                 item.getTier(),
@@ -1288,6 +1132,13 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
         }
 
         return options;
+    }
+
+    private GameOverlayScreens.RewardOption[] onRewardRerollRequested() {
+        if (!player.spendCoins(20)) {
+            return null;
+        }
+        return pickRewardItemOptions();
     }
 
     private int pickItemIdByTierWeight(List<Integer> candidateIds, Set<Integer> blockedIds, boolean allowBlocked) {
@@ -1345,171 +1196,6 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
 
         itemIconCache.put(iconPath, texture);
         return texture;
-    }
-
-    private void drawRewardOverlay() {
-        batch.setColor(0, 0, 0, 0.7f);
-        batch.draw(
-            player.debugPixel,
-            0, 0,
-            Gdx.graphics.getWidth(),
-            Gdx.graphics.getHeight()
-        );
-        batch.setColor(1, 1, 1, 1);
-
-        glyphLayout.setText(font, "Choose a Passive Item");
-        font.draw(
-            batch,
-            glyphLayout,
-            (Gdx.graphics.getWidth() - glyphLayout.width) / 2f,
-            Gdx.graphics.getHeight() * 0.72f
-        );
-
-        glyphLayout.setText(font, "Wave " + rewardWave + " Reward");
-        font.draw(
-            batch,
-            glyphLayout,
-            (Gdx.graphics.getWidth() - glyphLayout.width) / 2f,
-            Gdx.graphics.getHeight() * 0.66f
-        );
-
-        glyphLayout.setText(font, "Rerolls: " + rewardRerollsUsed + "/" + MAX_REWARD_REROLLS);
-        font.draw(
-            batch,
-            glyphLayout,
-            (Gdx.graphics.getWidth() - glyphLayout.width) / 2f,
-            Gdx.graphics.getHeight() * 0.61f
-        );
-
-        if (!rewardStatusMessage.isEmpty()) {
-            glyphLayout.setText(font, rewardStatusMessage);
-            font.draw(
-                batch,
-                glyphLayout,
-                (Gdx.graphics.getWidth() - glyphLayout.width) / 2f,
-                Gdx.graphics.getHeight() * 0.25f
-            );
-        }
-    }
-
-    private static class RewardOption {
-        private final int itemId;
-        private final String displayName;
-        private final ItemTier tier;
-        private final Texture iconTexture;
-
-        RewardOption(int itemId, String displayName, ItemTier tier, Texture iconTexture) {
-            this.itemId = itemId;
-            this.displayName = displayName;
-            this.tier = tier;
-            this.iconTexture = iconTexture;
-        }
-    }
-
-    private class RewardCardActor extends Actor {
-        private final int optionIndex;
-
-        RewardCardActor(int optionIndex) {
-            this.optionIndex = optionIndex;
-        }
-
-
-        @Override
-        public void draw(com.badlogic.gdx.graphics.g2d.Batch actorBatch, float parentAlpha) {
-            if (currentRewardOptions == null || optionIndex >= currentRewardOptions.length) {
-                return;
-            }
-            RewardOption option = currentRewardOptions[optionIndex];
-
-            actorBatch.setColor(0.2f, 0.2f, 0.2f, 1f);
-            actorBatch.draw(player.debugPixel, getX(), getY(), getWidth(), getHeight());
-
-            actorBatch.setColor(1f, 1f, 1f, 1f);
-
-            float iconSize = Math.min(getWidth() * 0.4f, getHeight() * 0.55f);
-            float iconX = getX() + (getWidth() - iconSize) / 2f;
-            float iconY = getY() + getHeight() - iconSize - 24f;
-            actorBatch.draw(option.iconTexture, iconX, iconY, iconSize, iconSize);
-
-            glyphLayout.setText(font, option.displayName);
-            font.draw(
-                actorBatch,
-                glyphLayout,
-                getX() + (getWidth() - glyphLayout.width) / 2f,
-                getY() + 80f
-            );
-
-            font.getData().setScale(0.8f);
-            glyphLayout.setText(font, "Tier " + option.tier.name());
-            font.draw(
-                actorBatch,
-                glyphLayout,
-                getX() + (getWidth() - glyphLayout.width) / 2f,
-                getY() + 30f
-            );
-            font.getData().setScale(1f);
-        }
-    }
-
-    private class VictoryButtonActor extends Actor {
-        private final String label;
-
-        VictoryButtonActor(String label) {
-            this.label = label;
-        }
-
-        @Override
-        public void draw(com.badlogic.gdx.graphics.g2d.Batch actorBatch, float parentAlpha) {
-            actorBatch.setColor(0.55f, 0.08f, 0.08f, 0.96f);
-            actorBatch.draw(player.debugPixel, getX(), getY(), getWidth(), getHeight());
-
-            actorBatch.setColor(1f, 1f, 1f, 1f);
-            font.getData().setScale(0.9f);
-            glyphLayout.setText(font, label);
-            font.draw(
-                actorBatch,
-                glyphLayout,
-                getX() + (getWidth() - glyphLayout.width) / 2f,
-                getY() + (getHeight() + glyphLayout.height) / 2f
-            );
-            font.getData().setScale(1f);
-        }
-    }
-
-    private class RewardRerollButtonActor extends Actor {
-        private boolean disabled;
-        private String label = "Reroll (20 coins)";
-
-        boolean isDisabled() {
-            return disabled;
-        }
-
-        void setDisabled(boolean disabled) {
-            this.disabled = disabled;
-        }
-
-        void setLabel(String label) {
-            this.label = label;
-        }
-
-        @Override
-        public void draw(com.badlogic.gdx.graphics.g2d.Batch actorBatch, float parentAlpha) {
-            if (disabled) {
-                actorBatch.setColor(0.2f, 0.2f, 0.2f, 0.8f);
-            } else {
-                actorBatch.setColor(0.18f, 0.38f, 0.22f, 1f);
-            }
-            actorBatch.draw(player.debugPixel, getX(), getY(), getWidth(), getHeight());
-
-            actorBatch.setColor(1f, 1f, 1f, 1f);
-            glyphLayout.setText(font, label);
-            font.draw(
-                actorBatch,
-                glyphLayout,
-                getX() + (getWidth() - glyphLayout.width) / 2f,
-                getY() + (getHeight() + glyphLayout.height) / 2f
-            );
-        }
     }
 
     @Override
