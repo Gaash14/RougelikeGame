@@ -93,7 +93,9 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
     OrthographicCamera camera;
     Stage stage;
     private Stage rewardStage;
+    private Stage victoryStage;
     private boolean rewardScreenActive = false;
+    private boolean victoryScreenActive = false;
     private int rewardWave = -1;
     private int pendingWaveToSpawn = -1;
     private final Map<String, Texture> itemIconCache = new HashMap<>();
@@ -145,6 +147,7 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
         AchievementManager.getInstance();
 
     private boolean bossDefeated = false;
+    private float victoryRunTimeSeconds = 0f;
 
     // Attack button
     Texture attackBtnTexture;
@@ -187,16 +190,18 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
     @Override
     public void render() {
         float delta = Gdx.graphics.getDeltaTime();
-        if (!bossDefeated && !rewardScreenActive) {
+        if (!bossDefeated && !rewardScreenActive && !victoryScreenActive) {
             runStats.addTime(delta);
         }
 
         ScreenUtils.clear(0.05f, 0.05f, 0.08f, 1);
 
-        if (!rewardScreenActive && !inputController.isPaused()) {
+        if (!rewardScreenActive && !victoryScreenActive && !inputController.isPaused()) {
             update(delta);
         } else if (rewardScreenActive && rewardStage != null) {
             rewardStage.act(delta);
+        } else if (victoryScreenActive && victoryStage != null) {
+            victoryStage.act(delta);
         }
 
         drawGame();
@@ -220,6 +225,7 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
         if (font != null) font.dispose();
         if (stage != null) stage.dispose();
         if (rewardStage != null) rewardStage.dispose();
+        if (victoryStage != null) victoryStage.dispose();
         for (Texture tex : itemIconCache.values()) {
             if (tex != null && tex != fallbackItemTexture) {
                 tex.dispose();
@@ -717,8 +723,10 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
 
     private void onBossDefeat() {
         bossDefeated = true;
+        victoryRunTimeSeconds = runStats.getRunTime();
         MusicManager.playBackgroundMusic();
         achievementManager.unlock("first_win");
+        showVictoryScreen();
     }
 
     private void finishRun(boolean win) {
@@ -729,7 +737,7 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
             boolean rangedChosen = player.playerClass == Player.PlayerClass.RANGED;
             scoreReporter.reportRun(
                 waveManager.getWave(),
-                win ? (int) runStats.getRunTime() : 0, // if won, time = runtime. else, time = 0
+                win ? (int) victoryRunTimeSeconds : 0, // if won, time = boss-clear runtime. else, time = 0
                 runStats.getEnemiesKilled(),
                 runStats.getPickupsPicked(),
                 runStats.getItemsPicked(),
@@ -748,6 +756,64 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
                 " coins=" + player.coins +
                 " win=" + win
         );
+    }
+
+    private void showVictoryScreen() {
+        victoryScreenActive = true;
+        inputController.setPaused(false);
+
+        if (victoryStage != null) {
+            victoryStage.dispose();
+        }
+
+        victoryStage = new Stage(new ScreenViewport());
+
+        float screenW = Gdx.graphics.getWidth();
+        float screenH = Gdx.graphics.getHeight();
+        float buttonWidth = Math.min(620f, screenW * 0.72f);
+        float buttonHeight = 96f;
+        float centerX = (screenW - buttonWidth) / 2f;
+        float firstButtonY = screenH * 0.38f;
+        float secondButtonY = firstButtonY - buttonHeight - 32f;
+
+        VictoryButtonActor mainMenuButton = new VictoryButtonActor("Main Menu");
+        mainMenuButton.setBounds(centerX, firstButtonY, buttonWidth, buttonHeight);
+        mainMenuButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                onVictoryMainMenuSelected();
+            }
+        });
+
+        VictoryButtonActor endlessModeButton = new VictoryButtonActor("Continue Endless Mode");
+        endlessModeButton.setBounds(centerX, secondButtonY, buttonWidth, buttonHeight);
+        endlessModeButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                onVictoryEndlessModeSelected();
+            }
+        });
+
+        victoryStage.addActor(mainMenuButton);
+        victoryStage.addActor(endlessModeButton);
+        Gdx.input.setInputProcessor(victoryStage);
+    }
+
+    private void onVictoryMainMenuSelected() {
+        finishRun(bossDefeated);
+        Gdx.app.postRunnable(() -> Gdx.app.exit());
+    }
+
+    private void onVictoryEndlessModeSelected() {
+        victoryScreenActive = false;
+
+        if (victoryStage != null) {
+            victoryStage.dispose();
+            victoryStage = null;
+        }
+
+        Gdx.input.setInputProcessor(inputController.buildProcessor());
+        // stop sending input to the victory menu and start sending input back to the gameplay controls
     }
 
     // Drawing
@@ -812,6 +878,10 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
             drawRewardOverlay();
         }
 
+        if (victoryScreenActive) {
+            drawVictoryOverlay();
+        }
+
         batch.end();
 
         stage.act(Gdx.graphics.getDeltaTime());
@@ -819,6 +889,10 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
 
         if (rewardScreenActive && rewardStage != null) {
             rewardStage.draw();
+        }
+
+        if (victoryScreenActive && victoryStage != null) {
+            victoryStage.draw();
         }
     }
 
@@ -1026,6 +1100,36 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
         pendingWaveToSpawn = waveNumber;
         showRewardScreen();
         return true;
+    }
+
+    private void drawVictoryOverlay() {
+        batch.setColor(0f, 0f, 0f, 0.78f);
+        batch.draw(
+            player.debugPixel,
+            0, 0,
+            Gdx.graphics.getWidth(),
+            Gdx.graphics.getHeight()
+        );
+        batch.setColor(1f, 1f, 1f, 1f);
+
+        font.getData().setScale(1.45f);
+        glyphLayout.setText(font, "You won!");
+        font.draw(
+            batch,
+            glyphLayout,
+            (Gdx.graphics.getWidth() - glyphLayout.width) / 2f,
+            Gdx.graphics.getHeight() * 0.7f
+        );
+
+        font.getData().setScale(0.9f);
+        glyphLayout.setText(font, "Choose what happens next.");
+        font.draw(
+            batch,
+            glyphLayout,
+            (Gdx.graphics.getWidth() - glyphLayout.width) / 2f,
+            Gdx.graphics.getHeight() * 0.61f
+        );
+        font.getData().setScale(1f);
     }
 
     private void showRewardScreen() {
@@ -1342,6 +1446,31 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
                 glyphLayout,
                 getX() + (getWidth() - glyphLayout.width) / 2f,
                 getY() + 30f
+            );
+            font.getData().setScale(1f);
+        }
+    }
+
+    private class VictoryButtonActor extends Actor {
+        private final String label;
+
+        VictoryButtonActor(String label) {
+            this.label = label;
+        }
+
+        @Override
+        public void draw(com.badlogic.gdx.graphics.g2d.Batch actorBatch, float parentAlpha) {
+            actorBatch.setColor(0.55f, 0.08f, 0.08f, 0.96f);
+            actorBatch.draw(player.debugPixel, getX(), getY(), getWidth(), getHeight());
+
+            actorBatch.setColor(1f, 1f, 1f, 1f);
+            font.getData().setScale(0.9f);
+            glyphLayout.setText(font, label);
+            font.draw(
+                actorBatch,
+                glyphLayout,
+                getX() + (getWidth() - glyphLayout.width) / 2f,
+                getY() + (getHeight() + glyphLayout.height) / 2f
             );
             font.getData().setScale(1f);
         }
