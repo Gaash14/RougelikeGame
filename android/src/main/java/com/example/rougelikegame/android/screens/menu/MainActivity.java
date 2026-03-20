@@ -429,6 +429,7 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
     private void update(float delta) {
         updateGame(delta);
 
+        updateBossInferno(delta);
         projectileSystem.update(delta, enemies);
         projectileSystem.handlePlayerProjectilesHitEnemies(player, enemies);
         projectileSystem.handleEnemyProjectilesHitPlayer(player, this::onPlayerDied, this::onPlayerDamaged);
@@ -460,6 +461,21 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
         for (Enemy e : enemies) {
             e.update(delta, player.x, player.y);
             e.handleObstacleCollision(obstacles);
+        }
+    }
+
+    private void updateBossInferno(float delta) {
+        BossEnemy boss = getBoss();
+        if (boss == null) {
+            return;
+        }
+
+        int damageTaken = boss.applyInfernoDamage(player, delta);
+        if (damageTaken > 0) {
+            onPlayerDamaged(damageTaken);
+            if (player.health <= 0) {
+                onPlayerDied();
+            }
         }
     }
 
@@ -744,7 +760,7 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
     private void onBossDefeat() {
         bossDefeated = true;
         victoryRunTimeSeconds = runStats.getRunTime();
-        MusicManager.playBackgroundMusic();
+        MusicManager.playWinMusic();
         achievementManager.unlock("first_win");
         showVictoryScreen();
     }
@@ -790,6 +806,7 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
 
     private void onVictoryEndlessModeSelected() {
         overlayScreens.hideVictoryScreen();
+        MusicManager.playBackgroundMusic();
         Gdx.input.setInputProcessor(inputController.buildProcessor());
         // stop sending input to the victory menu and start sending input back to the gameplay controls
     }
@@ -816,7 +833,7 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
             }
         }
 
-        drawBossHealthBar();
+        drawBossInferno();
 
         for (Obstacle o : obstacles) {
             o.draw(batch);
@@ -847,6 +864,8 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
         drawDebugAttackHitbox(); // remove later/change to actual animation
         drawUI();
         drawBeamChargeBar();
+
+        drawBossHealthBar();
 
         if (inputController.isPaused()) {
             drawPauseOverlay();
@@ -1032,6 +1051,29 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
 
         font.getData().setScale(originalScaleX, originalScaleY);
         font.setColor(originalFontColor);
+    }
+
+    private void drawBossInferno() {
+        BossEnemy boss = getBoss();
+        if (boss == null || !boss.isInfernoActive()) return;
+
+        Rectangle safeZone = boss.getInfernoSafeZone();
+        float screenWidth = Gdx.graphics.getWidth();
+        float screenHeight = Gdx.graphics.getHeight();
+
+        batch.setColor(1f, 0.35f, 0.05f, boss.getInfernoOverlayAlpha());
+        batch.draw(player.debugPixel, 0, safeZone.y + safeZone.height, screenWidth, screenHeight - (safeZone.y + safeZone.height));
+        batch.draw(player.debugPixel, 0, 0, screenWidth, safeZone.y);
+        batch.draw(player.debugPixel, 0, safeZone.y, safeZone.x, safeZone.height);
+        batch.draw(player.debugPixel, safeZone.x + safeZone.width, safeZone.y, screenWidth - (safeZone.x + safeZone.width), safeZone.height);
+
+        batch.setColor(0.05f, 0.05f, 0.05f, 0.95f);
+        float borderThickness = boss.getInfernoBorderThickness();
+        batch.draw(player.debugPixel, safeZone.x, safeZone.y, safeZone.width, borderThickness);
+        batch.draw(player.debugPixel, safeZone.x, safeZone.y + safeZone.height - borderThickness, safeZone.width, borderThickness);
+        batch.draw(player.debugPixel, safeZone.x, safeZone.y, borderThickness, safeZone.height);
+        batch.draw(player.debugPixel, safeZone.x + safeZone.width - borderThickness, safeZone.y, borderThickness, safeZone.height);
+        batch.setColor(Color.WHITE);
     }
 
     private BossEnemy getBoss() {

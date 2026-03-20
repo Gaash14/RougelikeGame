@@ -14,6 +14,7 @@ public final class MusicManager {
     private static final String TAG = "MusicManager";
     private static final String BGM_KEY = "bgm";
     private static final String BOSS_KEY = "boss";
+    private static final String WIN_KEY = "win";
 
     private static final Map<String, Music> tracks = new HashMap<>();
     private static final Set<String> missingMusicKeysLogged = new HashSet<>();
@@ -31,9 +32,10 @@ public final class MusicManager {
         if (initialized) {
             return;
         }
-
+        // music taken from https://opengameart.org/
         registerMusic(BGM_KEY, "music/background_bgm.mp3");
         registerMusic(BOSS_KEY, "music/boss_bgm.mp3");
+        registerMusic(WIN_KEY, "music/win_bgm.mp3");
 
         initialized = true;
     }
@@ -44,6 +46,10 @@ public final class MusicManager {
 
     public static void playBossMusic() {
         play(BOSS_KEY, true);
+    }
+
+    public static void playWinMusic() {
+        play(WIN_KEY, true);
     }
 
     public static void play(String key, boolean looping) {
