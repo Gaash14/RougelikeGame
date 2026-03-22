@@ -3,10 +3,13 @@ package com.example.rougelikegame.android.models.characters;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
+import com.example.rougelikegame.android.graphics.SkinAnimation;
+import com.example.rougelikegame.android.graphics.SkinAnimationManager;
 import com.example.rougelikegame.android.managers.AchievementManager;
 import com.example.rougelikegame.android.models.core.TargetingHelper;
 import com.example.rougelikegame.android.models.input.Joystick;
@@ -18,7 +21,9 @@ import com.example.rougelikegame.android.models.items.contexts.DamageContext;
 import com.example.rougelikegame.android.models.items.PassiveItem;
 import com.example.rougelikegame.android.models.items.contexts.HomingContext;
 import com.example.rougelikegame.android.models.items.contexts.IncomingDamageContext;
+import com.example.rougelikegame.android.models.meta.Skin;
 import com.example.rougelikegame.android.models.world.Obstacle;
+import com.example.rougelikegame.android.utils.SkinRegistry;
 
 import java.util.Objects;
 import java.util.Random;
@@ -40,6 +45,11 @@ public class Player {
 
     // textures
     private Texture texture;
+    private SkinAnimationManager skinAnimationManager;
+    private String currentSkinId = "default";
+    private boolean moving;
+    private boolean facingLeft;
+    public float stateTime = 0f;
     public final Texture debugPixel = new Texture("pixel.png");
 
     // position & size
@@ -146,13 +156,28 @@ public class Player {
 
         // movement / knockback
         if (knockbackTime > 0) {
+            moving = true;
+            if (knockbackX < 0f) {
+                facingLeft = true;
+            } else if (knockbackX > 0f) {
+                facingLeft = false;
+            }
             knockbackTime -= delta;
             x += knockbackX * knockbackStrength * delta;
             y += knockbackY * knockbackStrength * delta;
         } else {
+            moving = !MathUtils.isZero(dx, 0.001f) || !MathUtils.isZero(dy, 0.001f);
+            if (dx < 0f) {
+                facingLeft = true;
+            } else if (dx > 0f) {
+                facingLeft = false;
+            }
             x += dx * speed * delta;
             y += dy * speed * delta;
         }
+
+        if (moving) stateTime += delta;
+        else stateTime = 0f;
 
         x = MathUtils.clamp(x, 0, Gdx.graphics.getWidth() - width);
         y = MathUtils.clamp(y, 0, Gdx.graphics.getHeight() - height);
@@ -471,10 +496,52 @@ public class Player {
         if (damageFlashTimer > 0f) {
             batch.setColor(1f, 0.35f, 0.35f, 1f);
         }
-        batch.draw(texture, x, y, width, height);
+
+        TextureRegion frame = null;
+        if (skinAnimationManager != null) {
+            Skin skin = SkinRegistry.getSkinById(currentSkinId);
+            SkinAnimation anim = skinAnimationManager.getAnimation(skin);
+            frame = anim.getFrame(stateTime, moving);
+        }
+
+        if (frame != null) {
+            drawCurrentFrame(batch, frame);
+        } else {
+            drawCurrentTexture(batch);
+        }
+
         if (damageFlashTimer > 0f) {
             batch.setColor(1f, 1f, 1f, 1f);
         }
+    }
+
+
+    private void drawCurrentFrame(SpriteBatch batch, TextureRegion frame) {
+        if (facingLeft) {
+            batch.draw(frame, x + width, y, -width, height);
+            return;
+        }
+        batch.draw(frame, x, y, width, height);
+    }
+
+    private void drawCurrentTexture(SpriteBatch batch) {
+        if (facingLeft) {
+            batch.draw(texture, x + width, y, -width, height);
+            return;
+        }
+        batch.draw(texture, x, y, width, height);
+    }
+
+    public void setSkinAnimationManager(SkinAnimationManager skinAnimationManager) {
+        this.skinAnimationManager = skinAnimationManager;
+    }
+
+    public void setCurrentSkinId(String currentSkinId) {
+        if (currentSkinId == null || currentSkinId.trim().isEmpty()) {
+            this.currentSkinId = "default";
+            return;
+        }
+        this.currentSkinId = currentSkinId;
     }
 
     public void setTexture(Texture newTexture) {

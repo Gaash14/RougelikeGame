@@ -7,6 +7,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
+import com.example.rougelikegame.android.graphics.SkinAnimationManager;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -34,14 +35,12 @@ import com.example.rougelikegame.android.models.items.PassiveItem;
 import com.example.rougelikegame.android.models.items.contexts.HomingContext;
 import com.example.rougelikegame.android.models.items.passives.BeamItem;
 import com.example.rougelikegame.android.models.meta.RunStats;
-import com.example.rougelikegame.android.models.meta.Skin;
 import com.example.rougelikegame.android.models.world.Obstacle;
 import com.example.rougelikegame.android.models.world.Pickup;
 import com.example.rougelikegame.android.models.characters.Player;
 import com.example.rougelikegame.android.models.world.ProjectileSystem;
 import com.example.rougelikegame.android.models.world.WaveManager;
 import com.example.rougelikegame.android.models.world.WaveSpawner;
-import com.example.rougelikegame.android.utils.SkinRegistry;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -106,7 +105,7 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
     private GameInputController inputController;
 
     // Cached textures
-    private Texture playerTexture;
+    private SkinAnimationManager skinAnimationManager;
     private Texture enemyTexture;
     private Texture ghostTexture;
     private Texture bossTexture;
@@ -207,6 +206,7 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
         if (projectileSystem != null) projectileSystem.disposeShared();
 
         player.dispose();
+        if (skinAnimationManager != null) skinAnimationManager.dispose();
         if (font != null) font.dispose();
         if (stage != null) stage.dispose();
         if (overlayScreens != null) overlayScreens.dispose();
@@ -222,7 +222,6 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
         if (enemyTexture != null) enemyTexture.dispose();
         if (ghostTexture != null) ghostTexture.dispose();
         if (bossTexture != null) bossTexture.dispose();
-        if (playerTexture != null) playerTexture.dispose();
         if (hpIcon != null) hpIcon.dispose();
         if (waveIcon != null) waveIcon.dispose();
         if (damageIcon != null) damageIcon.dispose();
@@ -243,7 +242,7 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
         enemyTexture = new Texture("enemies/enemy.png");
         ghostTexture = new Texture("enemies/ghost_enemy.png");
         bossTexture  = new Texture("enemies/boss.png");
-        playerTexture = getPlayerTextureForSkin();
+        skinAnimationManager = new SkinAnimationManager();
 
         fallbackItemTexture = new Texture("items/error.png");
 
@@ -264,7 +263,8 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
 
     private void setupPlayerAndEnemies() {
         player = new Player(100, 100, miscRnd);
-        player.setTexture(playerTexture);
+        player.setSkinAnimationManager(skinAnimationManager);
+        player.setCurrentSkinId(skinId);
         player.playerClass = selectedClass;
 
         projectileSystem = new ProjectileSystem();
@@ -310,10 +310,6 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
         spawnWave(waveManager.getWave(), enemies, player, getDifficulty(), true);
     }
 
-    private Texture getPlayerTextureForSkin() {
-        Skin skin = SkinRegistry.getSkinById(skinId);
-        return new Texture(skin.getTexturePath());
-    }
 
     private void setupPickupsAndObstacles() {
         pickups = new Array<>();
