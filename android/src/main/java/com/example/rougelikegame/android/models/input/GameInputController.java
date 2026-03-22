@@ -71,6 +71,13 @@ public class GameInputController {
         return paused;
     }
 
+    public void resetGameplayInputState() {
+        joystick.reset();
+        attackPointer = -1;
+        rangedAttackHeld = false;
+        player.cancelCharge();
+    }
+
     public void update(float delta) {
         if (paused) return;
 

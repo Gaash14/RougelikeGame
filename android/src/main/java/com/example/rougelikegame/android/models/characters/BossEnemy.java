@@ -69,7 +69,7 @@ public class BossEnemy extends Enemy {
             float originY = y + height / 2f;
             float dirX = playerX - originX;
             float dirY = playerY - originY;
-            float spreadAngle = 20f;
+            float spreadAngle = 25f;
 
             for (float angleOffset : new float[] { -spreadAngle, 0f, spreadAngle }) {
                 float rotatedDirX = dirX * MathUtils.cosDeg(angleOffset) - dirY * MathUtils.sinDeg(angleOffset);

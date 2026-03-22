@@ -489,7 +489,7 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
             obstacles.clear();
         }
 
-        int numObstacles = 5;
+        int numObstacles = 5 + waveManager.getWave() / 2;
 
         for (int i = 0; i < numObstacles; i++) {
             float x = miscRnd.nextInt(Gdx.graphics.getWidth() - 128);
@@ -754,6 +754,9 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
 
     private void onPlayerDied() {
         finishRun(bossDefeated);
+        if (!MusicManager.isBossMusicActive()) {
+            MusicManager.playDeathMusic();
+        }
         showDeathScreen();
     }
 
@@ -796,6 +799,7 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
 
     private void showVictoryScreen() {
         inputController.setPaused(false);
+        inputController.resetGameplayInputState();
         overlayScreens.showVictoryScreen();
     }
 
@@ -806,6 +810,7 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
 
     private void onVictoryEndlessModeSelected() {
         overlayScreens.hideVictoryScreen();
+        inputController.resetGameplayInputState();
         MusicManager.playBackgroundMusic();
         Gdx.input.setInputProcessor(inputController.buildProcessor());
         // stop sending input to the victory menu and start sending input back to the gameplay controls
@@ -1110,6 +1115,7 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
     }
 
     private void showRewardScreen(int waveNumber) {
+        inputController.resetGameplayInputState();
         overlayScreens.showRewardScreen(waveNumber, pickRewardItemOptions());
     }
 
@@ -1132,6 +1138,7 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
         spawnWave(pendingWaveToSpawn, enemies, player, difficulty, true);
         spawnWavePickups(pendingWaveToSpawn);
         pendingWaveToSpawn = -1;
+        inputController.resetGameplayInputState();
 
         Gdx.input.setInputProcessor(inputController.buildProcessor());
     }

@@ -15,6 +15,7 @@ public final class MusicManager {
     private static final String BGM_KEY = "bgm";
     private static final String BOSS_KEY = "boss";
     private static final String WIN_KEY = "win";
+    private static final String DEATH_KEY = "death";
 
     private static final Map<String, Music> tracks = new HashMap<>();
     private static final Set<String> missingMusicKeysLogged = new HashSet<>();
@@ -36,6 +37,7 @@ public final class MusicManager {
         registerMusic(BGM_KEY, "music/background_bgm.mp3");
         registerMusic(BOSS_KEY, "music/boss_bgm.mp3");
         registerMusic(WIN_KEY, "music/win_bgm.mp3");
+        registerMusic(DEATH_KEY, "music/death_bgm.ogg");
 
         initialized = true;
     }
@@ -50,6 +52,14 @@ public final class MusicManager {
 
     public static void playWinMusic() {
         play(WIN_KEY, true);
+    }
+
+    public static void playDeathMusic() {
+        play(DEATH_KEY, true);
+    }
+
+    public static boolean isBossMusicActive() {
+        return BOSS_KEY.equals(currentTrackKey);
     }
 
     public static void play(String key, boolean looping) {

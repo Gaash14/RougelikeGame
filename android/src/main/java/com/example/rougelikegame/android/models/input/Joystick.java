@@ -60,8 +60,7 @@ public class Joystick {
     public void touchUp(int pointer) {
         if (pointer != activePointer) return;
 
-        active = false;
-        activePointer = -1;
+        reset();
     }
 
     // ================= OUTPUT =================
@@ -78,6 +77,13 @@ public class Joystick {
 
     public boolean isActive() {
         return active;
+    }
+
+    public void reset() {
+        active = false;
+        activePointer = -1;
+        knobX = baseX;
+        knobY = baseY;
     }
 
     // ================= DRAW =================

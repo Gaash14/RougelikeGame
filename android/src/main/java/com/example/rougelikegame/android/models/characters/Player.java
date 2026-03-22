@@ -283,6 +283,11 @@ public class Player {
         return MathUtils.clamp(percent, 0f, 1f);
     }
 
+    public void cancelCharge() {
+        charging = false;
+        chargeTime = 0f;
+    }
+
     public float getFinalAttackSpeed() {
         float effectiveRangedCooldown = getEffectiveRangedCooldownTime();
         if (effectiveRangedCooldown <= 0f) {
