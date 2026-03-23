@@ -54,8 +54,8 @@ public class Player {
 
     // position & size
     public float x, y;
-    public final float width = 128;
-    public final float height = 128;
+    public final float width = 160;
+    public final float height = 160;
 
     // stats
     public int health = 10;
