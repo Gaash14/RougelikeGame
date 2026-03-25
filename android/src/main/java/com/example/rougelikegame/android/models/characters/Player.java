@@ -8,8 +8,8 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
-import com.example.rougelikegame.android.graphics.SkinAnimation;
-import com.example.rougelikegame.android.graphics.SkinAnimationManager;
+import com.example.rougelikegame.android.graphics.FrameAnimation;
+import com.example.rougelikegame.android.graphics.FrameAnimationManager;
 import com.example.rougelikegame.android.managers.AchievementManager;
 import com.example.rougelikegame.android.models.core.TargetingHelper;
 import com.example.rougelikegame.android.models.input.Joystick;
@@ -45,7 +45,7 @@ public class Player {
 
     // textures
     private Texture texture;
-    private SkinAnimationManager skinAnimationManager;
+    private FrameAnimationManager animationManager;
     private String currentSkinId = "default";
     private boolean moving;
     private boolean facingLeft;
@@ -498,9 +498,9 @@ public class Player {
         }
 
         TextureRegion frame = null;
-        if (skinAnimationManager != null) {
+        if (animationManager != null) {
             Skin skin = SkinRegistry.getSkinById(currentSkinId);
-            SkinAnimation anim = skinAnimationManager.getAnimation(skin);
+            FrameAnimation anim = animationManager.getAnimation(skin.getTexturePath());
             frame = anim.getFrame(stateTime, moving);
         }
 
@@ -532,8 +532,8 @@ public class Player {
         batch.draw(texture, x, y, width, height);
     }
 
-    public void setSkinAnimationManager(SkinAnimationManager skinAnimationManager) {
-        this.skinAnimationManager = skinAnimationManager;
+    public void setAnimationManager(FrameAnimationManager animationManager) {
+        this.animationManager = animationManager;
     }
 
     public void setCurrentSkinId(String currentSkinId) {

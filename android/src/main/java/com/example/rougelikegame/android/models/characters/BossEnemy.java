@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Array;
@@ -207,7 +208,12 @@ public class BossEnemy extends Enemy {
         if (isEnraged()) {
             float pulse = 0.08f * (1f + MathUtils.sin(shootTimer * 6f));
             batch.setColor(1f, 0.35f + pulse, 0.35f + pulse, 1f);
-            batch.draw(texture, x, y, width, height);
+            TextureRegion frame = getCurrentFrame();
+            if (frame != null) {
+                drawCurrentFrame(batch, frame);
+            } else {
+                drawCurrentTexture(batch);
+            }
             batch.setColor(Color.WHITE);
             return;
         }

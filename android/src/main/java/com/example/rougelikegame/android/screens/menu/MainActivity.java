@@ -7,7 +7,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
-import com.example.rougelikegame.android.graphics.SkinAnimationManager;
+import com.example.rougelikegame.android.graphics.FrameAnimationManager;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -105,7 +105,7 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
     private GameInputController inputController;
 
     // Cached textures
-    private SkinAnimationManager skinAnimationManager;
+    private FrameAnimationManager animationManager;
     private Texture enemyTexture;
     private Texture ghostTexture;
     private Texture bossTexture;
@@ -206,7 +206,7 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
         if (projectileSystem != null) projectileSystem.disposeShared();
 
         player.dispose();
-        if (skinAnimationManager != null) skinAnimationManager.dispose();
+        if (animationManager != null) animationManager.dispose();
         if (font != null) font.dispose();
         if (stage != null) stage.dispose();
         if (overlayScreens != null) overlayScreens.dispose();
@@ -242,7 +242,7 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
         enemyTexture = new Texture("enemies/enemy.png");
         ghostTexture = new Texture("enemies/ghost_enemy.png");
         bossTexture  = new Texture("enemies/boss.png");
-        skinAnimationManager = new SkinAnimationManager();
+        animationManager = new FrameAnimationManager();
 
         fallbackItemTexture = new Texture("items/error.png");
 
@@ -263,7 +263,7 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
 
     private void setupPlayerAndEnemies() {
         player = new Player(100, 100, miscRnd);
-        player.setSkinAnimationManager(skinAnimationManager);
+        player.setAnimationManager(animationManager);
         player.setCurrentSkinId(skinId);
         player.playerClass = selectedClass;
 
@@ -273,6 +273,7 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
             enemyTexture,
             ghostTexture,
             bossTexture,
+            animationManager,
             projectileSystem.getEnemyProjectiles()
         );
 

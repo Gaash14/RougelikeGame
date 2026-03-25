@@ -4,13 +4,18 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Array;
+import com.example.rougelikegame.android.graphics.FrameAnimation;
+import com.example.rougelikegame.android.graphics.FrameAnimationManager;
 import com.example.rougelikegame.android.models.world.Obstacle;
 
 public class Enemy {
     protected Texture texture;
+    protected FrameAnimationManager animationManager;
+    protected String animationBasePath;
     protected float x, y;
     protected float speed;
     public float width, height;
@@ -20,6 +25,9 @@ public class Enemy {
     public boolean isBoss = false;
     public boolean hitThisSwing = false;
     public int damage;
+    protected float stateTime = 0f;
+    protected boolean moving = false;
+    protected boolean facingLeft = false;
 
     private final StatusEffects effects = new StatusEffects();
 
@@ -43,7 +51,12 @@ public class Enemy {
         } else if (effects.isPoisoned()) {
             batch.setColor(0.8f, 0.55f, 1f, 1f);
         }
-        batch.draw(texture, x, y, width, height);
+        TextureRegion frame = getCurrentFrame();
+        if (frame != null) {
+            drawCurrentFrame(batch, frame);
+        } else {
+            drawCurrentTexture(batch);
+        }
         if (effects.isBurning() || effects.isPoisoned()) {
             batch.setColor(Color.WHITE);
         }
@@ -62,6 +75,8 @@ public class Enemy {
             dy /= length;
         }
 
+        updateAnimationState(delta, dx, dy);
+
         x += dx * speed * delta;
         y += dy * speed * delta;
 
@@ -71,6 +86,21 @@ public class Enemy {
         bounds.setPosition(x, y);
 
         effects.update(delta, this);
+    }
+
+    protected void updateAnimationState(float delta, float dx, float dy) {
+        moving = !MathUtils.isZero(dx, 0.001f) || !MathUtils.isZero(dy, 0.001f);
+        if (dx < 0f) {
+            facingLeft = true;
+        } else if (dx > 0f) {
+            facingLeft = false;
+        }
+
+        if (moving) {
+            stateTime += delta;
+        } else {
+            stateTime = 0f;
+        }
     }
 
     public StatusEffects getEffects() {
@@ -138,6 +168,38 @@ public class Enemy {
 
     // Dispose the texture when done
     public void dispose() {
-        texture.dispose();
+    }
+
+    public void setAnimationManager(FrameAnimationManager animationManager) {
+        this.animationManager = animationManager;
+    }
+
+    public void setAnimationBasePath(String animationBasePath) {
+        this.animationBasePath = animationBasePath;
+    }
+
+    protected TextureRegion getCurrentFrame() {
+        if (animationManager == null || animationBasePath == null || animationBasePath.trim().isEmpty()) {
+            return null;
+        }
+
+        FrameAnimation animation = animationManager.getAnimation(animationBasePath);
+        return animation.getFrame(stateTime, moving);
+    }
+
+    protected void drawCurrentFrame(SpriteBatch batch, TextureRegion frame) {
+        if (facingLeft) {
+            batch.draw(frame, x + width, y, -width, height);
+            return;
+        }
+        batch.draw(frame, x, y, width, height);
+    }
+
+    protected void drawCurrentTexture(SpriteBatch batch) {
+        if (facingLeft) {
+            batch.draw(texture, x + width, y, -width, height);
+            return;
+        }
+        batch.draw(texture, x, y, width, height);
     }
 }

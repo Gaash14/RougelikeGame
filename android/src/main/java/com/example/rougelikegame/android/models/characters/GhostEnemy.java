@@ -35,8 +35,11 @@ public class GhostEnemy extends Enemy {
         if (dist < preferredDistance) {
             dx /= dist;
             dy /= dist;
+            updateAnimationState(delta, -dx, -dy);
             x -= dx * speed * delta;
             y -= dy * speed * delta;
+        } else {
+            updateAnimationState(delta, 0f, 0f);
         }
 
         // Shoot if cooldown ready
