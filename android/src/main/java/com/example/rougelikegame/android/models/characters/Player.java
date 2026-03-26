@@ -157,11 +157,6 @@ public class Player {
         // movement / knockback
         if (knockbackTime > 0) {
             moving = true;
-            if (knockbackX < 0f) {
-                facingLeft = true;
-            } else if (knockbackX > 0f) {
-                facingLeft = false;
-            }
             knockbackTime -= delta;
             x += knockbackX * knockbackStrength * delta;
             y += knockbackY * knockbackStrength * delta;
@@ -229,9 +224,9 @@ public class Player {
         float dx = joystick.getPercentX();
         float dy = joystick.getPercentY();
 
-        // default right if neutral
+        // default horizontal attack direction follows facing orientation if neutral
         if (Math.abs(dx) < 0.15f && Math.abs(dy) < 0.15f) {
-            dx = 1;
+            dx = facingLeft ? -1f : 1f;
             dy = 0;
         }
 
@@ -279,7 +274,7 @@ public class Player {
         float dy = joystick.getPercentY();
 
         if (Math.abs(dx) < 0.15f && Math.abs(dy) < 0.15f) {
-            return new Vector2(1, 0); // default right
+            return new Vector2(facingLeft ? -1f : 1f, 0f);
         }
 
         return new Vector2(dx, dy).nor();

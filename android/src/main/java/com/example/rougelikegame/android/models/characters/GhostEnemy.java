@@ -9,7 +9,8 @@ import com.example.rougelikegame.android.models.world.Projectile;
 
 public class GhostEnemy extends Enemy {
 
-    private final float shootCooldown = 2.0f;
+    private static final float SHOOT_COOLDOWN_SECONDS = 2.4f;
+    private static final float PROJECTILE_SPEED = 680f;
     private float shootTimer = 0f;
     private final float preferredDistance = 280f;
     private final int damage;
@@ -44,17 +45,17 @@ public class GhostEnemy extends Enemy {
 
         // Shoot if cooldown ready
         if (shootTimer <= 0) {
-            shootTimer = shootCooldown;
+            shootTimer = SHOOT_COOLDOWN_SECONDS;
 
-            projectiles.add(
-                new Projectile(
-                    x + width / 2,
-                    y + height / 2,
-                    playerX - x,
-                    playerY - y,
-                    damage
-                )
+            Projectile projectile = new Projectile(
+                x + width / 2,
+                y + height / 2,
+                playerX - x,
+                playerY - y,
+                damage
             );
+            projectile.speed = PROJECTILE_SPEED;
+            projectiles.add(projectile);
         }
 
         x = MathUtils.clamp(x, 0, Gdx.graphics.getWidth() - width);

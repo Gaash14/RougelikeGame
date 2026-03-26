@@ -17,6 +17,7 @@ public class BossEnemy extends Enemy {
     private final float shootCooldown = 2f;
     private float shootTimer = 0f;
     private final int damage;
+    private static final int PROJECTILE_DAMAGE = 4;
 
     private static final float HALF_HEALTH_THRESHOLD = 0.5f;
     private static final float SPECIAL_MIN_COOLDOWN_SECONDS = 30f;
@@ -70,7 +71,7 @@ public class BossEnemy extends Enemy {
             float originY = y + height / 2f;
             float dirX = playerX - originX;
             float dirY = playerY - originY;
-            float spreadAngle = 25f;
+            float spreadAngle = 30f;
 
             for (float angleOffset : new float[] { -spreadAngle, 0f, spreadAngle }) {
                 float rotatedDirX = dirX * MathUtils.cosDeg(angleOffset) - dirY * MathUtils.sinDeg(angleOffset);
@@ -82,7 +83,7 @@ public class BossEnemy extends Enemy {
                         originY,
                         rotatedDirX,
                         rotatedDirY,
-                        damage
+                        PROJECTILE_DAMAGE
                     )
                 );
             }

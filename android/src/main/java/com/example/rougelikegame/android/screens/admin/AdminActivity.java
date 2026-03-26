@@ -149,6 +149,11 @@ public class AdminActivity extends AppCompatActivity {
                         updates.put("dailyStreak", 0);
                         updates.put("bestDailyStreak", 0);
                         updates.put("lastDailyCompletionDate", null);
+                        Map<String, Boolean> resetOwnedSkins = new HashMap<>();
+                        resetOwnedSkins.put("default", true);
+                        updates.put("ownedSkins", resetOwnedSkins);
+                        updates.put("equippedSkinId", "default");
+                        updates.put("achievements", new HashMap<String, Boolean>());
 
                         FirebaseDatabase.getInstance()
                             .getReference("users")
@@ -170,6 +175,9 @@ public class AdminActivity extends AppCompatActivity {
                                 user.setDailyStreak(0);
                                 user.setBestDailyStreak(0);
                                 user.setLastDailyCompletionDate(null);
+                                user.setOwnedSkins(resetOwnedSkins);
+                                user.setEquippedSkinId("default");
+                                user.setAchievements(new HashMap<>());
                                 userAdapter.updateUser(user);
                             });
                     })
