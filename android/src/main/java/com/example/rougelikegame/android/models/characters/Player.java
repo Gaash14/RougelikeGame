@@ -379,6 +379,10 @@ public class Player {
         return immune;
     }
 
+    public boolean canTakeDamage() {
+        return !immune && damageCooldown <= 0f && health > 0;
+    }
+
     public float getEffectiveBlockChance() {
         BlockChanceContext ctx = new BlockChanceContext(0f);
 
@@ -404,10 +408,15 @@ public class Player {
     }
 
     public int applyIncomingDamage(int baseDamage) {
+        if (!canTakeDamage()) {
+            return 0;
+        }
+
         int finalDamage = getEffectiveIncomingDamage(baseDamage);
         health -= finalDamage;
         if (finalDamage > 0) {
             damageFlashTimer = DAMAGE_FLASH_DURATION_SECONDS;
+            damageCooldown = damageCooldownTime;
         }
         return finalDamage;
     }

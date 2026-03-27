@@ -101,6 +101,8 @@ public class AchievementManager {
                 .unlockAchievement(userUid, achievement.getId());
         }
 
+        SoundManager.play("achievement");
+
         if (context != null) {
             new Handler(Looper.getMainLooper()).post(() -> {
                 Toast.makeText(

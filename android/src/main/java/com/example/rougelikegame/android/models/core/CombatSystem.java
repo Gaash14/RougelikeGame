@@ -55,7 +55,7 @@ public class CombatSystem {
 
     // enemy touches player
     public void handlePlayerEnemyCollision(Player player, Array<Enemy> enemies) {
-        if (player.isImmune()) return;
+        if (!player.canTakeDamage()) return;
 
         for (Enemy e : enemies) {
             if (!e.alive) continue;
@@ -63,21 +63,19 @@ public class CombatSystem {
             if (e.getBounds().overlaps(player.bounds)) {
 
                 if (player.damageCooldown <= 0) {
-
                     int damageTaken = player.applyIncomingDamage(e.damage);
+                    if (damageTaken <= 0) {
+                        continue;
+                    }
+
                     SoundManager.play("player_hurt");
 
-                    if (damageTaken > 0) {
-                        callbacks.onPlayerDamaged(damageTaken);
-                    }
+                    callbacks.onPlayerDamaged(damageTaken);
 
                     if (player.health <= 0) {
                         callbacks.onPlayerDied();
                         return;
                     }
-
-                    // start damage cooldown
-                    player.damageCooldown = player.damageCooldownTime;
 
                     // knockback direction
                     float dx = player.x - e.getX();

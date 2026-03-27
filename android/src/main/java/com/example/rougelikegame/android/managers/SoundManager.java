@@ -34,6 +34,7 @@ public final class SoundManager {
         registerSound("hit", "sounds/hit.wav");
         registerSound("enemy_death", "sounds/enemy_death.wav");
         registerSound("player_hurt", "sounds/player_hurt.wav");
+        registerSound("achievement", "sounds/achievement.wav");
 
         initialized = true;
     }

@@ -156,17 +156,20 @@ public class ProjectileSystem {
     }
 
     public void handleEnemyProjectilesHitPlayer(Player player, Runnable onPlayerDied, java.util.function.IntConsumer onPlayerDamaged) {
-        if (player.isImmune()) return;
-
         for (Projectile p : enemyProjectiles) {
             if (!p.alive) continue;
 
             if (p.getBounds().overlaps(player.bounds)) {
+                if (!player.canTakeDamage()) {
+                    p.alive = false;
+                    continue;
+                }
+
                 int damageTaken = player.applyIncomingDamage(p.damage);
-                SoundManager.play("player_hurt");
                 p.alive = false;
 
                 if (damageTaken > 0 && onPlayerDamaged != null) {
+                    SoundManager.play("player_hurt");
                     onPlayerDamaged.accept(damageTaken);
                 }
 
