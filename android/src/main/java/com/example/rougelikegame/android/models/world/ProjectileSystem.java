@@ -96,10 +96,12 @@ public class ProjectileSystem {
     // ----- Hits -----
 
     public void handlePlayerProjectilesHitEnemies(Player player, Array<Enemy> enemies) {
-        for (Projectile p : playerProjectiles) {
+        for (int i = 0; i < playerProjectiles.size; i++) {
+            Projectile p = playerProjectiles.get(i);
             if (!p.alive) continue;
 
-            for (Enemy e : enemies) {
+            for (int j = 0; j < enemies.size; j++) {
+                Enemy e = enemies.get(j);
                 if (!e.alive) continue;
 
                 if (p.getBounds().overlaps(e.getBounds())) {
@@ -108,7 +110,7 @@ public class ProjectileSystem {
                     SoundManager.play("hit");
 
                     for (PassiveItem it : player.getPassiveItems()) {
-                        it.onHitEnemy(player, e);
+                        it.onHitEnemy(player, e, enemies, p.damage);
                     }
 
                     p.alive = false;
@@ -117,7 +119,8 @@ public class ProjectileSystem {
             }
         }
 
-        for (Beam beam : activeBeams) {
+        for (int i = 0; i < activeBeams.size; i++) {
+            Beam beam = activeBeams.get(i);
             if (beam.tickTimer < BEAM_TICK) continue;
 
             beam.tickTimer -= BEAM_TICK;
@@ -129,13 +132,14 @@ public class ProjectileSystem {
         Rectangle sampleRect = new Rectangle(0, 0, BEAM_WIDTH, BEAM_WIDTH);
         Vector2 samplePoint = new Vector2();
 
-        for (Enemy e : enemies) {
+        for (int i = 0; i < enemies.size; i++) {
+            Enemy e = enemies.get(i);
             if (!e.alive) continue;
             if (beamHitsEnemy(sampleRect, samplePoint, beam, e)) {
                 e.takeDamage(beam.damagePerTick);
                 SoundManager.play("hit", 0.4f);
                 for (PassiveItem it : player.getPassiveItems()) {
-                    it.onHitEnemy(player, e);
+                    it.onHitEnemy(player, e, enemies, beam.damagePerTick);
                 }
             }
         }

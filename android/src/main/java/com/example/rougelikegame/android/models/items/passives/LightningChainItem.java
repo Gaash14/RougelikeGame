@@ -30,7 +30,7 @@ public class LightningChainItem implements PassiveItem {
 
     @Override
     public String getIconPath() {
-        return "items/lightning_chain.png";
+        return "items/error.png";
     }
 
     @Override
@@ -64,7 +64,8 @@ public class LightningChainItem implements PassiveItem {
         float sourceCenterX = sourceEnemy.getX() + sourceEnemy.width * 0.5f;
         float sourceCenterY = sourceEnemy.getY() + sourceEnemy.height * 0.5f;
 
-        for (Enemy candidate : enemies) {
+        for (int i = 0; i < enemies.size; i++) {
+            Enemy candidate = enemies.get(i);
             if (candidate == null || candidate == sourceEnemy || !candidate.alive) {
                 continue;
             }

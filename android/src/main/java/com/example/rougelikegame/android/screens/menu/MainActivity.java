@@ -137,6 +137,8 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
     // Attack button
     Texture attackBtnTexture;
     Rectangle attackBtnBounds;
+    private static final float SWING_SWORD_LENGTH = 120f;
+    private static final float SWING_SWORD_WIDTH = 56f;
 
     // UI
     private final GlyphLayout glyphLayout = new GlyphLayout();
@@ -307,6 +309,8 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
         });
 
         waveManager = new WaveManager();
+
+        player.addPassiveItem(ItemRegistry.create(16));
 
         spawnWave(waveManager.getWave(), enemies, player, getDifficulty(), true);
     }
@@ -863,7 +867,7 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
             attackBtnBounds.width, attackBtnBounds.height
         );
 
-        drawDebugAttackHitbox(); // remove later/change to actual animation
+        drawMeleeSwingSword();
         drawUI();
         drawBeamChargeBar();
 
@@ -1087,18 +1091,45 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
         return null;
     }
 
-    private void drawDebugAttackHitbox() { // remove later/change to actual animation
+    private void drawMeleeSwingSword() {
         if (!player.attacking) return;
 
-        batch.setColor(1, 0, 0, 0.4f);
+        float playerCenterX = player.x + player.width * 0.5f;
+        float playerCenterY = player.y + player.height * 0.5f;
+        float hitboxCenterX = player.attackHitbox.x + player.attackHitbox.width * 0.5f;
+        float hitboxCenterY = player.attackHitbox.y + player.attackHitbox.height * 0.5f;
+
+        Vector2 attackDirection = new Vector2(hitboxCenterX - playerCenterX, hitboxCenterY - playerCenterY);
+        if (attackDirection.isZero(0.001f)) {
+            attackDirection.set(1f, 0f);
+        } else {
+            attackDirection.nor();
+        }
+
+        float swingCenterX = playerCenterX + attackDirection.x * (player.width * 0.45f);
+        float swingCenterY = playerCenterY + attackDirection.y * (player.height * 0.45f);
+        float swordRotationDeg = attackDirection.angleDeg() - 45f;
+
+        batch.setColor(1f, 1f, 1f, 0.92f);
         batch.draw(
-            player.debugPixel,
-            player.attackHitbox.x,
-            player.attackHitbox.y,
-            player.attackHitbox.width,
-            player.attackHitbox.height
+            attackBtnTexture,
+            swingCenterX - SWING_SWORD_WIDTH * 0.5f,
+            swingCenterY - SWING_SWORD_LENGTH * 0.5f,
+            SWING_SWORD_WIDTH * 0.5f,
+            SWING_SWORD_LENGTH * 0.2f,
+            SWING_SWORD_WIDTH,
+            SWING_SWORD_LENGTH,
+            1f,
+            1f,
+            swordRotationDeg,
+            0,
+            0,
+            attackBtnTexture.getWidth(),
+            attackBtnTexture.getHeight(),
+            false,
+            false
         );
-        batch.setColor(1, 1, 1, 1);
+        batch.setColor(Color.WHITE);
     }
 
     private boolean onWaveStarted(int waveNumber) {
