@@ -25,6 +25,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Activity that displays the game's leaderboards.
+ * It supports two modes: NORMAL (overall highest wave) and DAILY (today's challenge results).
+ * It fetches user data and daily run records from Firebase and displays them in a sorted list.
+ */
 public class LeaderboardActivity extends AppCompatActivity {
     private enum Mode {
         NORMAL,
@@ -78,6 +83,9 @@ public class LeaderboardActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Loads the leaderboard based on the currently selected mode (NORMAL or DAILY).
+     */
     private void loadCurrentLeaderboard() {
         if (currentMode == Mode.DAILY) {
             loadDailyLeaderboard();
@@ -86,6 +94,9 @@ public class LeaderboardActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Loads the overall (NORMAL) leaderboard by fetching all users with a recorded score.
+     */
     private void loadLeaderboard() {
         txtEmptyDaily.setVisibility(View.GONE);
         databaseService.getUserList(new DatabaseService.DatabaseCallback<List<User>>() {
@@ -137,6 +148,12 @@ public class LeaderboardActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Fetches guild names for all users on the leaderboard and binds the data to the adapter.
+     *
+     * @param scoredUsers The list of users to display.
+     * @param currentUid  The UID of the current player.
+     */
     private void loadGuildNamesAndBindLeaderboard(
         List<User> scoredUsers,
         String currentUid
@@ -183,6 +200,9 @@ public class LeaderboardActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Loads the daily leaderboard for today's challenge.
+     */
     private void loadDailyLeaderboard() {
         String todayKey = java.time.LocalDate.now().toString();
 
@@ -228,6 +248,9 @@ public class LeaderboardActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Starts a countdown timer that updates every second to show when the daily leaderboard resets.
+     */
     private void startDailyCountdown() {
         txtDailyReset.setVisibility(android.view.View.VISIBLE);
 

@@ -16,11 +16,18 @@ import com.example.rougelikegame.android.models.meta.Guild;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * GuildListAdapter manages the display and administration of guilds in a list.
+ * It provides functionality for filtering guilds and performing administrative actions.
+ */
 public class GuildListAdapter extends RecyclerView.Adapter<GuildListAdapter.ViewHolder> {
 
     private final List<Guild> fullList = new ArrayList<>();
     private final List<Guild> guildList;
 
+    /**
+     * Interface for handling click events on guild list items.
+     */
     public interface OnGuildClickListener {
         void onDeleteClick(Guild guild);
         void onResetStatsClick(Guild guild);
@@ -28,6 +35,11 @@ public class GuildListAdapter extends RecyclerView.Adapter<GuildListAdapter.View
 
     private final OnGuildClickListener onGuildClickListener;
 
+    /**
+     * Constructs a new GuildListAdapter.
+     *
+     * @param listener the listener for guild action events
+     */
     public GuildListAdapter(@Nullable OnGuildClickListener listener) {
         guildList = new ArrayList<>();
         this.onGuildClickListener = listener;
@@ -72,8 +84,11 @@ public class GuildListAdapter extends RecyclerView.Adapter<GuildListAdapter.View
         return guildList.size();
     }
 
-    /* ---------- DATA MANAGEMENT (same pattern as UserListAdapter) ---------- */
-
+    /**
+     * Sets the initial list of guilds and updates the adapter.
+     *
+     * @param guilds the list of guilds to display
+     */
     public void setGuildList(List<Guild> guilds) {
         guildList.clear();
         guildList.addAll(guilds);
@@ -84,6 +99,11 @@ public class GuildListAdapter extends RecyclerView.Adapter<GuildListAdapter.View
         notifyDataSetChanged();
     }
 
+    /**
+     * Removes a guild from the displayed list.
+     *
+     * @param guild the guild to remove
+     */
     public void removeGuild(Guild guild) {
         int index = guildList.indexOf(guild);
         if (index == -1) return;
@@ -92,6 +112,11 @@ public class GuildListAdapter extends RecyclerView.Adapter<GuildListAdapter.View
         notifyItemRemoved(index);
     }
 
+    /**
+     * Updates an existing guild entry in the list.
+     *
+     * @param guild the guild to update
+     */
     public void updateGuild(Guild guild) {
         int index = guildList.indexOf(guild);
         if (index == -1) return;
@@ -100,6 +125,11 @@ public class GuildListAdapter extends RecyclerView.Adapter<GuildListAdapter.View
         notifyItemChanged(index);
     }
 
+    /**
+     * Filters the guild list based on a search query.
+     *
+     * @param text the query text to filter by
+     */
     public void filter(String text) {
         guildList.clear();
 
@@ -118,8 +148,9 @@ public class GuildListAdapter extends RecyclerView.Adapter<GuildListAdapter.View
         notifyDataSetChanged();
     }
 
-    // view holder
-
+    /**
+     * ViewHolder class for guild list items.
+     */
     public static class ViewHolder extends RecyclerView.ViewHolder {
 
         TextView tvName;

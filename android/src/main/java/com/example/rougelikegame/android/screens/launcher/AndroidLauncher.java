@@ -13,7 +13,12 @@ import com.example.rougelikegame.android.utils.SharedPreferencesUtil;
 import com.example.rougelikegame.android.models.characters.Player;
 import com.example.rougelikegame.android.models.meta.User;
 
-/** Launches the Android application. */
+/**
+ * Main entry point for the Android version of the Rougelike game.
+ * This class initializes the libGDX backend, sets up the game configuration,
+ * and handles the transition from Android UI to the game core.
+ * It also implements the ScoreReporter to save game results to Firebase and SharedPreferences.
+ */
 public class AndroidLauncher extends AndroidApplication {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,6 +64,9 @@ public class AndroidLauncher extends AndroidApplication {
         configuration.useImmersiveMode = true;
 
         initialize(new MainActivity(new ScoreReporter() {
+            /**
+             * Reports the results of a game run and updates user statistics.
+             */
             @Override
             public void reportRun(
                 int wave,
@@ -174,6 +182,9 @@ public class AndroidLauncher extends AndroidApplication {
         selectedClass, difficulty, equippedSkinId, dailyChallenge, runSeed), configuration);
     }
 
+    /**
+     * Updates the cumulative statistics for a user after a normal (non-daily) run.
+     */
     private void updateNormalRunStats(
         User user,
         int wave,

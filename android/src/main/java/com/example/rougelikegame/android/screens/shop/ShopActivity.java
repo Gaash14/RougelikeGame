@@ -21,6 +21,9 @@ import com.example.rougelikegame.android.models.meta.User;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * ShopActivity provides a user interface for browsing and purchasing available skins.
+ */
 public class ShopActivity extends AppCompatActivity {
 
     private TextView txtCoins;
@@ -54,10 +57,16 @@ public class ShopActivity extends AppCompatActivity {
         loadSkins();
     }
 
+    /**
+     * Updates the coin display in the UI based on the current user's coin count.
+     */
     private void updateCoinsUI() {
         txtCoins.setText("Coins: " + user.getNumOfCoins());
     }
 
+    /**
+     * Loads available shop skins from the registry and initializes the RecyclerView adapter.
+     */
     private void loadSkins() {
         skins = new ArrayList<>();
 

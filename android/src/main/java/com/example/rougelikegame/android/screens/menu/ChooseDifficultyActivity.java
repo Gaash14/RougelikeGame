@@ -23,6 +23,11 @@ import com.example.rougelikegame.android.managers.SoundManager;
 import com.example.rougelikegame.android.models.characters.Player;
 import com.example.rougelikegame.android.screens.launcher.AndroidLauncher;
 
+/**
+ * Activity that allows the player to configure their game session.
+ * Options include selecting a player class (Melee or Ranged), choosing a difficulty level,
+ * enabling the Daily Challenge mode, and adjusting sound/music settings.
+ */
 public class ChooseDifficultyActivity extends AppCompatActivity {
 
     private static final String PREFS_NAME = "settings";
@@ -144,6 +149,9 @@ public class ChooseDifficultyActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Ensures that audio managers are loaded before usage.
+     */
     private void ensureAudioLoaded() {
         try {
             SoundManager.load();
@@ -158,6 +166,9 @@ public class ChooseDifficultyActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Initializes audio settings from SharedPreferences or defaults.
+     */
     private void initializeAudioSettings() {
         int savedVolume = settingsPrefs.getInt(KEY_SFX_VOLUME, Math.round(SoundManager.getSfxVolume() * 100f));
         boolean savedMuted = settingsPrefs.getBoolean(KEY_SFX_MUTED, SoundManager.isMuted());
@@ -170,6 +181,9 @@ public class ChooseDifficultyActivity extends AppCompatActivity {
         applyAudioSettings(clampedVolume, savedMuted, clampedMusicVolume, savedMusicMuted);
     }
 
+    /**
+     * Displays a dialog for adjusting SFX and Music settings.
+     */
     private void showSoundSettingsDialog() {
         View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_sound_settings, null);
 
@@ -207,7 +221,7 @@ public class ChooseDifficultyActivity extends AppCompatActivity {
                 updateSfxVolumeLabel(sfxVolumeLabel, progress);
                 SoundManager.setSfxVolume(progress / 100f);
                 persistAudioSettings(progress, sfxMuteSwitch.isChecked(),
-                    musicVolumeSeekBar.getProgress(), musicMuteSwitch.isChecked());
+                        musicVolumeSeekBar.getProgress(), musicMuteSwitch.isChecked());
             }
 
             @Override
@@ -225,7 +239,7 @@ public class ChooseDifficultyActivity extends AppCompatActivity {
             SoundManager.setMuted(isChecked);
             sfxVolumeSeekBar.setEnabled(!isChecked);
             persistAudioSettings(sfxVolumeSeekBar.getProgress(), isChecked,
-                musicVolumeSeekBar.getProgress(), musicMuteSwitch.isChecked());
+                    musicVolumeSeekBar.getProgress(), musicMuteSwitch.isChecked());
         });
 
         musicVolumeSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -234,7 +248,7 @@ public class ChooseDifficultyActivity extends AppCompatActivity {
                 updateMusicVolumeLabel(musicVolumeLabel, progress);
                 MusicManager.setMusicVolume(progress / 100f);
                 persistAudioSettings(sfxVolumeSeekBar.getProgress(), sfxMuteSwitch.isChecked(),
-                    progress, musicMuteSwitch.isChecked());
+                        progress, musicMuteSwitch.isChecked());
             }
 
             @Override
@@ -252,17 +266,25 @@ public class ChooseDifficultyActivity extends AppCompatActivity {
             MusicManager.setMuted(isChecked);
             musicVolumeSeekBar.setEnabled(!isChecked);
             persistAudioSettings(sfxVolumeSeekBar.getProgress(), sfxMuteSwitch.isChecked(),
-                musicVolumeSeekBar.getProgress(), isChecked);
+                    musicVolumeSeekBar.getProgress(), isChecked);
         });
 
         AlertDialog soundDialog = new AlertDialog.Builder(this)
-            .setView(dialogView)
-            .setPositiveButton("Close", null)
-            .create();
+                .setView(dialogView)
+                .setPositiveButton("Close", null)
+                .create();
 
         soundDialog.show();
     }
 
+    /**
+     * Applies the given audio settings to the managers.
+     *
+     * @param sfxVolumePercent   SFX volume percentage (0-100)
+     * @param sfxMuted           Whether SFX is muted
+     * @param musicVolumePercent Music volume percentage (0-100)
+     * @param musicMuted         Whether music is muted
+     */
     private void applyAudioSettings(int sfxVolumePercent, boolean sfxMuted, int musicVolumePercent, boolean musicMuted) {
         SoundManager.setSfxVolume(sfxVolumePercent / 100f);
         SoundManager.setMuted(sfxMuted);
@@ -271,25 +293,40 @@ public class ChooseDifficultyActivity extends AppCompatActivity {
         MusicManager.setMuted(musicMuted);
     }
 
+    /**
+     * Persists audio settings to SharedPreferences.
+     *
+     * @param sfxVolumePercent   SFX volume percentage
+     * @param sfxMuted           Whether SFX is muted
+     * @param musicVolumePercent Music volume percentage
+     * @param musicMuted         Whether music is muted
+     */
     private void persistAudioSettings(int sfxVolumePercent, boolean sfxMuted, int musicVolumePercent, boolean musicMuted) {
         settingsPrefs.edit()
-            .putInt(KEY_SFX_VOLUME, sfxVolumePercent)
-            .putBoolean(KEY_SFX_MUTED, sfxMuted)
-            .putInt(KEY_MUSIC_VOLUME, musicVolumePercent)
-            .putBoolean(KEY_MUSIC_MUTED, musicMuted)
-            .apply();
+                .putInt(KEY_SFX_VOLUME, sfxVolumePercent)
+                .putBoolean(KEY_SFX_MUTED, sfxMuted)
+                .putInt(KEY_MUSIC_VOLUME, musicVolumePercent)
+                .putBoolean(KEY_MUSIC_MUTED, musicMuted)
+                .apply();
     }
 
+    /**
+     * Updates the music volume label text.
+     */
     private void updateMusicVolumeLabel(TextView volumeLabel, int volumePercent) {
         volumeLabel.setText("Music Volume: " + volumePercent + "%");
     }
 
+    /**
+     * Updates the SFX volume label text.
+     */
     private void updateSfxVolumeLabel(TextView volumeLabel, int volumePercent) {
         volumeLabel.setText("SFX Volume: " + volumePercent + "%");
     }
 
-
-
+    /**
+     * Starts the countdown timer for the daily challenge reset.
+     */
     private void startDailyCountdown() {
         txtDailyReset.setVisibility(View.VISIBLE);
 
@@ -299,13 +336,13 @@ public class ChooseDifficultyActivity extends AppCompatActivity {
                 long now = System.currentTimeMillis();
 
                 java.time.LocalDateTime tomorrow =
-                    java.time.LocalDate.now().plusDays(1).atStartOfDay();
+                        java.time.LocalDate.now().plusDays(1).atStartOfDay();
 
                 long millisUntilReset =
-                    tomorrow.atZone(java.time.ZoneId.systemDefault())
-                        .toInstant()
-                        .toEpochMilli()
-                        - now;
+                        tomorrow.atZone(java.time.ZoneId.systemDefault())
+                                .toInstant()
+                                .toEpochMilli()
+                                - now;
 
                 long seconds = millisUntilReset / 1000;
                 long h = seconds / 3600;
@@ -313,9 +350,9 @@ public class ChooseDifficultyActivity extends AppCompatActivity {
                 long s = seconds % 60;
 
                 txtDailyReset.setText(
-                    String.format(
-                        "⏱ Daily resets in %02d:%02d:%02d", h, m, s
-                    )
+                        String.format(
+                                "⏱ Daily resets in %02d:%02d:%02d", h, m, s
+                        )
                 );
 
                 handler.postDelayed(this, 1000);
@@ -329,3 +366,4 @@ public class ChooseDifficultyActivity extends AppCompatActivity {
         handler.removeCallbacksAndMessages(null);
     }
 }
+

@@ -1,43 +1,43 @@
 package com.example.rougelikegame.android.screens.menu;
 
-import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
-import com.example.rougelikegame.android.graphics.FrameAnimationManager;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import com.example.rougelikegame.android.graphics.FrameAnimationManager;
 import com.example.rougelikegame.android.managers.AchievementManager;
 import com.example.rougelikegame.android.managers.MusicManager;
 import com.example.rougelikegame.android.managers.SoundManager;
+import com.example.rougelikegame.android.models.characters.BossEnemy;
+import com.example.rougelikegame.android.models.characters.Enemy;
 import com.example.rougelikegame.android.models.characters.EnemyFactory;
+import com.example.rougelikegame.android.models.characters.GhostEnemy;
+import com.example.rougelikegame.android.models.characters.Player;
 import com.example.rougelikegame.android.models.core.CombatSystem;
 import com.example.rougelikegame.android.models.core.GameState;
 import com.example.rougelikegame.android.models.core.ScoreReporter;
-import com.example.rougelikegame.android.models.characters.BossEnemy;
-import com.example.rougelikegame.android.models.characters.Enemy;
-import com.example.rougelikegame.android.models.characters.GhostEnemy;
 import com.example.rougelikegame.android.models.input.GameInputController;
 import com.example.rougelikegame.android.models.input.Joystick;
-import com.example.rougelikegame.android.models.items.contexts.DamageContext;
 import com.example.rougelikegame.android.models.items.ItemRegistry;
 import com.example.rougelikegame.android.models.items.PassiveItem;
+import com.example.rougelikegame.android.models.items.contexts.DamageContext;
 import com.example.rougelikegame.android.models.items.contexts.HomingContext;
 import com.example.rougelikegame.android.models.items.passives.BeamItem;
 import com.example.rougelikegame.android.models.meta.RunStats;
 import com.example.rougelikegame.android.models.world.Obstacle;
 import com.example.rougelikegame.android.models.world.Pickup;
-import com.example.rougelikegame.android.models.characters.Player;
 import com.example.rougelikegame.android.models.world.ProjectileSystem;
 import com.example.rougelikegame.android.models.world.WaveManager;
 import com.example.rougelikegame.android.models.world.WaveSpawner;
@@ -50,21 +50,23 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
+/**
+ * Main game class that implements the LibGDX application lifecycle.
+ */
 public class MainActivity extends ApplicationAdapter implements WaveSpawner {
 
-    // Constructors (for AndroidLauncher / tests)
     private final ScoreReporter scoreReporter;
     private final Player.PlayerClass selectedClass;
     private final Player.Difficulty difficulty;
     private final String skinId;
 
     public MainActivity(
-        ScoreReporter scoreReporter,
-        Player.PlayerClass selectedClass,
-        Player.Difficulty difficulty,
-        String skinId,
-        boolean dailyChallenge,
-        long runSeed
+            ScoreReporter scoreReporter,
+            Player.PlayerClass selectedClass,
+            Player.Difficulty difficulty,
+            String skinId,
+            boolean dailyChallenge,
+            long runSeed
     ) {
         this.scoreReporter = scoreReporter;
         this.selectedClass = selectedClass;
@@ -73,14 +75,17 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
         this.dailyChallenge = dailyChallenge;
         this.runSeed = runSeed;
     }
+
     public MainActivity(ScoreReporter scoreReporter) {
         this(scoreReporter, Player.PlayerClass.MELEE,
-            Player.Difficulty.NORMAL, "default", false, System.currentTimeMillis());
+                Player.Difficulty.NORMAL, "default", false, System.currentTimeMillis());
     }
+
     public MainActivity() {
         this(null, Player.PlayerClass.MELEE,
-            Player.Difficulty.NORMAL, "default", false, System.currentTimeMillis());
+                Player.Difficulty.NORMAL, "default", false, System.currentTimeMillis());
     }
+
     private boolean runReported = false;
 
     // LibGDX objects
@@ -125,10 +130,13 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
     private Random pickupRnd;
     private Random enemyRnd;
     private Random miscRnd;
-    public Player.Difficulty getDifficulty() { return difficulty; }
+
+    public Player.Difficulty getDifficulty() {
+        return difficulty;
+    }
 
     private final AchievementManager achievementManager =
-        AchievementManager.getInstance();
+            AchievementManager.getInstance();
 
     private boolean bossDefeated = false;
     private float victoryRunTimeSeconds = 0f;
@@ -145,7 +153,6 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
     private Rectangle resumeBounds;
     private Rectangle exitBounds;
 
-    // LibGDX
     @Override
     public void create() {
         batch = new SpriteBatch();
@@ -195,7 +202,9 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
 
     @Override
     public void dispose() {
-        if (batch != null) batch.dispose();
+        if (batch != null) {
+            batch.dispose();
+        }
         for (Enemy e : enemies) {
             e.dispose();
         }
@@ -205,36 +214,69 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
         for (Obstacle o : obstacles) {
             o.dispose();
         }
-        if (projectileSystem != null) projectileSystem.disposeShared();
+        if (projectileSystem != null) {
+            projectileSystem.disposeShared();
+        }
 
         player.dispose();
-        if (animationManager != null) animationManager.dispose();
-        if (font != null) font.dispose();
-        if (stage != null) stage.dispose();
-        if (overlayScreens != null) overlayScreens.dispose();
+        if (animationManager != null) {
+            animationManager.dispose();
+        }
+        if (font != null) {
+            font.dispose();
+        }
+        if (stage != null) {
+            stage.dispose();
+        }
+        if (overlayScreens != null) {
+            overlayScreens.dispose();
+        }
         for (Texture tex : itemIconCache.values()) {
             if (tex != null && tex != fallbackItemTexture) {
                 tex.dispose();
             }
         }
         itemIconCache.clear();
-        if (fallbackItemTexture != null) fallbackItemTexture.dispose();
-        if (joystick != null) joystick.dispose();
-        if (attackBtnTexture != null) attackBtnTexture.dispose();
-        if (enemyTexture != null) enemyTexture.dispose();
-        if (ghostTexture != null) ghostTexture.dispose();
-        if (bossTexture != null) bossTexture.dispose();
-        if (hpIcon != null) hpIcon.dispose();
-        if (waveIcon != null) waveIcon.dispose();
-        if (damageIcon != null) damageIcon.dispose();
-        if (speedIcon != null) speedIcon.dispose();
-        if (coinsIcon != null) coinsIcon.dispose();
-        if (backgroundTexture != null) backgroundTexture.dispose();
+        if (fallbackItemTexture != null) {
+            fallbackItemTexture.dispose();
+        }
+        if (joystick != null) {
+            joystick.dispose();
+        }
+        if (attackBtnTexture != null) {
+            attackBtnTexture.dispose();
+        }
+        if (enemyTexture != null) {
+            enemyTexture.dispose();
+        }
+        if (ghostTexture != null) {
+            ghostTexture.dispose();
+        }
+        if (bossTexture != null) {
+            bossTexture.dispose();
+        }
+        if (hpIcon != null) {
+            hpIcon.dispose();
+        }
+        if (waveIcon != null) {
+            waveIcon.dispose();
+        }
+        if (damageIcon != null) {
+            damageIcon.dispose();
+        }
+        if (speedIcon != null) {
+            speedIcon.dispose();
+        }
+        if (coinsIcon != null) {
+            coinsIcon.dispose();
+        }
+        if (backgroundTexture != null) {
+            backgroundTexture.dispose();
+        }
         MusicManager.dispose();
         SoundManager.dispose();
     }
 
-    // Setup methods
     private void setupCamera() {
         camera = new OrthographicCamera();
         camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
@@ -243,7 +285,7 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
     private void loadTextures() {
         enemyTexture = new Texture("enemies/enemy.png");
         ghostTexture = new Texture("enemies/ghost_enemy.png");
-        bossTexture  = new Texture("enemies/boss.png");
+        bossTexture = new Texture("enemies/boss.png");
         animationManager = new FrameAnimationManager();
 
         fallbackItemTexture = new Texture("items/error.png");
@@ -272,11 +314,11 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
         projectileSystem = new ProjectileSystem();
 
         enemyFactory = new EnemyFactory(
-            enemyTexture,
-            ghostTexture,
-            bossTexture,
-            animationManager,
-            projectileSystem.getEnemyProjectiles()
+                enemyTexture,
+                ghostTexture,
+                bossTexture,
+                animationManager,
+                projectileSystem.getEnemyProjectiles()
         );
 
         enemies = new Array<>();
@@ -315,7 +357,6 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
         spawnWave(waveManager.getWave(), enemies, player, getDifficulty(), true);
     }
 
-
     private void setupPickupsAndObstacles() {
         pickups = new Array<>();
         obstacles = new Array<>();
@@ -325,9 +366,9 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
         stage = new Stage(new ScreenViewport());
 
         joystick = new Joystick(
-            "inputs/joystick_base.png",
-            "inputs/joystick_knob.png",
-            100
+                "inputs/joystick_base.png",
+                "inputs/joystick_knob.png",
+                100
         );
     }
 
@@ -335,41 +376,41 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
         float centerX = Gdx.graphics.getWidth() / 2f;
 
         resumeBounds = new Rectangle(centerX - 150, Gdx.graphics.getHeight() / 2f + 20, 300, 80);
-        exitBounds   = new Rectangle(centerX - 150, Gdx.graphics.getHeight() / 2f - 100, 300, 80);
+        exitBounds = new Rectangle(centerX - 150, Gdx.graphics.getHeight() / 2f - 100, 300, 80);
     }
 
     private void setupAttackButton() {
         attackBtnTexture = new Texture("inputs/attack_icon.png");
         attackBtnBounds = new Rectangle(
-            Gdx.graphics.getWidth() - 250,
-            50,
-            200,
-            200
+                Gdx.graphics.getWidth() - 250,
+                50,
+                200,
+                200
         );
     }
 
     private void setupInput() {
         inputController = new GameInputController(
-            camera,
-            stage,
-            joystick,
-            player,
-            enemies,
-            attackBtnBounds,
-            resumeBounds,
-            exitBounds,
-            new GameInputController.ProjectileSpawner() {
-                @Override
-                public void spawnProjectile(float x, float y, Vector2 dir, int damage) {
-                    MainActivity.this.spawnProjectile(x, y, dir, damage);
-                }
+                camera,
+                stage,
+                joystick,
+                player,
+                enemies,
+                attackBtnBounds,
+                resumeBounds,
+                exitBounds,
+                new GameInputController.ProjectileSpawner() {
+                    @Override
+                    public void spawnProjectile(float x, float y, Vector2 dir, int damage) {
+                        MainActivity.this.spawnProjectile(x, y, dir, damage);
+                    }
 
-                @Override
-                public void spawnBeam(Vector2 dir, float chargePercent) {
-                    MainActivity.this.spawnBeam(dir, chargePercent);
-                }
-            },
-            this::exitRun
+                    @Override
+                    public void spawnBeam(Vector2 dir, float chargePercent) {
+                        MainActivity.this.spawnBeam(dir, chargePercent);
+                    }
+                },
+                this::exitRun
         );
 
         Gdx.input.setInputProcessor(inputController.buildProcessor());
@@ -412,10 +453,10 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
 
     private void setupFont() {
         FreeTypeFontGenerator generator =
-            new FreeTypeFontGenerator(Gdx.files.internal("fonts/Roboto-Regular.ttf"));
+                new FreeTypeFontGenerator(Gdx.files.internal("fonts/Roboto-Regular.ttf"));
 
         FreeTypeFontGenerator.FreeTypeFontParameter param =
-            new FreeTypeFontGenerator.FreeTypeFontParameter();
+                new FreeTypeFontGenerator.FreeTypeFontParameter();
 
         param.size = 48; // REAL font size, not scale
         param.color = Color.WHITE;
@@ -426,7 +467,9 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
         generator.dispose();
     }
 
-    // Update loop
+    /**
+     * Updates all game systems.
+     */
     private void update(float delta) {
         updateGame(delta);
 
@@ -443,12 +486,12 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
         combatSystem.cleanupDeadEnemies(enemies);
 
         waveManager.update(
-            delta,
-            enemies,
-            player,
-            difficulty,
-            this,
-            this::onWaveStarted
+                delta,
+                enemies,
+                player,
+                difficulty,
+                this,
+                this::onWaveStarted
         );
     }
 
@@ -480,9 +523,10 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
         }
     }
 
-    // Spawning & waves
     private void spawnRandomObstacles() {
-        if (player == null) return;
+        if (player == null) {
+            return;
+        }
 
         if (obstacles == null) {
             obstacles = new Array<>();
@@ -506,13 +550,14 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
         }
     }
 
+    @Override
     public void spawnWave(int waveNumber, Array<Enemy> enemies,
-                           Player player,
-                           Player.Difficulty difficulty,
+                          Player player,
+                          Player.Difficulty difficulty,
                           boolean allowBoss) {
         if (overlayScreens != null
-            && overlayScreens.isRewardScreenActive()
-            && waveNumber == pendingWaveToSpawn) {
+                && overlayScreens.isRewardScreenActive()
+                && waveNumber == pendingWaveToSpawn) {
             return;
         }
 
@@ -528,15 +573,17 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
             float y = Gdx.graphics.getHeight() / 2f - bossHeight / 2f;
 
             enemies.add(
-                enemyFactory.createBossEnemy(
-                    x,
-                    y,
-                    calculateEnemyHP(250, true),
-                    5,
-                    this
-                )
+                    enemyFactory.createBossEnemy(
+                            x,
+                            y,
+                            calculateEnemyHP(250, true),
+                            5,
+                            this
+                    )
             );
-            if (DEBUG) Gdx.app.log("Spawn", "Spawned boss on wave " + waveNumber);
+            if (DEBUG) {
+                Gdx.app.log("Spawn", "Spawned boss on wave " + waveNumber);
+            }
             return;
         }
 
@@ -558,27 +605,29 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
 
             if (enemyRnd.nextFloat() < ghostChance) {
                 enemies.add(
-                    enemyFactory.createGhostEnemy(
-                        x,
-                        y,
-                        calculateEnemyHP(20, false),
-                        1 + bonusEnemyDamage
-                    )
+                        enemyFactory.createGhostEnemy(
+                                x,
+                                y,
+                                calculateEnemyHP(20, false),
+                                1 + bonusEnemyDamage
+                        )
                 );
             } else {
                 enemies.add(
-                    enemyFactory.createNormalEnemy(
-                        x,
-                        y,
-                        calculateEnemyHP(30, false),
-                        1 + bonusEnemyDamage
-                    )
+                        enemyFactory.createNormalEnemy(
+                                x,
+                                y,
+                                calculateEnemyHP(30, false),
+                                1 + bonusEnemyDamage
+                        )
                 );
             }
 
         }
 
-        if (DEBUG) Gdx.app.log("Spawn", "Spawned wave " + waveNumber + " with " + enemyCount + " enemies");
+        if (DEBUG) {
+            Gdx.app.log("Spawn", "Spawned wave " + waveNumber + " with " + enemyCount + " enemies");
+        }
     }
 
     private int calculateEnemyCount(int waveNumber) {
@@ -646,7 +695,6 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
         }
     }
 
-    // Pickups
     private Pickup.Type getRandomPickupType(float currentPlayerSpeed) {
 
         boolean allowSpeed = currentPlayerSpeed < player.maxSpeed;
@@ -684,12 +732,16 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
         switch (p.type) {
             case HEALTH:
                 player.health += 4;
-                if (DEBUG) Gdx.app.log("Pickups", "Picked up health → player HP = " + player.health);
+                if (DEBUG) {
+                    Gdx.app.log("Pickups", "Picked up health → player HP = " + player.health);
+                }
                 break;
 
             case SPEED:
                 player.speed += 10;
-                if (DEBUG) Gdx.app.log("Pickups", "Picked up speed → new speed = " + player.speed);
+                if (DEBUG) {
+                    Gdx.app.log("Pickups", "Picked up speed → new speed = " + player.speed);
+                }
                 break;
 
             case COIN:
@@ -697,12 +749,13 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
                 if (player.coins >= 25) {
                     achievementManager.unlock("coins_25");
                 }
-                if (DEBUG) Gdx.app.log("Pickups", "Picked up coin → coins = " + player.coins);
+                if (DEBUG) {
+                    Gdx.app.log("Pickups", "Picked up coin → coins = " + player.coins);
+                }
                 break;
         }
     }
 
-    // Projectiles
     private void spawnProjectile(float x, float y, Vector2 dir, int baseDamage) {
         SoundManager.play("shoot");
 
@@ -727,10 +780,10 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
         int beamTickDamage = Math.max(1, Math.round(scaled));
 
         projectileSystem.spawnBeam(
-            player.x + player.width / 2f,
-            player.y + player.height / 2f,
-            dir,
-            beamTickDamage
+                player.x + player.width / 2f,
+                player.y + player.height / 2f,
+                dir,
+                beamTickDamage
         );
 
         player.meleeCooldown = player.getEffectiveMeleeCooldownTime();
@@ -747,7 +800,6 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
         pickups.add(new Pickup(Pickup.Type.COIN, player.x, player.y));
     }
 
-    // Game over / boss defeat
     private void exitRun() {
         finishRun(bossDefeated);
         Gdx.app.exit();
@@ -770,31 +822,33 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
     }
 
     private void finishRun(boolean win) {
-        if (runReported) return;   // prevent double-save
+        if (runReported) {
+            return;   // prevent double-save
+        }
         runReported = true;
 
         if (scoreReporter != null) {
             boolean rangedChosen = player.playerClass == Player.PlayerClass.RANGED;
             scoreReporter.reportRun(
-                waveManager.getWave(),
-                win ? (int) victoryRunTimeSeconds : 0, // if won, time = boss-clear runtime. else, time = 0
-                runStats.getEnemiesKilled(),
-                runStats.getPickupsPicked(),
-                runStats.getItemsPicked(),
-                player.coins,
-                win,
-                rangedChosen
+                    waveManager.getWave(),
+                    win ? (int) victoryRunTimeSeconds : 0, // if won, time = boss-clear runtime. else, time = 0
+                    runStats.getEnemiesKilled(),
+                    runStats.getPickupsPicked(),
+                    runStats.getItemsPicked(),
+                    player.coins,
+                    win,
+                    rangedChosen
             );
         }
 
         Gdx.app.log("SAVE",
-            "Saving run | wave=" + waveManager.getWave() +
-                " time=" + runStats.getRunTime() +
-                " kills=" + runStats.getEnemiesKilled() +
-                " pickups=" + runStats.getPickupsPicked() +
-                " itemsPicked=" + runStats.getItemsPicked() +
-                " coins=" + player.coins +
-                " win=" + win
+                "Saving run | wave=" + waveManager.getWave() +
+                        " time=" + runStats.getRunTime() +
+                        " kills=" + runStats.getEnemiesKilled() +
+                        " pickups=" + runStats.getPickupsPicked() +
+                        " itemsPicked=" + runStats.getItemsPicked() +
+                        " coins=" + player.coins +
+                        " win=" + win
         );
     }
 
@@ -814,19 +868,20 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
         inputController.resetGameplayInputState();
         MusicManager.playBackgroundMusic();
         Gdx.input.setInputProcessor(inputController.buildProcessor());
-        // stop sending input to the victory menu and start sending input back to the gameplay controls
     }
 
-    // Drawing
+    /**
+     * Draws all game elements.
+     */
     private void drawGame() {
         batch.begin();
 
         // background
         batch.draw(
-            backgroundTexture,
-            0, 0,
-            Gdx.graphics.getWidth(),
-            Gdx.graphics.getHeight()
+                backgroundTexture,
+                0, 0,
+                Gdx.graphics.getWidth(),
+                Gdx.graphics.getHeight()
         );
 
 
@@ -862,9 +917,9 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
 
         // attack button
         batch.draw(
-            attackBtnTexture,
-            attackBtnBounds.x, attackBtnBounds.y,
-            attackBtnBounds.width, attackBtnBounds.height
+                attackBtnTexture,
+                attackBtnBounds.x, attackBtnBounds.y,
+                attackBtnBounds.width, attackBtnBounds.height
         );
 
         drawMeleeSwingSword();
@@ -890,40 +945,39 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
     private void drawPauseOverlay() {
         batch.setColor(0, 0, 0, 0.6f);
         batch.draw(
-            player.debugPixel,
-            0, 0,
-            Gdx.graphics.getWidth(),
-            Gdx.graphics.getHeight()
+                player.debugPixel,
+                0, 0,
+                Gdx.graphics.getWidth(),
+                Gdx.graphics.getHeight()
         );
         batch.setColor(1, 1, 1, 1);
 
         // RESUME text
         glyphLayout.setText(font, "RESUME");
         font.draw(
-            batch,
-            glyphLayout,
-            resumeBounds.x + (resumeBounds.width - glyphLayout.width) / 2f,
-            resumeBounds.y + (resumeBounds.height + glyphLayout.height) / 2f
+                batch,
+                glyphLayout,
+                resumeBounds.x + (resumeBounds.width - glyphLayout.width) / 2f,
+                resumeBounds.y + (resumeBounds.height + glyphLayout.height) / 2f
         );
 
         // EXIT text
         glyphLayout.setText(font, "EXIT");
         font.draw(
-            batch,
-            glyphLayout,
-            exitBounds.x + (exitBounds.width - glyphLayout.width) / 2f,
-            exitBounds.y + (exitBounds.height + glyphLayout.height) / 2f
+                batch,
+                glyphLayout,
+                exitBounds.x + (exitBounds.width - glyphLayout.width) / 2f,
+                exitBounds.y + (exitBounds.height + glyphLayout.height) / 2f
         );
 
         if (dailyChallenge) {
             font.draw(batch, "DAILY CHALLENGE", 20, 60);
-        }
-        else {
+        } else {
             font.draw(
-                batch,
-                "Seed: " + runSeed,
-                20,
-                60
+                    batch,
+                    "Seed: " + runSeed,
+                    20,
+                    60
             );
         }
     }
@@ -974,7 +1028,9 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
     }
 
     private void drawBeamChargeBar() {
-        if (!hasBeamItemEquipped() && !player.isChargingBeam()) return;
+        if (!hasBeamItemEquipped() && !player.isChargingBeam()) {
+            return;
+        }
 
         float progress = player.getBeamChargeProgress();
 
@@ -1003,7 +1059,9 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
 
     private void drawBossHealthBar() {
         BossEnemy boss = getBoss();
-        if (boss == null) return;
+        if (boss == null) {
+            return;
+        }
 
         float barWidth = Gdx.graphics.getWidth() * 0.7f;
         float barHeight = 30f;
@@ -1012,7 +1070,7 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
         float y = Gdx.graphics.getHeight() - 60f;
 
         float healthPercent =
-            (float) boss.getHealth() / boss.getMaxHealth();
+                (float) boss.getHealth() / boss.getMaxHealth();
 
         // Background (dark red)
         batch.setColor(0.3f, 0f, 0f, 1f);
@@ -1025,14 +1083,14 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
         // Reset color
         batch.setColor(1, 1, 1, 1);
 
-        final String BOSS_NAME = "The Sugar-Fueled Anomaly, Reaper of Souls";
+        final String bossName = "The Sugar-Fueled Anomaly, Reaper of Souls";
 
         float originalScaleX = font.getData().scaleX;
         float originalScaleY = font.getData().scaleY;
         Color originalFontColor = font.getColor().cpy();
 
         font.getData().setScale(1.15f, 1.15f);
-        glyphLayout.setText(font, BOSS_NAME);
+        glyphLayout.setText(font, bossName);
 
         float textX = x + (barWidth - glyphLayout.width) / 2f;
         float textY = y - 18f;
@@ -1061,7 +1119,9 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
 
     private void drawBossInferno() {
         BossEnemy boss = getBoss();
-        if (boss == null || !boss.isInfernoActive()) return;
+        if (boss == null || !boss.isInfernoActive()) {
+            return;
+        }
 
         Rectangle safeZone = boss.getInfernoSafeZone();
         float screenWidth = Gdx.graphics.getWidth();
@@ -1092,7 +1152,9 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
     }
 
     private void drawMeleeSwingSword() {
-        if (!player.attacking) return;
+        if (!player.attacking) {
+            return;
+        }
 
         float playerCenterX = player.x + player.width * 0.5f;
         float playerCenterY = player.y + player.height * 0.5f;
@@ -1112,22 +1174,22 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
 
         batch.setColor(1f, 1f, 1f, 0.92f);
         batch.draw(
-            attackBtnTexture,
-            swingCenterX - SWING_SWORD_WIDTH * 0.5f,
-            swingCenterY - SWING_SWORD_LENGTH * 0.5f,
-            SWING_SWORD_WIDTH * 0.5f,
-            SWING_SWORD_LENGTH * 0.2f,
-            SWING_SWORD_WIDTH,
-            SWING_SWORD_LENGTH,
-            1f,
-            1f,
-            swordRotationDeg,
-            0,
-            0,
-            attackBtnTexture.getWidth(),
-            attackBtnTexture.getHeight(),
-            false,
-            false
+                attackBtnTexture,
+                swingCenterX - SWING_SWORD_WIDTH * 0.5f,
+                swingCenterY - SWING_SWORD_LENGTH * 0.5f,
+                SWING_SWORD_WIDTH * 0.5f,
+                SWING_SWORD_LENGTH * 0.2f,
+                SWING_SWORD_WIDTH,
+                SWING_SWORD_LENGTH,
+                1f,
+                1f,
+                swordRotationDeg,
+                0,
+                0,
+                attackBtnTexture.getWidth(),
+                attackBtnTexture.getHeight(),
+                false,
+                false
         );
         batch.setColor(Color.WHITE);
     }
@@ -1201,10 +1263,10 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
         for (int i = 0; i < 2; i++) {
             PassiveItem item = ItemRegistry.create(optionIds[i]);
             options[i] = new GameOverlayScreens.RewardOption(
-                optionIds[i],
-                item.getDisplayName(),
-                item.getTier(),
-                getItemIconTexture(item.getIconPath())
+                    optionIds[i],
+                    item.getDisplayName(),
+                    item.getTier(),
+                    getItemIconTexture(item.getIconPath())
             );
         }
 

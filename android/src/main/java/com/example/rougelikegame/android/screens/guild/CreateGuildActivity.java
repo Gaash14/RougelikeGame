@@ -12,6 +12,11 @@ import com.example.rougelikegame.android.services.DatabaseService;
 import com.example.rougelikegame.android.utils.SharedPreferencesUtil;
 import com.example.rougelikegame.android.models.meta.User;
 
+/**
+ * CreateGuildActivity allows a user to create a new guild.
+ * It handles input validation for the guild name and updates the database
+ * and local user preferences upon successful creation.
+ */
 public class CreateGuildActivity extends AppCompatActivity {
 
     private EditText editGuildName;
@@ -31,6 +36,10 @@ public class CreateGuildActivity extends AppCompatActivity {
         btnCancel.setOnClickListener(v -> finish());
     }
 
+    /**
+     * Validates the guild name and initiates the guild creation process in the database.
+     * Updates the current user's guild information upon success.
+     */
     private void createGuild() {
         String guildName = editGuildName.getText().toString().trim();
 

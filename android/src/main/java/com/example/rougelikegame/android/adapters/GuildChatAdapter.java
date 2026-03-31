@@ -19,12 +19,21 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+/**
+ * GuildChatAdapter manages the display of chat messages within a guild.
+ * It handles message alignment based on whether the message was sent by the current user.
+ */
 public class GuildChatAdapter extends RecyclerView.Adapter<GuildChatAdapter.ViewHolder> {
 
     private final List<GuildMessage> messages = new ArrayList<>();
     private final String currentUid;
     private final SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
 
+    /**
+     * Constructs a new GuildChatAdapter.
+     *
+     * @param currentUid the UID of the current user to distinguish their messages
+     */
     public GuildChatAdapter(String currentUid) {
         this.currentUid = currentUid;
     }
@@ -65,21 +74,39 @@ public class GuildChatAdapter extends RecyclerView.Adapter<GuildChatAdapter.View
         return messages.size();
     }
 
+    /**
+     * Updates the entire list of messages and notifies the adapter.
+     *
+     * @param newMessages the new list of messages to display
+     */
     public void setMessages(List<GuildMessage> newMessages) {
         messages.clear();
         messages.addAll(newMessages);
         notifyDataSetChanged();
     }
 
+    /**
+     * Adds a single message to the end of the list and notifies the adapter.
+     *
+     * @param message the message to add
+     */
     public void addMessage(GuildMessage message) {
         messages.add(message);
         notifyItemInserted(messages.size() - 1);
     }
 
+    /**
+     * Gets the position of the last message in the list.
+     *
+     * @return the last position index
+     */
     public int getLastPosition() {
         return messages.size() - 1;
     }
 
+    /**
+     * ViewHolder class for guild chat message items.
+     */
     static class ViewHolder extends RecyclerView.ViewHolder {
         LinearLayout container;
         TextView txtSender;

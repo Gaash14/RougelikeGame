@@ -19,8 +19,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
+/**
+ * SkinAdapter manages the display of character skins in a list.
+ * It handles the buying and equipping logic based on skin ownership and unlock conditions.
+ */
 public class SkinAdapter extends RecyclerView.Adapter<SkinAdapter.SkinViewHolder> {
 
+    /**
+     * Interface for handling skin-related actions like buying and equipping.
+     */
     public interface SkinActionListener {
         void onBuy(Skin skin);
         void onEquip(Skin skin);
@@ -32,6 +39,15 @@ public class SkinAdapter extends RecyclerView.Adapter<SkinAdapter.SkinViewHolder
     private final boolean allowBuying;
     private final boolean allowEquipping;
 
+    /**
+     * Constructs a new SkinAdapter.
+     *
+     * @param skins the list of skins to display
+     * @param user the current user
+     * @param allowBuying whether buying skins is allowed from this adapter
+     * @param allowEquipping whether equipping skins is allowed from this adapter
+     * @param listener the listener for skin actions
+     */
     public SkinAdapter(List<Skin> skins,
                        User user,
                        boolean allowBuying,
@@ -62,15 +78,11 @@ public class SkinAdapter extends RecyclerView.Adapter<SkinAdapter.SkinViewHolder
         boolean owned = user.getOwnedSkins().containsKey(skin.getId());
         boolean equipped = skin.getId().equals(user.getEquippedSkinId());
 
-        // DEFAULT skin
         if (skin.getUnlockType() == Skin.UnlockType.DEFAULT) {
             holder.txtPrice.setText(equipped ? "Equipped" : "Default");
             holder.btnAction.setText(equipped ? "EQUIPPED" : "EQUIP");
             holder.btnAction.setEnabled(!equipped);
-        }
-
-        // SHOP skin
-        else if (skin.getUnlockType() == Skin.UnlockType.SHOP) {
+        } else if (skin.getUnlockType() == Skin.UnlockType.SHOP) {
             if (owned) {
                 holder.txtPrice.setText(equipped ? "Equipped" : "Owned");
                 if (allowEquipping) {
@@ -91,10 +103,7 @@ public class SkinAdapter extends RecyclerView.Adapter<SkinAdapter.SkinViewHolder
                     holder.btnAction.setEnabled(false);
                 }
             }
-        }
-
-        // ACHIEVEMENT skin
-        else {
+        } else {
             if (owned) {
                 holder.txtPrice.setText(equipped ? "Equipped" : "Unlocked");
                 if (allowEquipping) {
@@ -120,6 +129,12 @@ public class SkinAdapter extends RecyclerView.Adapter<SkinAdapter.SkinViewHolder
         });
     }
 
+    /**
+     * Binds a skin preview image from assets.
+     *
+     * @param imageView the ImageView to display the preview
+     * @param texturePath the path to the texture in assets
+     */
     private void bindSkinPreview(ImageView imageView, String texturePath) {
         try (InputStream stream = imageView.getContext().getAssets().open(texturePath)) {
             imageView.setImageBitmap(BitmapFactory.decodeStream(stream));
@@ -133,9 +148,13 @@ public class SkinAdapter extends RecyclerView.Adapter<SkinAdapter.SkinViewHolder
         return skins.size();
     }
 
+    /**
+     * ViewHolder class for skin list items.
+     */
     static class SkinViewHolder extends RecyclerView.ViewHolder {
         ImageView imgSkin;
-        TextView txtName, txtPrice;
+        TextView txtName;
+        TextView txtPrice;
         Button btnAction;
 
         SkinViewHolder(@NonNull View itemView) {

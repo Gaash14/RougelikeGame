@@ -25,54 +25,37 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.UnaryOperator;
 
-
-/// a service to interact with the Firebase Realtime Database.
-/// this class is a singleton, use getInstance() to get an instance of this class
-/// @see #getInstance()
-/// @see FirebaseDatabase
-
+/**
+ * Service class for Firebase Realtime Database operations.
+ */
 public class DatabaseService {
-    /// tag for logging
-    /// @see Log
+
     private static final String TAG = "DatabaseService";
+    private static final String USERS_PATH = "users";
 
-    /// paths for different data types in the database
-    /// @see DatabaseService#readData(String)
-    private static final String USERS_PATH = "users",
-        FOODS_PATH = "foods",
-        CARTS_PATH = "carts";
-
-    /// callback interface for database operations
-    /// @param <T> the type of the object to return
-    /// @see DatabaseCallback#onCompleted(Object)
-    /// @see DatabaseCallback#onFailed(Exception)
+    /**
+     * Callback interface for asynchronous database operations.
+     *
+     * @param <T> the type of the result object
+     */
     public interface DatabaseCallback<T> {
-        /// called when the operation is completed successfully
         void onCompleted(T object);
-
-        /// called when the operation fails with an exception
         void onFailed(Exception e);
     }
 
-    /// the instance of this class
-    /// @see #getInstance()
     private static DatabaseService instance;
-
-    /// the reference to the database
-    /// @see DatabaseReference
-    /// @see FirebaseDatabase#getReference()
     private final DatabaseReference databaseReference;
 
-    /// use getInstance() to get an instance of this class
-    /// @see DatabaseService#getInstance()
     private DatabaseService() {
         FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
         databaseReference = firebaseDatabase.getReference();
     }
 
-    /// get an instance of this class
-    /// @return an instance of this class
-    /// @see DatabaseService
+    /**
+     * Gets the singleton instance of DatabaseService.
+     *
+     * @return the singleton instance
+     */
     public static DatabaseService getInstance() {
         if (instance == null) {
             instance = new DatabaseService();
@@ -80,15 +63,13 @@ public class DatabaseService {
         return instance;
     }
 
-
-    // region private generic methods
-    // to write and read data from the database
-
-    /// write data to the database at a specific path
-    /// @param path the path to write the data to
-    /// @param data the data to write (can be any object, but must be serializable, i.e. must have a default constructor and all fields must have getters and setters)
-    /// @param callback the callback to call when the operation is completed
-    /// @see DatabaseCallback
+    /**
+     * Writes data to the specified path in the database.
+     *
+     * @param path the database path
+     * @param data the object to write
+     * @param callback the completion callback
+     */
     private void writeData(@NotNull final String path, @NotNull final Object data, final @Nullable DatabaseCallback<Void> callback) {
         readData(path).setValue(data, (error, ref) -> {
             if (error != null) {
@@ -101,10 +82,12 @@ public class DatabaseService {
         });
     }
 
-    /// remove data from the database at a specific path
-    /// @param path the path to remove the data from
-    /// @param callback the callback to call when the operation is completed
-    /// @see DatabaseCallback
+    /**
+     * Deletes data at the specified path in the database.
+     *
+     * @param path the database path
+     * @param callback the completion callback
+     */
     private void deleteData(@NotNull final String path, @Nullable final DatabaseCallback<Void> callback) {
         readData(path).removeValue((error, ref) -> {
             if (error != null) {
@@ -117,22 +100,24 @@ public class DatabaseService {
         });
     }
 
-    /// read data from the database at a specific path
-    /// @param path the path to read the data from
-    /// @return a DatabaseReference object to read the data from
-    /// @see DatabaseReference
-
+    /**
+     * Gets a DatabaseReference for the specified path.
+     *
+     * @param path the database path
+     * @return the DatabaseReference
+     */
     private DatabaseReference readData(@NotNull final String path) {
         return databaseReference.child(path);
     }
 
-
-    /// get data from the database at a specific path
-    /// @param path the path to get the data from
-    /// @param clazz the class of the object to return
-    /// @param callback the callback to call when the operation is completed
-    /// @see DatabaseCallback
-    /// @see Class
+    /**
+     * Retrieves a single object from the specified path.
+     *
+     * @param path the database path
+     * @param clazz the class of the object
+     * @param callback the completion callback
+     * @param <T> the type of the object
+     */
     private <T> void getData(@NotNull final String path, @NotNull final Class<T> clazz, @NotNull final DatabaseCallback<T> callback) {
         readData(path).get().addOnCompleteListener(task -> {
             if (!task.isSuccessful()) {
@@ -145,10 +130,14 @@ public class DatabaseService {
         });
     }
 
-    /// get a list of data from the database at a specific path
-    /// @param path the path to get the data from
-    /// @param clazz the class of the objects to return
-    /// @param callback the callback to call when the operation is completed
+    /**
+     * Retrieves a list of objects from the specified path.
+     *
+     * @param path the database path
+     * @param clazz the class of the objects
+     * @param callback the completion callback
+     * @param <T> the type of the objects
+     */
     private <T> void getDataList(@NotNull final String path, @NotNull final Class<T> clazz, @NotNull final DatabaseCallback<List<T>> callback) {
         readData(path).get().addOnCompleteListener(task -> {
             if (!task.isSuccessful()) {
@@ -166,35 +155,32 @@ public class DatabaseService {
         });
     }
 
-    /// generate a new id for a new object in the database
-    /// @param path the path to generate the id for
-    /// @return a new id for the object
-    /// @see String
-    /// @see DatabaseReference#push()
-
+    /**
+     * Generates a new unique ID at the specified path.
+     *
+     * @param path the database path
+     * @return the generated ID
+     */
     private String generateNewId(@NotNull final String path) {
         return databaseReference.child(path).push().getKey();
     }
 
-
-    /// run a transaction on the data at a specific path </br>
-    /// good for incrementing a value or modifying an object in the database
-    /// @param path the path to run the transaction on
-    /// @param clazz the class of the object to return
-    /// @param function the function to apply to the current value of the data
-    /// @param callback the callback to call when the operation is completed
-    /// @see DatabaseReference#runTransaction(Transaction.Handler)
+    /**
+     * Runs a transaction on the data at the specified path.
+     *
+     * @param path the database path
+     * @param clazz the class of the object
+     * @param function the transformation function
+     * @param callback the completion callback
+     * @param <T> the type of the object
+     */
     private <T> void runTransaction(@NotNull final String path, @NotNull final Class<T> clazz, @NotNull UnaryOperator<T> function, @NotNull final DatabaseCallback<T> callback) {
         readData(path).runTransaction(new Transaction.Handler() {
             @NonNull
             @Override
             public Transaction.Result doTransaction(@NonNull MutableData currentData) {
                 T currentValue = currentData.getValue(clazz);
-                if (currentValue == null) {
-                    currentValue = function.apply(null);
-                } else {
-                    currentValue = function.apply(currentValue);
-                }
+                currentValue = function.apply(currentValue);
                 currentData.setValue(currentValue);
                 return Transaction.success(currentData);
             }
@@ -210,74 +196,63 @@ public class DatabaseService {
                 callback.onCompleted(result);
             }
         });
-
     }
 
-    // endregion of private methods for reading and writing data
-
-    // public methods to interact with the database
-
-    // region User Section
-
-    /// generate a new id for a new user in the database
-    /// @return a new id for the user
-    /// @see #generateNewId(String)
-    /// @see User
+    /**
+     * Generates a new user ID.
+     *
+     * @return the generated user ID
+     */
     public String generateUserId() {
         return generateNewId(USERS_PATH);
     }
 
-    /// create a new user in the database
-    /// @param user the user object to create
-    /// @param callback the callback to call when the operation is completed
-    ///              the callback will receive void
-    ///            if the operation fails, the callback will receive an exception
-    /// @see DatabaseCallback
-    /// @see User
+    /**
+     * Creates a new user in the database.
+     *
+     * @param user the user to create
+     * @param callback the completion callback
+     */
     public void createNewUser(@NotNull final User user, @Nullable final DatabaseCallback<Void> callback) {
         writeData(USERS_PATH + "/" + user.getUid(), user, callback);
     }
 
-    /// get a user from the database
-    /// @param uid the id of the user to get
-    /// @param callback the callback to call when the operation is completed
-    ///               the callback will receive the user object
-    ///             if the operation fails, the callback will receive an exception
-    /// @see DatabaseCallback
-    /// @see User
+    /**
+     * Retrieves a user by their UID.
+     *
+     * @param uid the user's UID
+     * @param callback the completion callback
+     */
     public void getUser(@NotNull final String uid, @NotNull final DatabaseCallback<User> callback) {
-        getData("users/" + uid, User.class, callback);
         getData(USERS_PATH + "/" + uid, User.class, callback);
     }
 
-    /// get all the users from the database
-    /// @param callback the callback to call when the operation is completed
-    ///              the callback will receive a list of user objects
-    ///            if the operation fails, the callback will receive an exception
-    /// @see DatabaseCallback
-    /// @see List
-    /// @see User
+    /**
+     * Retrieves a list of all users.
+     *
+     * @param callback the completion callback
+     */
     public void getUserList(@NotNull final DatabaseCallback<List<User>> callback) {
-        getDataList("users", User.class, callback);
         getDataList(USERS_PATH, User.class, callback);
     }
 
-    /// delete a user from the database
-    /// @param uid the user id to delete
-    /// @param callback the callback to call when the operation is completed
+    /**
+     * Deletes a user by their UID.
+     *
+     * @param uid the user's UID
+     * @param callback the completion callback
+     */
     public void deleteUser(@NotNull final String uid, @Nullable final DatabaseCallback<Void> callback) {
-        deleteData("users/" + uid, callback);
         deleteData(USERS_PATH + "/" + uid, callback);
     }
 
-    /// get a user by email and password
-    /// @param email the email of the user
-    /// @param password the password of the user
-    /// @param callback the callback to call when the operation is completed
-    ///            the callback will receive the user object
-    ///          if the operation fails, the callback will receive an exception
-    /// @see DatabaseCallback
-    /// @see User
+    /**
+     * Retrieves a user by their email and password.
+     *
+     * @param email the user's email
+     * @param password the user's password
+     * @param callback the completion callback
+     */
     public void getUserByEmailAndPassword(@NotNull final String email, @NotNull final String password, @NotNull final DatabaseCallback<User> callback) {
         readData(USERS_PATH).orderByChild("email").equalTo(email).get()
             .addOnCompleteListener(task -> {
@@ -299,14 +274,16 @@ public class DatabaseService {
 
                     callback.onCompleted(user);
                     return;
-
                 }
             });
     }
 
-    /// check if an email already exists in the database
-    /// @param email the email to check
-    /// @param callback the callback to call when the operation is completed
+    /**
+     * Checks if an email already exists in the database.
+     *
+     * @param email the email to check
+     * @param callback the completion callback
+     */
     public void checkIfEmailExists(@NotNull final String email, @NotNull final DatabaseCallback<Boolean> callback) {
         readData(USERS_PATH).orderByChild("email").equalTo(email).get()
             .addOnCompleteListener(task -> {
@@ -320,6 +297,13 @@ public class DatabaseService {
             });
     }
 
+    /**
+     * Updates user data with merge logic to ensure progress is not lost.
+     *
+     * @param incomingUser the updated user data
+     * @param isRunUpdate whether this update is from a completed game run
+     * @param callback the completion callback
+     */
     public void updateUser(
         @NotNull final User incomingUser,
         boolean isRunUpdate,
@@ -329,28 +313,16 @@ public class DatabaseService {
             USERS_PATH + "/" + incomingUser.getUid(),
             User.class,
             currentUser -> {
-
-                // If user doesn't exist yet, just save it once
                 if (currentUser == null) {
                     return incomingUser;
                 }
 
                 if (incomingUser.getNumOfAttempts() < currentUser.getNumOfAttempts()) {
-                    // refuse to overwrite newer data
                     return currentUser;
                 }
 
-                // ---- MERGE LOGIC ----
+                currentUser.setHighestWave(Math.max(currentUser.getHighestWave(), incomingUser.getHighestWave()));
 
-                // Highest wave (keep max)
-                currentUser.setHighestWave(
-                    Math.max(
-                        currentUser.getHighestWave(),
-                        incomingUser.getHighestWave()
-                    )
-                );
-
-                // Best time (lower is better, ignore 0)
                 if (incomingUser.getBestTime() > 0) {
                     int currentBest = currentUser.getBestTime();
                     if (currentBest == 0 || incomingUser.getBestTime() < currentBest) {
@@ -358,94 +330,30 @@ public class DatabaseService {
                     }
                 }
 
-                // Attempts (ONLY for game runs)
                 if (isRunUpdate) {
-                    currentUser.setNumOfAttempts(
-                        currentUser.getNumOfAttempts() + 1
-                    );
+                    currentUser.setNumOfAttempts(currentUser.getNumOfAttempts() + 1);
                 }
 
-                // Wins (only increment if this run was a win)
                 if (incomingUser.getNumOfWins() > currentUser.getNumOfWins()) {
-                    currentUser.setNumOfWins(
-                        currentUser.getNumOfWins() + 1
-                    );
+                    currentUser.setNumOfWins(currentUser.getNumOfWins() + 1);
                 }
 
                 if (incomingUser.getPickedRanged() > currentUser.getPickedRanged()) {
-                    currentUser.setPickedRanged(
-                        currentUser.getPickedRanged() + 1
-                    );
+                    currentUser.setPickedRanged(currentUser.getPickedRanged() + 1);
                 }
 
-                //  streaks (already calculated locally)
-                currentUser.setCurrentStreak(
-                    incomingUser.getCurrentStreak()
-                );
+                currentUser.setCurrentStreak(incomingUser.getCurrentStreak());
+                currentUser.setBestStreak(Math.max(currentUser.getBestStreak(), incomingUser.getBestStreak()));
+                currentUser.setEnemiesKilled(Math.max(currentUser.getEnemiesKilled(), incomingUser.getEnemiesKilled()));
+                currentUser.setPickupsPicked(Math.max(currentUser.getPickupsPicked(), incomingUser.getPickupsPicked()));
+                currentUser.setItemsPicked(Math.max(currentUser.getItemsPicked(), incomingUser.getItemsPicked()));
+                currentUser.setNumOfCoins(Math.max(currentUser.getNumOfCoins(), incomingUser.getNumOfCoins()));
+                currentUser.setDailyChallengesCompleted(Math.max(currentUser.getDailyChallengesCompleted(), incomingUser.getDailyChallengesCompleted()));
+                currentUser.setDailyStreak(Math.max(currentUser.getDailyStreak(), incomingUser.getDailyStreak()));
+                currentUser.setBestDailyStreak(Math.max(currentUser.getBestDailyStreak(), incomingUser.getBestDailyStreak()));
 
-                currentUser.setBestStreak(
-                    Math.max(
-                        currentUser.getBestStreak(),
-                        incomingUser.getBestStreak()
-                    )
-                );
-
-                // Cumulative stats
-                currentUser.setEnemiesKilled(
-                    Math.max(
-                        currentUser.getEnemiesKilled(),
-                        incomingUser.getEnemiesKilled()
-                    )
-                );
-
-
-                currentUser.setPickupsPicked(
-                    Math.max(
-                        currentUser.getPickupsPicked(),
-                        incomingUser.getPickupsPicked()
-                    )
-                );
-
-                currentUser.setItemsPicked(
-                    Math.max(
-                        currentUser.getItemsPicked(),
-                        incomingUser.getItemsPicked()
-                    )
-                );
-
-                currentUser.setNumOfCoins(
-                    Math.max(
-                        currentUser.getNumOfCoins(),
-                        incomingUser.getNumOfCoins()
-                    )
-                );
-
-                currentUser.setDailyChallengesCompleted(
-                    Math.max(
-                        currentUser.getDailyChallengesCompleted(),
-                        incomingUser.getDailyChallengesCompleted()
-                    )
-                );
-
-                currentUser.setDailyStreak(
-                    Math.max(
-                        currentUser.getDailyStreak(),
-                        incomingUser.getDailyStreak()
-                    )
-                );
-
-                currentUser.setBestDailyStreak(
-                    Math.max(
-                        currentUser.getBestDailyStreak(),
-                        incomingUser.getBestDailyStreak()
-                    )
-                );
-
-                // Last daily completion date (keep latest)
                 if (incomingUser.getLastDailyCompletionDate() != null) {
-                    currentUser.setLastDailyCompletionDate(
-                        incomingUser.getLastDailyCompletionDate()
-                    );
+                    currentUser.setLastDailyCompletionDate(incomingUser.getLastDailyCompletionDate());
                 }
 
                 if (incomingUser.getProfileImage() != null) {
@@ -478,9 +386,15 @@ public class DatabaseService {
         );
     }
 
+    /**
+     * Creates a new guild and links the owner user.
+     *
+     * @param guildName the name of the guild
+     * @param user the owner user
+     * @return the generated guild ID
+     */
     public String createGuild(String guildName, User user) {
         DatabaseReference rootRef = FirebaseDatabase.getInstance().getReference();
-
         String guildId = rootRef.child("guilds").push().getKey();
 
         Guild guild = new Guild();
@@ -492,25 +406,25 @@ public class DatabaseService {
         members.put(user.getUid(), true);
         guild.setMembers(members);
 
-        // save guild
         rootRef.child("guilds").child(guildId).setValue(guild);
-
-        // link user --> guild
-        rootRef.child("users")
-            .child(user.getUid())
-            .child("guildId")
-            .setValue(guildId);
+        rootRef.child("users").child(user.getUid()).child("guildId").setValue(guildId);
 
         return guildId;
     }
 
+    /**
+     * Updates cumulative guild stats after a game run.
+     *
+     * @param user the user who completed the run
+     * @param enemiesKilled number of enemies killed in the run
+     * @param won whether the run was a victory
+     */
     public void addGuildRunStats(User user, int enemiesKilled, boolean won) {
         if (user.getGuildId() == null) return;
 
-        DatabaseReference guildRef =
-            FirebaseDatabase.getInstance()
-                .getReference("guilds")
-                .child(user.getGuildId());
+        DatabaseReference guildRef = FirebaseDatabase.getInstance()
+            .getReference("guilds")
+            .child(user.getGuildId());
 
         incrementStat(guildRef.child("totalEnemiesKilled"), enemiesKilled);
         incrementStat(guildRef.child("totalAttempts"), 1);
@@ -520,6 +434,12 @@ public class DatabaseService {
         }
     }
 
+    /**
+     * Atomically increments a numeric stat in the database.
+     *
+     * @param ref reference to the stat
+     * @param amount amount to increment by
+     */
     private void incrementStat(DatabaseReference ref, int amount) {
         ref.runTransaction(new Transaction.Handler() {
             @Override
@@ -530,35 +450,29 @@ public class DatabaseService {
             }
 
             @Override
-            public void onComplete(
-                DatabaseError error,
-                boolean committed,
-                DataSnapshot snapshot
-            ) {}
+            public void onComplete(DatabaseError error, boolean committed, DataSnapshot snapshot) {}
         });
     }
 
+    /**
+     * Retrieves a list of all available guilds.
+     *
+     * @param callback the completion callback
+     */
     public void getGuildList(DatabaseCallback<List<Guild>> callback) {
-
         FirebaseDatabase.getInstance()
             .getReference("guilds")
             .addListenerForSingleValueEvent(new ValueEventListener() {
-
                 @Override
                 public void onDataChange(DataSnapshot snapshot) {
-
                     List<Guild> guilds = new ArrayList<>();
-
                     for (DataSnapshot guildSnap : snapshot.getChildren()) {
                         Guild guild = guildSnap.getValue(Guild.class);
-
                         if (guild != null) {
-                            // IMPORTANT: make sure guildId is set
                             guild.setGuildId(guildSnap.getKey());
                             guilds.add(guild);
                         }
                     }
-
                     if (callback != null) {
                         callback.onCompleted(guilds);
                     }
@@ -573,6 +487,12 @@ public class DatabaseService {
             });
     }
 
+    /**
+     * Unlocks an achievement for a specific user.
+     *
+     * @param uid user UID
+     * @param achievementId ID of the achievement to unlock
+     */
     public void unlockAchievement(String uid, String achievementId) {
         FirebaseDatabase.getInstance()
             .getReference("users")
@@ -582,6 +502,12 @@ public class DatabaseService {
             .setValue(true);
     }
 
+    /**
+     * Unlocks a skin for a specific user.
+     *
+     * @param uid user UID
+     * @param skinId ID of the skin to unlock
+     */
     public void unlockOwnedSkin(String uid, String skinId) {
         FirebaseDatabase.getInstance()
             .getReference("users")
@@ -591,6 +517,12 @@ public class DatabaseService {
             .setValue(true);
     }
 
+    /**
+     * Sets the currently equipped skin for a user.
+     *
+     * @param uid user UID
+     * @param skinId ID of the skin to equip
+     */
     public void setEquippedSkin(String uid, String skinId) {
         FirebaseDatabase.getInstance()
             .getReference("users")
@@ -599,6 +531,12 @@ public class DatabaseService {
             .setValue(skinId);
     }
 
+    /**
+     * Updates the coin count for a user.
+     *
+     * @param uid user UID
+     * @param coins new coin total
+     */
     public void setCoins(String uid, int coins) {
         FirebaseDatabase.getInstance()
             .getReference("users")
@@ -607,11 +545,14 @@ public class DatabaseService {
             .setValue(coins);
     }
 
-    public void saveDailyRun(
-        String dateKey,
-        DailyRun run,
-        DatabaseCallback<Void> callback
-    ) {
+    /**
+     * Saves a daily run entry.
+     *
+     * @param dateKey the date key (e.g., YYYY-MM-DD)
+     * @param run the daily run data
+     * @param callback the completion callback
+     */
+    public void saveDailyRun(String dateKey, DailyRun run, DatabaseCallback<Void> callback) {
         FirebaseDatabase.getInstance()
             .getReference("daily_runs")
             .child(dateKey)
@@ -625,11 +566,14 @@ public class DatabaseService {
             });
     }
 
-    public void saveDailyRunIfBetter(
-        String dateKey,
-        DailyRun run,
-        DatabaseCallback<Void> callback
-    ) {
+    /**
+     * Saves a daily run only if it is better than the existing entry for that day.
+     *
+     * @param dateKey the date key
+     * @param run the daily run data
+     * @param callback the completion callback
+     */
+    public void saveDailyRunIfBetter(String dateKey, DailyRun run, DatabaseCallback<Void> callback) {
         FirebaseDatabase.getInstance()
             .getReference("daily_runs")
             .child(dateKey)
@@ -638,7 +582,6 @@ public class DatabaseService {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
                     DailyRun existingRun = snapshot.getValue(DailyRun.class);
-
                     boolean shouldSave = existingRun == null
                         || run.wave > existingRun.wave
                         || (run.wave == existingRun.wave
@@ -649,7 +592,6 @@ public class DatabaseService {
                         if (callback != null) callback.onCompleted(null);
                         return;
                     }
-
                     saveDailyRun(dateKey, run, callback);
                 }
 
@@ -660,10 +602,13 @@ public class DatabaseService {
             });
     }
 
-    public void getDailyRuns(
-        String dateKey,
-        DatabaseCallback<List<DailyRun>> callback
-    ) {
+    /**
+     * Retrieves all daily runs for a specific date.
+     *
+     * @param dateKey the date key
+     * @param callback the completion callback
+     */
+    public void getDailyRuns(String dateKey, DatabaseCallback<List<DailyRun>> callback) {
         FirebaseDatabase.getInstance()
             .getReference("daily_runs")
             .child(dateKey)
@@ -671,14 +616,12 @@ public class DatabaseService {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
                     List<DailyRun> runs = new ArrayList<>();
-
                     for (DataSnapshot child : snapshot.getChildren()) {
                         DailyRun run = child.getValue(DailyRun.class);
                         if (run != null) {
                             runs.add(run);
                         }
                     }
-
                     callback.onCompleted(runs);
                 }
 

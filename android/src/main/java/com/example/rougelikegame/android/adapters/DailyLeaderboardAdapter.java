@@ -13,12 +13,22 @@ import com.example.rougelikegame.android.models.meta.DailyRun;
 import java.util.List;
 import java.util.Locale;
 
+/**
+ * Adapter for displaying daily run leaderboard entries in a ListView.
+ */
 public class DailyLeaderboardAdapter extends BaseAdapter {
 
     private final Context context;
     private final List<DailyRun> runs;
     private final String currentUserUid;
 
+    /**
+     * Constructs a new DailyLeaderboardAdapter.
+     *
+     * @param context the context to use for layout inflation
+     * @param runs the list of daily run entries to display
+     * @param currentUserUid the UID of the current user for highlighting
+     */
     public DailyLeaderboardAdapter(
         Context context,
         List<DailyRun> runs,
@@ -89,6 +99,12 @@ public class DailyLeaderboardAdapter extends BaseAdapter {
         return convertView;
     }
 
+    /**
+     * Formats seconds into a MM:SS time string.
+     *
+     * @param seconds the total seconds to format
+     * @return a formatted time string
+     */
     private String formatTime(int seconds) {
         int m = seconds / 60;
         int s = seconds % 60;

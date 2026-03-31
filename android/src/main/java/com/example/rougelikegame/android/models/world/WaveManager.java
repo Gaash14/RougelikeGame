@@ -5,9 +5,23 @@ import com.example.rougelikegame.android.managers.AchievementManager;
 import com.example.rougelikegame.android.models.characters.Enemy;
 import com.example.rougelikegame.android.models.characters.Player;
 
+/**
+ * WaveManager handles the progression of enemy waves in the game.
+ * It tracks the current wave number, manages the timing between waves,
+ * and triggers wave-related achievements and events.
+ */
 public class WaveManager {
 
+    /**
+     * Listener interface for wave start events.
+     */
     public interface WaveStartListener {
+        /**
+         * Called when a new wave starts.
+         *
+         * @param waveNumber The number of the wave that is starting
+         * @return true if the wave start is blocked (e.g., by a reward screen), false otherwise
+         */
         boolean onWaveStarted(int waveNumber);
     }
 
@@ -21,14 +35,30 @@ public class WaveManager {
     private float waveTimer = 0f;
     private boolean waitingForNextWave = false;
 
+    /**
+     * Creates a new WaveManager and initializes the AchievementManager reference.
+     */
     public WaveManager() {
         this.achievementManager = AchievementManager.getInstance();
     }
 
+    /**
+     * @return The current wave number.
+     */
     public int getWave() {
         return wave;
     }
 
+    /**
+     * Updates the wave progression logic.
+     *
+     * @param delta Time elapsed since the last frame
+     * @param enemies List of active enemies
+     * @param player The player object
+     * @param difficulty Current game difficulty
+     * @param spawner The WaveSpawner used to spawn new enemies
+     * @param waveStartListener Listener for wave start events
+     */
     public void update(
         float delta,
         Array<Enemy> enemies,
@@ -68,6 +98,9 @@ public class WaveManager {
         }
     }
 
+    /**
+     * @return true if the current wave is a boss wave.
+     */
     public boolean isBossWave() {
         return wave == BOSS_WAVE;
     }

@@ -33,6 +33,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * AdminActivity provides administrative functions for managing users and guilds.
+ * It allows administrators to view, search, delete, and reset statistics for both
+ * users and guilds within the system.
+ */
 public class AdminActivity extends AppCompatActivity {
 
     private static final String TAG = "AdminActivity";
@@ -91,7 +96,9 @@ public class AdminActivity extends AppCompatActivity {
         showUsers();
     }
 
-    // Setup
+    /**
+     * Initializes the adapters for user and guild lists, including their click listeners.
+     */
     private void setupAdapters() {
 
         // ---------- USER ADAPTER ----------
@@ -112,13 +119,13 @@ public class AdminActivity extends AppCompatActivity {
                     .setTitle("Delete user")
                     .setMessage("Delete this user?\n\n" + user.getFullName())
                     .setNegativeButton("Cancel", null)
-                    .setPositiveButton("Delete", (d, w) -> {
+                    .setPositiveButton("Delete", (dialog, which) -> {
 
                         FirebaseDatabase.getInstance()
                             .getReference("users")
                             .child(user.getUid())
                             .removeValue()
-                            .addOnSuccessListener(v ->
+                            .addOnSuccessListener(unused ->
                                 userAdapter.removeUser(user)
                             );
                     })
@@ -131,7 +138,7 @@ public class AdminActivity extends AppCompatActivity {
                     .setTitle("Reset user stats")
                     .setMessage("Reset all stats for:\n\n" + user.getFullName())
                     .setNegativeButton("Cancel", null)
-                    .setPositiveButton("Reset", (d, w) -> {
+                    .setPositiveButton("Reset", (dialog, which) -> {
 
                         Map<String, Object> updates = new HashMap<>();
                         updates.put("highestWave", 0);
@@ -159,7 +166,7 @@ public class AdminActivity extends AppCompatActivity {
                             .getReference("users")
                             .child(user.getUid())
                             .updateChildren(updates)
-                            .addOnSuccessListener(v -> {
+                            .addOnSuccessListener(unused -> {
                                 user.setHighestWave(0);
                                 user.setBestTime(0);
                                 user.setNumOfAttempts(0);
@@ -193,7 +200,7 @@ public class AdminActivity extends AppCompatActivity {
                     .setTitle("Delete guild")
                     .setMessage("Delete this guild?\n\n" + guild.getName())
                     .setNegativeButton("Cancel", null)
-                    .setPositiveButton("Delete", (d, w) -> deleteGuild(guild))
+                    .setPositiveButton("Delete", (dialog, which) -> deleteGuild(guild))
                     .show();
             }
 
@@ -203,35 +210,42 @@ public class AdminActivity extends AppCompatActivity {
                     .setTitle("Reset guild stats")
                     .setMessage("Reset all stats for:\n\n" + guild.getName())
                     .setNegativeButton("Cancel", null)
-                    .setPositiveButton("Reset", (d, w) -> resetGuildStats(guild))
+                    .setPositiveButton("Reset", (dialog, which) -> resetGuildStats(guild))
                     .show();
             }
         });
     }
 
+    /**
+     * Sets up the click listeners for the navigation buttons.
+     */
     private void setupButtons() {
         btnUsers.setOnClickListener(v -> showUsers());
         btnGuilds.setOnClickListener(v -> showGuilds());
     }
 
+    /**
+     * Sets up the search view listener for filtering users and guilds.
+     */
     private void setupSearch() {
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
-            public boolean onQueryTextSubmit(String q) {
-                filter(q);
+            public boolean onQueryTextSubmit(String query) {
+                filter(query);
                 return true;
             }
 
             @Override
-            public boolean onQueryTextChange(String q) {
-                filter(q);
+            public boolean onQueryTextChange(String query) {
+                filter(query);
                 return true;
             }
         });
     }
 
-    // mode switching
-
+    /**
+     * Switches the view to user management mode and loads the user list.
+     */
     private void showUsers() {
         showingUsers = true;
         titleText.setText("User Management");
@@ -252,6 +266,9 @@ public class AdminActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Switches the view to guild management mode and loads the guild list.
+     */
     private void showGuilds() {
         showingUsers = false;
         titleText.setText("Guild Management");
@@ -272,6 +289,11 @@ public class AdminActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Filters the currently displayed list based on the search query.
+     *
+     * @param text The search query text
+     */
     private void filter(String text) {
         if (showingUsers) {
             userAdapter.filter(text);
@@ -280,8 +302,11 @@ public class AdminActivity extends AppCompatActivity {
         }
     }
 
-    // guild admin actions
-
+    /**
+     * Resets the statistics for a specific guild.
+     *
+     * @param guild The guild whose stats should be reset
+     */
     private void resetGuildStats(Guild guild) {
         Map<String, Object> updates = new HashMap<>();
         updates.put("totalEnemiesKilled", 0);
@@ -292,7 +317,7 @@ public class AdminActivity extends AppCompatActivity {
             .getReference("guilds")
             .child(guild.getGuildId())
             .updateChildren(updates)
-            .addOnSuccessListener(v -> {
+            .addOnSuccessListener(unused -> {
                 guild.setTotalEnemiesKilled(0);
                 guild.setTotalWins(0);
                 guild.setTotalAttempts(0);
@@ -300,6 +325,11 @@ public class AdminActivity extends AppCompatActivity {
             });
     }
 
+    /**
+     * Deletes a specific guild and removes its reference from all members.
+     *
+     * @param guild The guild to be deleted
+     */
     private void deleteGuild(Guild guild) {
         FirebaseDatabase.getInstance()
             .getReference("guilds")
@@ -321,7 +351,7 @@ public class AdminActivity extends AppCompatActivity {
                         .getReference("guilds")
                         .child(guild.getGuildId())
                         .removeValue()
-                        .addOnSuccessListener(v ->
+                        .addOnSuccessListener(unused ->
                             guildAdapter.removeGuild(guild)
                         );
                 }

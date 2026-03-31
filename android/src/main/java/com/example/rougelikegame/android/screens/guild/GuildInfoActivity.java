@@ -31,6 +31,11 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.Map;
 
+/**
+ * Activity that displays information about a user's guild, including member count,
+ * statistics (kills, wins, attempts), and a real-time guild chat.
+ * It also allows users to leave or delete a guild, or join/create one if they are not in a guild.
+ */
 public class GuildInfoActivity extends AppCompatActivity {
 
     private static final int MAX_GUILD_MESSAGE_LENGTH = 300;
@@ -110,6 +115,11 @@ public class GuildInfoActivity extends AppCompatActivity {
         refreshGuildState();
     }
 
+    /**
+     * Loads guild details from Firebase and updates the UI.
+     *
+     * @param guildId The ID of the guild to load.
+     */
     private void loadGuild(String guildId) {
         FirebaseDatabase.getInstance()
             .getReference("guilds")
@@ -117,6 +127,7 @@ public class GuildInfoActivity extends AppCompatActivity {
             .addListenerForSingleValueEvent(new ValueEventListener() {
 
                 @Override
+                @SuppressWarnings("unchecked")
                 public void onDataChange(DataSnapshot snapshot) {
                     if (!snapshot.exists()) {
                         Toast.makeText(
@@ -178,6 +189,11 @@ public class GuildInfoActivity extends AppCompatActivity {
             });
     }
 
+    /**
+     * Verifies if the current user is still a member of the guild before enabling chat.
+     *
+     * @param guildId The ID of the guild to verify membership for.
+     */
     private void verifyMembershipAndInitChat(String guildId) {
         User user = SharedPreferencesUtil.getUser(this);
         if (user == null || TextUtils.isEmpty(user.getUid())) {
@@ -211,6 +227,9 @@ public class GuildInfoActivity extends AppCompatActivity {
             });
     }
 
+    /**
+     * Enables the guild chat UI elements.
+     */
     private void enableGuildChat() {
         txtGuildChatStatus.setVisibility(View.GONE);
         layoutGuildChatInput.setVisibility(View.VISIBLE);
@@ -218,6 +237,11 @@ public class GuildInfoActivity extends AppCompatActivity {
         btnSendGuildMessage.setEnabled(true);
     }
 
+    /**
+     * Disables the guild chat UI elements and displays a reason.
+     *
+     * @param reason The reason why the chat is disabled.
+     */
     private void disableGuildChat(String reason) {
         stopGuildChatListener();
         guildChatAdapter.setMessages(new java.util.ArrayList<>());
@@ -229,6 +253,11 @@ public class GuildInfoActivity extends AppCompatActivity {
         btnSendGuildMessage.setEnabled(false);
     }
 
+    /**
+     * Starts listening for new messages in the guild chat.
+     *
+     * @param guildId The ID of the guild whose chat to listen to.
+     */
     private void startGuildChatListener(String guildId) {
         stopGuildChatListener();
         activeGuildId = guildId;
@@ -274,6 +303,11 @@ public class GuildInfoActivity extends AppCompatActivity {
         chatQuery.addChildEventListener(chatListener);
     }
 
+    /**
+     * Checks if the chat RecyclerView is scrolled near the bottom.
+     *
+     * @return True if scrolled near the bottom, false otherwise.
+     */
     private boolean isNearBottom() {
         RecyclerView.LayoutManager manager = recyclerGuildChat.getLayoutManager();
         if (!(manager instanceof LinearLayoutManager)) {
@@ -287,6 +321,9 @@ public class GuildInfoActivity extends AppCompatActivity {
         return itemCount <= 1 || lastVisible >= itemCount - 3;
     }
 
+    /**
+     * Sends a message to the guild chat.
+     */
     private void sendGuildMessage() {
         User user = SharedPreferencesUtil.getUser(this);
         if (user == null || TextUtils.isEmpty(user.getUid()) || TextUtils.isEmpty(activeGuildId)) {
@@ -340,6 +377,9 @@ public class GuildInfoActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Performs the logic to leave the current guild.
+     */
     private void leaveGuild() {
         User user = SharedPreferencesUtil.getUser(this);
         if (user == null || user.getGuildId() == null) return;
@@ -415,6 +455,9 @@ public class GuildInfoActivity extends AppCompatActivity {
             });
     }
 
+    /**
+     * Displays a confirmation dialog before deleting the guild.
+     */
     private void confirmDeleteGuild() {
         new AlertDialog.Builder(this)
             .setTitle("Delete Guild")
@@ -424,6 +467,9 @@ public class GuildInfoActivity extends AppCompatActivity {
             .show();
     }
 
+    /**
+     * Displays a confirmation dialog before leaving the guild.
+     */
     private void confirmLeaveGuild() {
         User user = SharedPreferencesUtil.getUser(this);
         if (user == null || user.getGuildId() == null) {
@@ -438,6 +484,9 @@ public class GuildInfoActivity extends AppCompatActivity {
             .show();
     }
 
+    /**
+     * Performs the logic to delete the current guild for all members.
+     */
     private void deleteGuild() {
         User user = SharedPreferencesUtil.getUser(this);
         if (user == null || user.getGuildId() == null) return;
@@ -492,6 +541,9 @@ public class GuildInfoActivity extends AppCompatActivity {
         stopGuildChatListener();
     }
 
+    /**
+     * Stops the real-time guild chat listener and cleans up references.
+     */
     private void stopGuildChatListener() {
         if (chatQuery != null && chatListener != null) {
             chatQuery.removeEventListener(chatListener);
@@ -502,6 +554,9 @@ public class GuildInfoActivity extends AppCompatActivity {
         activeGuildId = null;
     }
 
+    /**
+     * Refreshes the guild state based on the user's guild membership.
+     */
     private void refreshGuildState() {
         User user = SharedPreferencesUtil.getUser(this);
 

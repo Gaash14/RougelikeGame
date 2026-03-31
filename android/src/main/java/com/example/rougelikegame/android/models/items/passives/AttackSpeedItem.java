@@ -5,6 +5,9 @@ import com.example.rougelikegame.android.models.items.ItemTier;
 import com.example.rougelikegame.android.models.items.PassiveItem;
 import com.example.rougelikegame.android.models.items.contexts.CooldownContext;
 
+/**
+ * The Attack Speed item reduces both melee and ranged attack cooldowns, up to a minimum limit.
+ */
 public class AttackSpeedItem implements PassiveItem {
 
     public static final int ID = 3;

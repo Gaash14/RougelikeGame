@@ -1,7 +1,10 @@
 package com.example.rougelikegame.android.screens.profile;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -9,9 +12,10 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-import androidx.annotation.Nullable;
 
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -28,26 +32,30 @@ import com.example.rougelikegame.android.utils.ImageUtil;
 import com.example.rougelikegame.android.utils.SharedPreferencesUtil;
 import com.example.rougelikegame.android.utils.Validator;
 
-import android.net.Uri;
-import android.provider.MediaStore;
-import android.graphics.Bitmap;
-import androidx.appcompat.app.AlertDialog;
-
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Activity for updating user profile information.
+ */
 public class UpdateUserActivity extends AppCompatActivity implements View.OnClickListener {
 
     private static final String TAG = "UserProfileActivity";
 
-    private EditText etUserFirstName, etUserLastName, etUserEmail, etUserPhone, etUserPassword;
-    private TextView tvUserDisplayName, tvUserDisplayEmail;
-    private Button btnUpdateProfile, btnSignOut;
+    private EditText etUserFirstName;
+    private EditText etUserLastName;
+    private EditText etUserEmail;
+    private EditText etUserPhone;
+    private EditText etUserPassword;
+    private TextView tvUserDisplayName;
+    private TextView tvUserDisplayEmail;
+    private Button btnUpdateProfile;
+    private Button btnSignOut;
     private View adminBadge;
-    String selectedUid;
-    User selectedUser;
-    boolean isCurrentUser = false;
-    DatabaseService databaseService;
+    private String selectedUid;
+    private User selectedUser;
+    private boolean isCurrentUser = false;
+    private DatabaseService databaseService;
 
     private ImageView ivProfileIcon;
 
@@ -120,15 +128,18 @@ public class UpdateUserActivity extends AppCompatActivity implements View.OnClic
 
     @Override
     public void onClick(View v) {
-        if(v.getId() == R.id.btn_edit_profile) {
+        if (v.getId() == R.id.btn_edit_profile) {
             updateUserProfile();
             return;
         }
-        if(v.getId() == R.id.btn_sign_out) {
+        if (v.getId() == R.id.btn_sign_out) {
             signOut();
         }
     }
 
+    /**
+     * Fetches and displays the selected user's profile data.
+     */
     private void showUserProfile() {
         // Get the user data from database
         databaseService.getUser(selectedUid, new DatabaseService.DatabaseCallback<User>() {
@@ -181,6 +192,9 @@ public class UpdateUserActivity extends AppCompatActivity implements View.OnClic
         }
     }
 
+    /**
+     * Validates input fields and triggers the profile update process.
+     */
     private void updateUserProfile() {
         if (selectedUser == null) {
             Log.e(TAG, "User not found");
@@ -210,30 +224,24 @@ public class UpdateUserActivity extends AppCompatActivity implements View.OnClic
         selectedUser.setProfileImage(base64Image);
 
         Log.d(TAG, "Profile image length = " +
-            (base64Image == null ? "null" : base64Image.length()));
-
-        // Update the user data in the authentication
-        Log.d(TAG, "Updating user profile");
-        Log.d(TAG, "Selected user UID: " + selectedUser.getUid());
-        Log.d(TAG, "Is current user: " + isCurrentUser);
-        Log.d(TAG, "User email: " + selectedUser.getEmail());
-        Log.d(TAG, "User password: " + selectedUser.getPassword());
-
-
+                (base64Image == null ? "null" : base64Image.length()));
 
         if (!isCurrentUser && !selectedUser.isAdmin()) {
             Log.e(TAG, "Only the current user can update their profile");
             Toast.makeText(this, "You can only update your own profile", Toast.LENGTH_SHORT).show();
-        }
-        else if (isCurrentUser) {
+        } else if (isCurrentUser) {
             updateUserInDatabase(selectedUser);
-        }
-        else if (selectedUser.isAdmin()) {
+        } else if (selectedUser.isAdmin()) {
             // update the user in the database
             updateUserInDatabase(selectedUser);
         }
     }
 
+    /**
+     * Saves the updated user data to the database.
+     *
+     * @param user The user object with updated information.
+     */
     private void updateUserInDatabase(User user) {
         Log.d(TAG, "Updating user in database: " + user.getUid());
         databaseService.updateUser(user, false, new DatabaseService.DatabaseCallback<Void>() {
@@ -252,6 +260,9 @@ public class UpdateUserActivity extends AppCompatActivity implements View.OnClic
         });
     }
 
+    /**
+     * Validates the profile update input fields.
+     */
     private boolean isValid(String firstName, String lastName, String phone, String email, String password) {
         if (!Validator.isNameValid(firstName)) {
             etUserFirstName.setError("First name is required");
@@ -281,37 +292,40 @@ public class UpdateUserActivity extends AppCompatActivity implements View.OnClic
         return true;
     }
 
+    /**
+     * Displays a dialog to choose the source for the profile image.
+     */
     private void showImageSourceDialog() {
         List<ImageSourceOption> options = new ArrayList<>();
 
         options.add(new ImageSourceOption(
-            "Camera",
-            "Take a photo",
-            R.drawable.photo_camera
+                "Camera",
+                "Take a photo",
+                R.drawable.photo_camera
         ));
 
         options.add(new ImageSourceOption(
-            "Gallery",
-            "Choose from gallery",
-            R.drawable.gallery_thumbnail
+                "Gallery",
+                "Choose from gallery",
+                R.drawable.gallery_thumbnail
         ));
 
         ImageSourceAdapter adapter = new ImageSourceAdapter(
-            this,
-            options,
-            option -> {
-                if ("Camera".equals(option.getTitle())) {
-                    ImageUtil.requestPermission(this);
-                    openCamera();
-                } else {
-                    openGallery();
+                this,
+                options,
+                option -> {
+                    if ("Camera".equals(option.getTitle())) {
+                        ImageUtil.requestPermission(this);
+                        openCamera();
+                    } else {
+                        openGallery();
+                    }
                 }
-            }
         );
 
         new AlertDialog.Builder(this)
-            .setAdapter(adapter, null)
-            .show();
+                .setAdapter(adapter, null)
+                .show();
     }
 
     private void openCamera() {
@@ -321,7 +335,7 @@ public class UpdateUserActivity extends AppCompatActivity implements View.OnClic
 
     private void openGallery() {
         Intent intent = new Intent(Intent.ACTION_PICK,
-            MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         startActivityForResult(intent, REQUEST_GALLERY);
     }
 
@@ -329,7 +343,9 @@ public class UpdateUserActivity extends AppCompatActivity implements View.OnClic
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (resultCode != RESULT_OK || data == null) return;
+        if (resultCode != RESULT_OK || data == null) {
+            return;
+        }
 
         try {
             if (requestCode == REQUEST_CAMERA) {
@@ -358,3 +374,4 @@ public class UpdateUserActivity extends AppCompatActivity implements View.OnClic
         startActivity(landingIntent);
     }
 }
+

@@ -6,6 +6,10 @@ import com.example.rougelikegame.android.graphics.FrameAnimationManager;
 import com.example.rougelikegame.android.models.world.Projectile;
 import com.example.rougelikegame.android.screens.menu.MainActivity;
 
+/**
+ * Factory class for creating various types of enemies (Normal, Ghost, Boss).
+ * Manages the textures and animation managers needed for enemy instantiation.
+ */
 public class EnemyFactory {
 
     private static final String DEFAULT_ENEMY_TEXTURE_PATH = "enemies/enemy.png";
@@ -18,6 +22,15 @@ public class EnemyFactory {
     private final Array<Projectile> enemyProjectiles;
     private final FrameAnimationManager animationManager;
 
+    /**
+     * Constructs an EnemyFactory.
+     *
+     * @param enemyTexture     texture for normal enemies
+     * @param ghostTexture     texture for ghost enemies
+     * @param bossTexture      texture for boss enemies
+     * @param animationManager manager for handling enemy animations
+     * @param enemyProjectiles array to store projectiles fired by enemies
+     */
     public EnemyFactory(
         Texture enemyTexture,
         Texture ghostTexture,
@@ -32,6 +45,15 @@ public class EnemyFactory {
         this.enemyProjectiles = enemyProjectiles;
     }
 
+    /**
+     * Creates a normal enemy.
+     *
+     * @param x      starting X position
+     * @param y      starting Y position
+     * @param hp     initial health
+     * @param damage contact damage
+     * @return a new Enemy instance
+     */
     public Enemy createNormalEnemy(float x, float y, int hp, int damage) {
         Enemy enemy = new Enemy(
             enemyTexture,
@@ -48,6 +70,15 @@ public class EnemyFactory {
         return enemy;
     }
 
+    /**
+     * Creates a ghost enemy.
+     *
+     * @param x      starting X position
+     * @param y      starting Y position
+     * @param hp     initial health
+     * @param damage contact damage
+     * @return a new GhostEnemy instance
+     */
     public Enemy createGhostEnemy(float x, float y, int hp, int damage) {
         Enemy enemy = new GhostEnemy(
             ghostTexture,
@@ -62,6 +93,16 @@ public class EnemyFactory {
         return enemy;
     }
 
+    /**
+     * Creates a boss enemy.
+     *
+     * @param x      starting X position
+     * @param y      starting Y position
+     * @param hp     initial health
+     * @param damage contact damage
+     * @param game   reference to MainActivity
+     * @return a new BossEnemy instance
+     */
     public Enemy createBossEnemy(float x, float y, int hp, int damage, MainActivity game) {
         Enemy enemy = new BossEnemy(
             bossTexture,

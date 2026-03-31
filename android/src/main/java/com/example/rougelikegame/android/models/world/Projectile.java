@@ -9,8 +9,12 @@ import com.badlogic.gdx.utils.Array;
 import com.example.rougelikegame.android.models.characters.Enemy;
 import com.example.rougelikegame.android.models.core.TargetingHelper;
 
+/**
+ * Represents a projectile fired by the player or an enemy.
+ */
 public class Projectile {
-    public float x, y;
+    public float x;
+    public float y;
     public float speed = 800f;
     public int damage;
     public boolean alive = true;
@@ -33,11 +37,18 @@ public class Projectile {
 
     private static Texture tex; // shared texture
 
+    /**
+     * Constructs a basic Projectile.
+     */
     public Projectile(float x, float y, float dirX, float dirY, int damage) {
         this(x, y, dirX, dirY, damage, false, 0f, 0f, 0f);
     }
 
-    public Projectile(float x, float y, float dirX, float dirY, int damage, boolean homingEnabled, float homingRange, float homingStrength, float maxTurnRateDeg) {
+    /**
+     * Constructs a Projectile with optional homing capabilities.
+     */
+    public Projectile(float x, float y, float dirX, float dirY, int damage,
+                      boolean homingEnabled, float homingRange, float homingStrength, float maxTurnRateDeg) {
         this.damage = damage;
         this.x = x;
         this.y = y;
@@ -48,15 +59,26 @@ public class Projectile {
         this.homingStrength = Math.max(0f, homingStrength);
         this.maxTurnRateDeg = Math.max(0f, maxTurnRateDeg);
 
-        if (tex == null) tex = new Texture("pixel.png");
+        if (tex == null) {
+            tex = new Texture("pixel.png");
+        }
 
         bounds.set(x, y, 16, 16);
     }
 
+    /**
+     * Updates the projectile's position and life.
+     * @param delta The time since the last frame.
+     */
     public void update(float delta) {
         update(delta, null);
     }
 
+    /**
+     * Updates the projectile's position, life, and homing direction.
+     * @param delta The time since the last frame.
+     * @param enemies The list of potential homing targets.
+     */
     public void update(float delta, Array<Enemy> enemies) {
         if (homingEnabled && enemies != null) {
             updateHomingDirection(delta, enemies);
@@ -68,9 +90,14 @@ public class Projectile {
         bounds.setPosition(x, y);
 
         life -= delta;
-        if (life <= 0) alive = false;
+        if (life <= 0) {
+            alive = false;
+        }
     }
 
+    /**
+     * Recalculates the direction for homing.
+     */
     private void updateHomingDirection(float delta, Array<Enemy> enemies) {
         if (homingRange <= 0f || maxTurnRateDeg <= 0f || homingStrength <= 0f) {
             return;
@@ -108,6 +135,9 @@ public class Projectile {
         dir.rotateRad(clampedTurnRad).nor();
     }
 
+    /**
+     * Checks if an enemy is a valid target for homing.
+     */
     private boolean isValidTarget(Enemy enemy) {
         if (enemy == null || !enemy.alive) {
             return false;
@@ -127,19 +157,34 @@ public class Projectile {
         return y + bounds.height * 0.5f;
     }
 
+    /**
+     * Draws the projectile.
+     * @param batch The Batch to draw with.
+     */
     public void draw(Batch batch) {
-        batch.draw(tex, x, y, 16, 16);
+        if (tex != null) {
+            batch.draw(tex, x, y, 16, 16);
+        }
     }
 
     public Rectangle getBounds() {
         return bounds;
     }
 
+    /**
+     * Returns the shared projectile texture.
+     * @return The Texture instance.
+     */
     public static Texture getTexture() {
-        if (tex == null) tex = new Texture("pixel.png");
+        if (tex == null) {
+            tex = new Texture("pixel.png");
+        }
         return tex;
     }
 
+    /**
+     * Disposes of the shared projectile texture.
+     */
     public static void disposeTexture() {
         if (tex != null) {
             tex.dispose();

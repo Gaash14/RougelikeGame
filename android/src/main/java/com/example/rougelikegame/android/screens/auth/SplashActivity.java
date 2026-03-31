@@ -14,6 +14,11 @@ import com.example.rougelikegame.R;
 import com.example.rougelikegame.android.screens.menu.MainMenu;
 import com.example.rougelikegame.android.utils.SharedPreferencesUtil;
 
+/**
+ * SplashActivity displays a splash screen upon application launch.
+ * It waits for a predefined duration before redirecting the user to either
+ * the MainMenu (if already logged in) or the LandingActivity (if not).
+ */
 public class SplashActivity extends AppCompatActivity {
     private static final String TAG = "SplashActivity";
     private static final int SPLASH_DISPLAY_TIME = 3000; // 3 seconds
@@ -37,7 +42,7 @@ public class SplashActivity extends AppCompatActivity {
             } finally {
                 // go to the correct activity after the delay
                 Intent intent;
-                /// Check if user is signed in or not and redirect to LandingActivity if not signed in
+                // Check if user is signed in or not and redirect to LandingActivity if not signed in
                 if (SharedPreferencesUtil.isUserLoggedIn(this)) {
                     Log.d(TAG, "User signed in, redirecting to MainActivity");
                     intent = new Intent(SplashActivity.this, MainMenu.class);

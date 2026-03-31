@@ -7,6 +7,9 @@ import com.example.rougelikegame.android.models.items.PassiveItem;
 import com.example.rougelikegame.android.models.items.contexts.CooldownContext;
 import com.example.rougelikegame.android.models.items.contexts.DamageContext;
 
+/**
+ * The Dark Bargain item randomly selects one stat to buff and another to debuff upon pickup.
+ */
 public class DarkBargainItem implements PassiveItem {
 
     public static final int ID = 11;
@@ -72,6 +75,10 @@ public class DarkBargainItem implements PassiveItem {
         Gdx.app.log("DarkBargain", "UP=" + statUp + " DOWN=" + statDown);
     }
 
+    /**
+     * Applies immediate stat changes like health and movement speed.
+     * @param player The player instance.
+     */
     private void applyImmediateStats(Player player) {
         if (statUp == HP) {
             player.health += HP_DELTA;
@@ -103,6 +110,11 @@ public class DarkBargainItem implements PassiveItem {
         ctx.damage = applyDamageChange(ctx.damage);
     }
 
+    /**
+     * Applies damage changes based on the bargain results.
+     * @param damage The current damage value.
+     * @return The modified damage value.
+     */
     private int applyDamageChange(int damage) {
         if (statUp == DAMAGE) {
             damage += DAMAGE_DELTA;
@@ -131,6 +143,13 @@ public class DarkBargainItem implements PassiveItem {
         );
     }
 
+    /**
+     * Applies attack speed changes based on the bargain results.
+     * @param cooldown The current cooldown value.
+     * @param delta The amount to change the cooldown by.
+     * @param minCooldown The minimum allowed cooldown.
+     * @return The modified cooldown value.
+     */
     private float applyAttackSpeedChange(float cooldown, float delta, float minCooldown) {
         if (statUp == ATTACK_SPEED) {
             cooldown = Math.max(minCooldown, cooldown - delta);

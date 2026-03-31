@@ -11,23 +11,28 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.example.rougelikegame.R;
 import com.example.rougelikegame.android.managers.AchievementManager;
-import com.example.rougelikegame.android.screens.auth.LandingActivity;
+import com.example.rougelikegame.android.models.meta.User;
 import com.example.rougelikegame.android.screens.admin.AdminActivity;
+import com.example.rougelikegame.android.screens.auth.LandingActivity;
 import com.example.rougelikegame.android.screens.guild.GuildInfoActivity;
 import com.example.rougelikegame.android.screens.leaderboard.LeaderboardActivity;
 import com.example.rougelikegame.android.screens.profile.ProfileActivity;
 import com.example.rougelikegame.android.services.ReminderReceiver;
 import com.example.rougelikegame.android.utils.SharedPreferencesUtil;
-import com.example.rougelikegame.android.models.meta.User;
 
 import java.util.Calendar;
 
+/**
+ * Main menu activity providing access to all game features.
+ */
 public class MainMenu extends AppCompatActivity {
     private static final String TAG = "MainMenu";
     private static final int PERMISSION_REQUEST_CODE = 101;
@@ -117,14 +122,17 @@ public class MainMenu extends AppCompatActivity {
         });
     }
 
+    /**
+     * Checks for notification permissions and schedules a daily alarm if granted.
+     */
     private void checkPermissionsAndScheduleAlarm() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
-                != PackageManager.PERMISSION_GRANTED) {
+                    != PackageManager.PERMISSION_GRANTED) {
                 ActivityCompat.requestPermissions(
-                    this,
-                    new String[]{Manifest.permission.POST_NOTIFICATIONS},
-                    PERMISSION_REQUEST_CODE
+                        this,
+                        new String[]{Manifest.permission.POST_NOTIFICATIONS},
+                        PERMISSION_REQUEST_CODE
                 );
             } else {
                 scheduleDailyReminder(this);
@@ -135,7 +143,7 @@ public class MainMenu extends AppCompatActivity {
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == PERMISSION_REQUEST_CODE) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
@@ -144,16 +152,23 @@ public class MainMenu extends AppCompatActivity {
         }
     }
 
+    /**
+     * Schedules a daily notification reminder.
+     *
+     * @param context Application context.
+     */
     public static void scheduleDailyReminder(Context context) {
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        if (alarmManager == null) return;
+        if (alarmManager == null) {
+            return;
+        }
 
         Intent intent = new Intent(context, ReminderReceiver.class);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(
-            context,
-            0,
-            intent,
-            PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+                context,
+                0,
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
         );
 
         Calendar calendar = Calendar.getInstance();
@@ -168,9 +183,10 @@ public class MainMenu extends AppCompatActivity {
         }
 
         alarmManager.setAndAllowWhileIdle(
-            AlarmManager.RTC_WAKEUP,
-            calendar.getTimeInMillis(),
-            pendingIntent
+                AlarmManager.RTC_WAKEUP,
+                calendar.getTimeInMillis(),
+                pendingIntent
         );
     }
 }
+

@@ -23,8 +23,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
+/**
+ * ItemCodexAdapter manages the display of passive items in the game's codex.
+ * It handles the loading of item sprites and styling based on item tiers.
+ */
 public class ItemCodexAdapter extends RecyclerView.Adapter<ItemCodexAdapter.ItemViewHolder> {
 
+    /**
+     * Wrapper class for codex items to include their unique ID.
+     */
     public static class CodexItem {
         public final int itemId;
         public final PassiveItem item;
@@ -39,6 +46,12 @@ public class ItemCodexAdapter extends RecyclerView.Adapter<ItemCodexAdapter.Item
     private final LayoutInflater inflater;
     private final Context context;
 
+    /**
+     * Constructs a new ItemCodexAdapter.
+     *
+     * @param context the context to use for asset loading and inflation
+     * @param items the list of codex items to display
+     */
     public ItemCodexAdapter(Context context, List<CodexItem> items) {
         this.context = context;
         this.items = items;
@@ -71,6 +84,12 @@ public class ItemCodexAdapter extends RecyclerView.Adapter<ItemCodexAdapter.Item
         return items.size();
     }
 
+    /**
+     * Loads and binds the item sprite from assets.
+     *
+     * @param itemSprite the ImageView to bind the sprite to
+     * @param item the item whose sprite should be loaded
+     */
     private void bindItemSprite(ImageView itemSprite, PassiveItem item) {
         String iconPath = "items/" + item.getKey() + ".png";
 
@@ -81,7 +100,7 @@ public class ItemCodexAdapter extends RecyclerView.Adapter<ItemCodexAdapter.Item
                 return;
             }
         } catch (IOException ignored) {
-            // Try legacy icon path fallback below.
+            // Try legacy icon path fallback.
         }
 
         String fallbackPath = item.getIconPath();
@@ -93,13 +112,19 @@ public class ItemCodexAdapter extends RecyclerView.Adapter<ItemCodexAdapter.Item
                     return;
                 }
             } catch (IOException ignored) {
-                // Fall through to error drawable below.
+                // Fall through to error drawable.
             }
         }
 
         itemSprite.setImageResource(R.drawable.error);
     }
 
+    /**
+     * Styles the tier badge based on the item's tier.
+     *
+     * @param itemTier the TextView representing the tier badge
+     * @param tier the tier of the item
+     */
     private void styleTierBadge(TextView itemTier, ItemTier tier) {
         int color;
         switch (tier) {
@@ -128,6 +153,9 @@ public class ItemCodexAdapter extends RecyclerView.Adapter<ItemCodexAdapter.Item
         itemTier.setBackground(badge);
     }
 
+    /**
+     * ViewHolder class for item codex entries.
+     */
     static class ItemViewHolder extends RecyclerView.ViewHolder {
         final ImageView itemSprite;
         final TextView itemName;

@@ -4,6 +4,9 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 
+/**
+ * The Joystick class provides a virtual on-screen joystick for player movement.
+ */
 public class Joystick {
 
     private final Texture base;
@@ -16,24 +19,34 @@ public class Joystick {
     private boolean active = false;
     private int activePointer = -1;
 
+    /**
+     * Constructs a Joystick with the specified textures and radius.
+     *
+     * @param baseFile the path to the joystick base texture
+     * @param knobFile the path to the joystick knob texture
+     * @param radius   the maximum distance the knob can move from the base
+     */
     public Joystick(String baseFile, String knobFile, float radius) {
         this.base = new Texture(baseFile);
         this.knob = new Texture(knobFile);
         this.radius = radius;
     }
 
-    // ================= INPUT =================
-
+    /**
+     * Handles the touch down event for the joystick.
+     *
+     * @param x       the X coordinate of the touch
+     * @param y       the Y coordinate of the touch
+     * @param pointer the pointer index
+     */
     public void touchDown(float x, float y, int pointer) {
-
-        // left half only
+        // Only allow joystick activation on the left half of the screen
         if (x > Gdx.graphics.getWidth() / 2f) return;
 
-        // already moving → ignore other fingers
+        // If already active, ignore other fingers
         if (active) return;
 
         activePointer = pointer;
-
         baseX = x;
         baseY = y;
         knobX = x;
@@ -41,6 +54,13 @@ public class Joystick {
         active = true;
     }
 
+    /**
+     * Handles the touch dragged event for the joystick.
+     *
+     * @param x       the X coordinate of the touch
+     * @param y       the Y coordinate of the touch
+     * @param pointer the pointer index
+     */
     public void touchDragged(float x, float y, int pointer) {
         if (!active || pointer != activePointer) return;
 
@@ -57,28 +77,42 @@ public class Joystick {
         knobY = baseY + dy;
     }
 
+    /**
+     * Handles the touch up event for the joystick.
+     *
+     * @param pointer the pointer index
+     */
     public void touchUp(int pointer) {
         if (pointer != activePointer) return;
-
         reset();
     }
 
-    // ================= OUTPUT =================
-
+    /**
+     * @return the horizontal displacement as a percentage of the radius (-1.0 to 1.0)
+     */
     public float getPercentX() {
         if (!active) return 0f;
         return (knobX - baseX) / radius;
     }
 
+    /**
+     * @return the vertical displacement as a percentage of the radius (-1.0 to 1.0)
+     */
     public float getPercentY() {
         if (!active) return 0f;
         return (knobY - baseY) / radius;
     }
 
+    /**
+     * @return true if the joystick is currently active
+     */
     public boolean isActive() {
         return active;
     }
 
+    /**
+     * Resets the joystick to its inactive state.
+     */
     public void reset() {
         active = false;
         activePointer = -1;
@@ -86,8 +120,11 @@ public class Joystick {
         knobY = baseY;
     }
 
-    // ================= DRAW =================
-
+    /**
+     * Draws the joystick using the provided SpriteBatch.
+     *
+     * @param batch the SpriteBatch to draw with
+     */
     public void draw(Batch batch) {
         if (!active) return;
 
@@ -106,6 +143,9 @@ public class Joystick {
         );
     }
 
+    /**
+     * Disposes of the joystick textures.
+     */
     public void dispose() {
         base.dispose();
         knob.dispose();

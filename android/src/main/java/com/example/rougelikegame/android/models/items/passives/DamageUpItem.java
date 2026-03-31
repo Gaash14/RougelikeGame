@@ -5,6 +5,9 @@ import com.example.rougelikegame.android.models.items.ItemTier;
 import com.example.rougelikegame.android.models.items.PassiveItem;
 import com.example.rougelikegame.android.models.items.contexts.DamageContext;
 
+/**
+ * The Damage Up item increases the player's base damage, projectile damage, and melee damage.
+ */
 public class DamageUpItem implements PassiveItem {
 
     public static final int ID = 1;

@@ -5,6 +5,9 @@ import com.example.rougelikegame.android.models.items.ItemTier;
 import com.example.rougelikegame.android.models.items.PassiveItem;
 import com.example.rougelikegame.android.models.items.contexts.BlockChanceContext;
 
+/**
+ * The Armor item grants a flat bonus to the player's chance to block incoming damage.
+ */
 public class ArmorItem implements PassiveItem {
 
     public static final int ID = 4;

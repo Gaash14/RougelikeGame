@@ -1,5 +1,8 @@
 package com.example.rougelikegame.android.models.meta;
 
+/**
+ * Achievements track player progress and can provide rewards like skins.
+ */
 public class Achievement {
 
     private String id;
@@ -8,8 +11,19 @@ public class Achievement {
     private boolean unlocked;
     private String rewardSkinId; // null = no reward
 
-    public Achievement() {} // required for firebase
+    /**
+     * Default constructor for Firebase/JSON serialization.
+     */
+    public Achievement() {
+    }
 
+    /**
+     * Constructs a new Achievement with the specified details.
+     * @param id The unique identifier for the achievement.
+     * @param title The display title.
+     * @param description The display description.
+     * @param rewardSkinId The ID of the skin rewarded upon unlocking, if any.
+     */
     public Achievement(String id, String title, String description, String rewardSkinId) {
         this.id = id;
         this.title = title;
@@ -18,18 +32,43 @@ public class Achievement {
         this.unlocked = false;
     }
 
-    public String getId() { return id; }
-    public void setId(String newId) { this.id = newId; }
+    public String getId() {
+        return id;
+    }
 
-    public String getTitle() { return title; }
-    public void setTitle(String newTitle) { this.title = newTitle; }
+    public void setId(String newId) {
+        this.id = newId;
+    }
 
-    public String getDescription() { return description; }
-    public void setDescription(String newDescription) { this.id = newDescription; }
+    public String getTitle() {
+        return title;
+    }
 
-    public boolean isUnlocked() { return unlocked; }
-    public void setUnlocked(boolean unlocked) { this.unlocked = unlocked; }
+    public void setTitle(String newTitle) {
+        this.title = newTitle;
+    }
 
-    public String getRewardSkinId() {return rewardSkinId;}
-    public void setRewardSkinId(String rewardSkinId) {this.rewardSkinId = rewardSkinId;}
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String newDescription) {
+        this.description = newDescription;
+    }
+
+    public boolean isUnlocked() {
+        return unlocked;
+    }
+
+    public void setUnlocked(boolean unlocked) {
+        this.unlocked = unlocked;
+    }
+
+    public String getRewardSkinId() {
+        return rewardSkinId;
+    }
+
+    public void setRewardSkinId(String rewardSkinId) {
+        this.rewardSkinId = rewardSkinId;
+    }
 }

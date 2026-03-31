@@ -4,6 +4,9 @@ import com.example.rougelikegame.android.models.characters.Player;
 import com.example.rougelikegame.android.models.items.ItemTier;
 import com.example.rougelikegame.android.models.items.PassiveItem;
 
+/**
+ * The Titan's Core item increases base damage significantly but also increases attack cooldown times.
+ */
 public class TitansCoreItem implements PassiveItem {
 
     public static final int ID = 14;

@@ -28,22 +28,35 @@ import com.example.rougelikegame.android.utils.SkinRegistry;
 import java.util.Objects;
 import java.util.Random;
 
+/**
+ * This class represents the player character. It manages movement, combat (melee and ranged),
+ * inventory of passive items, health, and animations. It also handles damage processing
+ * with immunity frames and knockback.
+ */
 public class Player {
 
+    /**
+     * Enum defining the combat class of the player.
+     */
     public enum PlayerClass {
         MELEE,
         RANGED
     }
-    public PlayerClass playerClass = PlayerClass.MELEE; // default
 
+    public PlayerClass playerClass = PlayerClass.MELEE;
+
+    /**
+     * Enum defining the game difficulty level.
+     */
     public enum Difficulty {
         EASY,
         NORMAL,
         HARD
     }
-    public Difficulty difficulty = Difficulty.NORMAL; // default
 
-    // textures
+    public Difficulty difficulty = Difficulty.NORMAL;
+
+    // Visual assets
     private Texture texture;
     private FrameAnimationManager animationManager;
     private String currentSkinId = "default";
@@ -52,12 +65,12 @@ public class Player {
     public float stateTime = 0f;
     public final Texture debugPixel = new Texture("pixel.png");
 
-    // position & size
+    // Position and dimensions
     public float x, y;
     public final float width = 160;
     public final float height = 160;
 
-    // stats
+    // Gameplay stats
     public int health = 10;
     public int speed = 400;
     public final int maxSpeed = 600;
@@ -68,11 +81,11 @@ public class Player {
     private final Array<PassiveItem> passiveItems = new Array<>();
     private final Random randomSource;
 
-    // collisions
+    // Collision and combat zones
     public final Rectangle bounds;
     public final Rectangle attackHitbox;
 
-    // damage + knockback (knockback is enemy -> player)
+    // Damage and knockback state
     public float damageCooldown = 0f;
     public float damageCooldownTime = 0.5f;
     public float knockbackX = 0;
@@ -81,36 +94,42 @@ public class Player {
     public float knockbackDuration = 0.25f;
     public float knockbackStrength = 350f;
 
-    // base damage values
+    // Base combat stats
     public int meleeBaseDamage = 10;
-    public int rangedBaseDamage = 6; // weaker than melee
+    public int rangedBaseDamage = 6;
 
-    // melee attack
+    // Melee attack state
     public boolean attacking = false;
     private float attackTime = 0f;
-
     public float meleeCooldown = 0f;
     public float meleeCooldownTime = 0.5f;
 
-    // ranged attack
+    // Ranged attack state
     public float rangedCooldown = 0f;
-    public float rangedCooldownTime = 0.8f; // longer cooldown
+    public float rangedCooldownTime = 0.8f;
 
-    // charge attack
+    // Charge attack state
     private boolean charging = false;
     private float chargeTime = 0f;
     private static final float BASE_BEAM_CHARGE_TIME_SECONDS = 2.0f;
     private static final float MIN_BEAM_CHARGE_TIME_SECONDS = 0.15f;
 
-    // immunity
+    // Immunity state
     private float immunityTimer = 0f;
     private float immunityDuration = 0f;
     private boolean immune = false;
 
-    // visual feedback
+    // Visual feedback state
     private static final float DAMAGE_FLASH_DURATION_SECONDS = 0.25f;
     private float damageFlashTimer = 0f;
 
+    /**
+     * Constructs a new Player.
+     *
+     * @param x            starting X position
+     * @param y            starting Y position
+     * @param randomSource source of randomness for item effects
+     */
     public Player(float x, float y, Random randomSource) {
         this.texture = new Texture("skins/player_default.png");
         this.randomSource = Objects.requireNonNull(randomSource, "randomSource");
@@ -122,24 +141,37 @@ public class Player {
         this.attackHitbox = new Rectangle(x, y, 100, 100);
     }
 
+    /**
+     * Updates the player's timers, movement, and animation state.
+     *
+     * @param joystick current input joystick
+     * @param delta    time since last update
+     */
     public void update(Joystick joystick, float delta) {
-
-        // timers
-
+        // Update timers
         if (attacking) {
             attackTime -= delta;
-            if (attackTime <= 0) attacking = false;
+            if (attackTime <= 0) {
+                attacking = false;
+            }
         }
 
-        if (meleeCooldown > 0) meleeCooldown -= delta;
-        if (rangedCooldown > 0) rangedCooldown -= delta;
-        if (damageCooldown > 0) damageCooldown -= delta;
-        if (damageFlashTimer > 0f) damageFlashTimer -= delta;
-
+        if (meleeCooldown > 0) {
+            meleeCooldown -= delta;
+        }
+        if (rangedCooldown > 0) {
+            rangedCooldown -= delta;
+        }
+        if (damageCooldown > 0) {
+            damageCooldown -= delta;
+        }
+        if (damageFlashTimer > 0f) {
+            damageFlashTimer -= delta;
+        }
 
         updateCharge(delta);
 
-        // immunity
+        // Update immunity
         if (immune) {
             immunityTimer += delta;
             if (immunityTimer >= immunityDuration) {
@@ -150,11 +182,15 @@ public class Player {
         float dx = joystick.getPercentX();
         float dy = joystick.getPercentY();
 
-        // dead zone (prevents tiny unwanted movement)
-        if (Math.abs(dx) < 0.15f) dx = 0f;
-        if (Math.abs(dy) < 0.15f) dy = 0f;
+        // Dead zone filter
+        if (Math.abs(dx) < 0.15f) {
+            dx = 0f;
+        }
+        if (Math.abs(dy) < 0.15f) {
+            dy = 0f;
+        }
 
-        // movement / knockback
+        // Apply movement or knockback
         if (knockbackTime > 0) {
             moving = true;
             knockbackTime -= delta;
@@ -171,8 +207,11 @@ public class Player {
             y += dy * speed * delta;
         }
 
-        if (moving) stateTime += delta;
-        else stateTime = 0f;
+        if (moving) {
+            stateTime += delta;
+        } else {
+            stateTime = 0f;
+        }
 
         x = MathUtils.clamp(x, 0, Gdx.graphics.getWidth() - width);
         y = MathUtils.clamp(y, 0, Gdx.graphics.getHeight() - height);
@@ -180,6 +219,11 @@ public class Player {
         bounds.setPosition(x, y);
     }
 
+    /**
+     * Calculates the current base damage based on the player's class.
+     *
+     * @return current base damage
+     */
     public int getCurrentDamage() {
         if (playerClass == PlayerClass.MELEE) {
             return meleeBaseDamage + attackBonus;
@@ -188,20 +232,29 @@ public class Player {
         }
     }
 
+    /**
+     * Handles collision with obstacles by pushing the player out.
+     *
+     * @param obstacles list of obstacles to check
+     */
     public void handleObstacleCollision(Array<Obstacle> obstacles) {
         for (Obstacle o : obstacles) {
             if (bounds.overlaps(o.bounds)) {
-
                 float overlapX = Math.min(bounds.x + width - o.bounds.x, o.bounds.x + o.bounds.width - bounds.x);
                 float overlapY = Math.min(bounds.y + height - o.bounds.y, o.bounds.y + o.bounds.height - bounds.y);
 
-                // Push out in the direction of the smallest overlap
                 if (overlapX < overlapY) {
-                    if (bounds.x < o.bounds.x) x -= overlapX;
-                    else x += overlapX;
+                    if (bounds.x < o.bounds.x) {
+                        x -= overlapX;
+                    } else {
+                        x += overlapX;
+                    }
                 } else {
-                    if (bounds.y < o.bounds.y) y -= overlapY;
-                    else y += overlapY;
+                    if (bounds.y < o.bounds.y) {
+                        y -= overlapY;
+                    } else {
+                        y += overlapY;
+                    }
                 }
 
                 bounds.setPosition(x, y);
@@ -209,13 +262,20 @@ public class Player {
         }
     }
 
-    // ---------- MELEE ----------
     public boolean canMelee() {
         return meleeCooldown <= 0f;
     }
 
+    /**
+     * Triggers a melee attack in the direction of the joystick or facing direction.
+     *
+     * @param joystick current input joystick
+     * @param enemies  list of enemies for aim assistance
+     */
     public void meleeAttack(Joystick joystick, Array<Enemy> enemies) {
-        if (!canMelee()) return;
+        if (!canMelee()) {
+            return;
+        }
 
         meleeCooldown = getEffectiveMeleeCooldownTime();
         attacking = true;
@@ -224,7 +284,6 @@ public class Player {
         float dx = joystick.getPercentX();
         float dy = joystick.getPercentY();
 
-        // default horizontal attack direction follows facing orientation if neutral
         if (Math.abs(dx) < 0.15f && Math.abs(dy) < 0.15f) {
             dx = facingLeft ? -1f : 1f;
             dy = 0;
@@ -264,11 +323,16 @@ public class Player {
         );
     }
 
-    // ---------- RANGED ----------
     public boolean canShoot() {
         return rangedCooldown <= 0f;
     }
 
+    /**
+     * Calculates the shoot direction based on the joystick.
+     *
+     * @param joystick current input joystick
+     * @return a normalized direction vector
+     */
     public Vector2 getShootDirection(Joystick joystick) {
         float dx = joystick.getPercentX();
         float dy = joystick.getPercentY();
@@ -290,12 +354,16 @@ public class Player {
     }
 
     public void updateCharge(float delta) {
-        if (!charging) return;
+        if (!charging) {
+            return;
+        }
         chargeTime = Math.min(chargeTime + delta, getEffectiveBeamChargeTimeSeconds());
     }
 
     public float releaseChargePercent() {
-        if (!charging) return 0f;
+        if (!charging) {
+            return 0f;
+        }
 
         charging = false;
         float percent = chargeTime / getEffectiveBeamChargeTimeSeconds();
@@ -358,7 +426,9 @@ public class Player {
             it.modifyHoming(this, ctx);
         }
 
-        if (!ctx.enabled) return ctx;
+        if (!ctx.enabled) {
+            return ctx;
+        }
 
         ctx.homingRange = Math.max(0f, ctx.homingRange);
         ctx.homingStrength = MathUtils.clamp(ctx.homingStrength, 0f, 6f);
@@ -369,6 +439,11 @@ public class Player {
         return ctx;
     }
 
+    /**
+     * Grants the player temporary immunity from damage.
+     *
+     * @param seconds duration of immunity
+     */
     public void giveImmunity(float seconds) {
         immune = true;
         immunityDuration = seconds;
@@ -407,6 +482,12 @@ public class Player {
         return Math.max(0, Math.min(ctx.damage, ctx.maxDamage));
     }
 
+    /**
+     * Applies incoming damage to the player if they are not immune.
+     *
+     * @param baseDamage damage before reductions
+     * @return the actual damage taken
+     */
     public int applyIncomingDamage(int baseDamage) {
         if (!canTakeDamage()) {
             return 0;
@@ -421,6 +502,11 @@ public class Player {
         return finalDamage;
     }
 
+    /**
+     * Returns the total damage including bonuses and item modifications.
+     *
+     * @return final calculated damage
+     */
     public int getDisplayedDamage() {
         DamageContext ctx = new DamageContext(getCurrentDamage());
 
@@ -435,6 +521,12 @@ public class Player {
         coins += amount;
     }
 
+    /**
+     * Attempts to spend coins.
+     *
+     * @param amount amount to spend
+     * @return true if successfully spent, false if insufficient funds
+     */
     public boolean spendCoins(int amount) {
         if (amount <= 0) {
             return true;
@@ -447,8 +539,15 @@ public class Player {
         return true;
     }
 
+    /**
+     * Adds a passive item to the player's inventory and triggers its pickup effect.
+     *
+     * @param item the item to add
+     */
     public void addPassiveItem(PassiveItem item) {
-        if (item == null) return;
+        if (item == null) {
+            return;
+        }
 
         if (hasItem(item.getItemId()) && !ownsAllItems()) {
             return;
@@ -496,6 +595,11 @@ public class Player {
         return randomSource;
     }
 
+    /**
+     * Draws the player with current animations and effects.
+     *
+     * @param batch the SpriteBatch to draw with
+     */
     public void draw(SpriteBatch batch) {
         if (damageFlashTimer > 0f) {
             batch.setColor(1f, 0.35f, 0.35f, 1f);
@@ -518,7 +622,6 @@ public class Player {
             batch.setColor(1f, 1f, 1f, 1f);
         }
     }
-
 
     private void drawCurrentFrame(SpriteBatch batch, TextureRegion frame) {
         if (facingLeft) {
@@ -559,8 +662,15 @@ public class Player {
         return texture;
     }
 
+    /**
+     * Disposes of player textures.
+     */
     public void dispose() {
-        texture.dispose();
-        debugPixel.dispose();
+        if (texture != null) {
+            texture.dispose();
+        }
+        if (debugPixel != null) {
+            debugPixel.dispose();
+        }
     }
 }

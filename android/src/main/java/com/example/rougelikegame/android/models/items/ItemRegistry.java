@@ -23,9 +23,13 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
 
+/**
+ * The ItemRegistry class maintains a registry of all available passive items in the game
+ * and provides methods to instantiate them by ID.
+ */
 public class ItemRegistry {
 
-    private static final Map<Integer, Supplier<PassiveItem>> registry = new HashMap<>();
+    private static final Map<Integer, Supplier<PassiveItem>> REGISTRY = new HashMap<>();
 
     static {
         register(DamageUpItem.ID, DamageUpItem::new);
@@ -46,17 +50,37 @@ public class ItemRegistry {
         register(LightningChainItem.ID, LightningChainItem::new);
     }
 
+    /**
+     * Registers a new item with its ID and a supplier to create instances.
+     *
+     * @param id       the unique item ID
+     * @param supplier the supplier that creates new instances of the item
+     */
     private static void register(int id, Supplier<PassiveItem> supplier) {
-        registry.put(id, supplier);
+        REGISTRY.put(id, supplier);
     }
 
+    /**
+     * Creates a new instance of an item based on its ID.
+     *
+     * @param id the unique item ID
+     * @return a new PassiveItem instance
+     * @throws IllegalArgumentException if the ID is unknown
+     */
     public static PassiveItem create(int id) {
-        Supplier<PassiveItem> supplier = registry.get(id);
-        if (supplier == null) throw new IllegalArgumentException("Unknown item id: " + id);
+        Supplier<PassiveItem> supplier = REGISTRY.get(id);
+        if (supplier == null) {
+            throw new IllegalArgumentException("Unknown item id: " + id);
+        }
         return supplier.get();
     }
 
+    /**
+     * Returns a set of all registered item IDs.
+     *
+     * @return a set containing all item IDs
+     */
     public static Set<Integer> getAllItemIds() {
-        return new HashSet<>(registry.keySet());
+        return new HashSet<>(REGISTRY.keySet());
     }
 }

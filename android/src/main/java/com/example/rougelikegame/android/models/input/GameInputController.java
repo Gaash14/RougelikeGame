@@ -7,15 +7,22 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.utils.Array;
 import com.example.rougelikegame.android.models.characters.Enemy;
 import com.example.rougelikegame.android.models.characters.Player;
 import com.example.rougelikegame.android.models.items.PassiveItem;
 import com.example.rougelikegame.android.models.items.passives.BeamItem;
 
+/**
+ * The GameInputController class handles all user input during gameplay,
+ * including movement via joystick, attacks, and menu interactions.
+ */
 public class GameInputController {
 
+    /**
+     * Interface for spawning projectiles and beams based on input.
+     */
     public interface ProjectileSpawner {
         void spawnProjectile(float x, float y, Vector2 dir, int damage);
         void spawnBeam(Vector2 dir, float chargePercent);
@@ -39,6 +46,9 @@ public class GameInputController {
     private int attackPointer = -1;
     private boolean rangedAttackHeld = false;
 
+    /**
+     * Constructs a GameInputController with the necessary game components and bounds.
+     */
     public GameInputController(
         OrthographicCamera camera,
         Stage stage,
@@ -63,14 +73,25 @@ public class GameInputController {
         this.onExitRequested = onExitRequested;
     }
 
+    /**
+     * Sets the paused state of the game input.
+     *
+     * @param paused true to pause input handling, false to resume
+     */
     public void setPaused(boolean paused) {
         this.paused = paused;
     }
 
+    /**
+     * @return true if the game is currently paused
+     */
     public boolean isPaused() {
         return paused;
     }
 
+    /**
+     * Resets the input state for gameplay.
+     */
     public void resetGameplayInputState() {
         joystick.reset();
         attackPointer = -1;
@@ -78,6 +99,11 @@ public class GameInputController {
         player.cancelCharge();
     }
 
+    /**
+     * Updates the input controller state.
+     *
+     * @param delta the time elapsed since the last frame
+     */
     public void update(float delta) {
         if (paused) return;
 
@@ -86,6 +112,11 @@ public class GameInputController {
         }
     }
 
+    /**
+     * Builds an InputMultiplexer that includes the stage and custom gameplay input handling.
+     *
+     * @return the configured InputMultiplexer
+     */
     public InputMultiplexer buildProcessor() {
         InputMultiplexer multiplexer = new InputMultiplexer();
         multiplexer.addProcessor(stage);
@@ -186,6 +217,9 @@ public class GameInputController {
         return multiplexer;
     }
 
+    /**
+     * Fires ranged projectiles while the player is able to shoot.
+     */
     private void fireRangedShots() {
         while (player.canShoot()) {
             Vector2 dir = player.getShootDirection(joystick);
@@ -201,6 +235,11 @@ public class GameInputController {
         }
     }
 
+    /**
+     * Checks if the player has the BeamItem.
+     *
+     * @return true if the player has the BeamItem, false otherwise
+     */
     private boolean hasBeamItem() {
         for (PassiveItem item : player.getPassiveItems()) {
             if (item.getItemId() == BeamItem.ID) {

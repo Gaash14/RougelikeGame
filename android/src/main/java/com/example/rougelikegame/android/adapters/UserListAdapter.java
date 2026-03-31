@@ -16,10 +16,19 @@ import com.example.rougelikegame.android.models.meta.User;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * UserListAdapter manages the display and administration of users in a list.
+ * It provides functionality for filtering users and performing administrative actions like deleting or resetting stats.
+ */
 public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.ViewHolder> {
 
     private final List<User> fullList = new ArrayList<>();
+    private final List<User> userList;
+    private final OnUserClickListener onUserClickListener;
 
+    /**
+     * Interface for handling click events on user list items.
+     */
     public interface OnUserClickListener {
         void onUserClick(User user);
         void onLongUserClick(User user);
@@ -27,8 +36,11 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.ViewHo
         void onResetStatsClick(User user);
     }
 
-    private final List<User> userList;
-    private final OnUserClickListener onUserClickListener;
+    /**
+     * Constructs a new UserListAdapter.
+     *
+     * @param onUserClickListener the listener for user action events
+     */
     public UserListAdapter(@Nullable final OnUserClickListener onUserClickListener) {
         userList = new ArrayList<>();
         this.onUserClickListener = onUserClickListener;
@@ -37,7 +49,8 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.ViewHo
     @NonNull
     @Override
     public UserListAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_user_admin, parent, false);
+        View view = LayoutInflater.from(parent.getContext())
+            .inflate(R.layout.item_user_admin, parent, false);
         return new ViewHolder(view);
     }
 
@@ -62,12 +75,9 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.ViewHo
             return true;
         });
 
-        holder.btnDelete.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (onUserClickListener != null) {
-                    onUserClickListener.onDeleteClick(user);
-                }
+        holder.btnDelete.setOnClickListener(v -> {
+            if (onUserClickListener != null) {
+                onUserClickListener.onDeleteClick(user);
             }
         });
 
@@ -83,6 +93,11 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.ViewHo
         return userList.size();
     }
 
+    /**
+     * Sets the initial list of users and updates the adapter.
+     *
+     * @param users the list of users to display
+     */
     public void setUserList(List<User> users) {
         userList.clear();
         userList.addAll(users);
@@ -93,10 +108,21 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.ViewHo
         notifyDataSetChanged();
     }
 
+    /**
+     * Adds a single user to the end of the list.
+     *
+     * @param user the user to add
+     */
     public void addUser(User user) {
         userList.add(user);
         notifyItemInserted(userList.size() - 1);
     }
+
+    /**
+     * Updates an existing user entry in the list.
+     *
+     * @param user the user to update
+     */
     public void updateUser(User user) {
         int index = userList.indexOf(user);
         if (index == -1) return;
@@ -104,6 +130,11 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.ViewHo
         notifyItemChanged(index);
     }
 
+    /**
+     * Removes a user from the displayed list.
+     *
+     * @param user the user to remove
+     */
     public void removeUser(User user) {
         int index = userList.indexOf(user);
         if (index == -1) return;
@@ -111,19 +142,11 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.ViewHo
         notifyItemRemoved(index);
     }
 
-    public static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView tvName, tvEmail;
-        Button btnDelete;
-        Button btnReset;
-
-        public ViewHolder(@NonNull View itemView) {
-            super(itemView);
-            tvName = itemView.findViewById(R.id.tv_item_user_name);
-            tvEmail = itemView.findViewById(R.id.tv_item_user_email);
-            btnDelete = itemView.findViewById(R.id.btn_item_user_delete);
-            btnReset = itemView.findViewById(R.id.btn_item_user_reset);
-        }
-    }
+    /**
+     * Filters the user list based on a search query.
+     *
+     * @param text the query text to filter by
+     */
     public void filter(String text) {
         userList.clear();
 
@@ -142,4 +165,21 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.ViewHo
         notifyDataSetChanged();
     }
 
+    /**
+     * ViewHolder class for user list items.
+     */
+    public static class ViewHolder extends RecyclerView.ViewHolder {
+        TextView tvName;
+        TextView tvEmail;
+        Button btnDelete;
+        Button btnReset;
+
+        public ViewHolder(@NonNull View itemView) {
+            super(itemView);
+            tvName = itemView.findViewById(R.id.tv_item_user_name);
+            tvEmail = itemView.findViewById(R.id.tv_item_user_email);
+            btnDelete = itemView.findViewById(R.id.btn_item_user_delete);
+            btnReset = itemView.findViewById(R.id.btn_item_user_reset);
+        }
+    }
 }

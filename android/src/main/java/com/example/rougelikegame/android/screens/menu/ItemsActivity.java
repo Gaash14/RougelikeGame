@@ -18,6 +18,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * Activity that displays a codex of all items in the game.
+ */
 public class ItemsActivity extends AppCompatActivity {
 
     @Override
@@ -34,6 +37,11 @@ public class ItemsActivity extends AppCompatActivity {
         itemsRecyclerView.setAdapter(new ItemCodexAdapter(this, codexItems));
     }
 
+    /**
+     * Builds a list of codex items from the ItemRegistry.
+     *
+     * @return A sorted list of CodexItem objects.
+     */
     private List<ItemCodexAdapter.CodexItem> buildCodexItems() {
         List<Integer> itemIds = new ArrayList<>(ItemRegistry.getAllItemIds());
         Collections.sort(itemIds);
@@ -47,10 +55,16 @@ public class ItemsActivity extends AppCompatActivity {
         return codexItems;
     }
 
+    /**
+     * Converts density-independent pixels (dp) to pixels (px).
+     */
     private int dpToPx(int dp) {
         return Math.round(dp * getResources().getDisplayMetrics().density);
     }
 
+    /**
+     * Decoration for adding spacing between items in a grid.
+     */
     private static class GridSpacingDecoration extends RecyclerView.ItemDecoration {
         private final int horizontalSpacing;
         private final int verticalSpacing;
@@ -76,3 +90,4 @@ public class ItemsActivity extends AppCompatActivity {
         }
     }
 }
+

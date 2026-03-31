@@ -8,6 +8,9 @@ import com.example.rougelikegame.android.models.characters.Player;
 import com.example.rougelikegame.android.models.items.ItemTier;
 import com.example.rougelikegame.android.models.items.PassiveItem;
 
+/**
+ * The Lightning Chain item gives a chance for attacks to arc to the nearest enemy on hit.
+ */
 public class LightningChainItem implements PassiveItem {
 
     public static final int ID = 16;
@@ -58,6 +61,12 @@ public class LightningChainItem implements PassiveItem {
         SoundManager.play("hit");
     }
 
+    /**
+     * Finds the closest alive enemy to the source enemy.
+     * @param sourceEnemy The enemy that was originally hit.
+     * @param enemies The list of all enemies.
+     * @return The closest other enemy, or null if none found.
+     */
     private Enemy findClosestOtherEnemy(Enemy sourceEnemy, Array<Enemy> enemies) {
         Enemy nearest = null;
         float bestDistSq = Float.MAX_VALUE;

@@ -5,6 +5,9 @@ import com.example.rougelikegame.android.models.items.ItemTier;
 import com.example.rougelikegame.android.models.items.PassiveItem;
 import com.example.rougelikegame.android.models.items.contexts.HomingContext;
 
+/**
+ * The Homing Lens item enables and configures homing behavior for both ranged and melee attacks.
+ */
 public class HomingLensItem implements PassiveItem {
 
     public static final int ID = 12;

@@ -12,11 +12,15 @@ import com.example.rougelikegame.android.models.world.Obstacle;
 import com.example.rougelikegame.android.models.world.Projectile;
 import com.example.rougelikegame.android.screens.menu.MainActivity;
 
+/**
+ * This class represents a boss enemy in the game. It features a unique 'Inferno' ability
+ * that damages the player if they are outside a safe zone, and spawns reinforcements
+ * when reaching half health.
+ */
 public class BossEnemy extends Enemy {
 
     private final float shootCooldown = 2f;
     private float shootTimer = 0f;
-    private final int damage;
     private static final int PROJECTILE_DAMAGE = 4;
 
     private static final float HALF_HEALTH_THRESHOLD = 0.5f;
@@ -39,16 +43,24 @@ public class BossEnemy extends Enemy {
     private float infernoActiveTimer = 0f;
     private float infernoDamageTimer = 0f;
 
+    /**
+     * Constructs a new BossEnemy.
+     *
+     * @param texture     the boss texture
+     * @param startX      starting X position
+     * @param startY      starting Y position
+     * @param projectiles array of projectiles to add boss bullets to
+     * @param health      initial health
+     * @param damage      base contact damage
+     * @param game        reference to the main activity for summoning reinforcements
+     */
     public BossEnemy(Texture texture, float startX, float startY, Array<Projectile> projectiles,
                      int health, int damage, MainActivity game) {
-        super(texture, startX, startY,70f,
-            256f,256f, health, damage);
+        super(texture, startX, startY, 70f, 256f, 256f, health, damage);
 
         this.projectiles = projectiles;
         this.isBoss = true;
-        this.health = health;
         this.maxHealth = health;
-        this.damage = damage;
         this.game = game;
     }
 
@@ -73,7 +85,7 @@ public class BossEnemy extends Enemy {
             float dirY = playerY - originY;
             float spreadAngle = 30f;
 
-            for (float angleOffset : new float[] { -spreadAngle, 0f, spreadAngle }) {
+            for (float angleOffset : new float[]{-spreadAngle, 0f, spreadAngle}) {
                 float rotatedDirX = dirX * MathUtils.cosDeg(angleOffset) - dirY * MathUtils.sinDeg(angleOffset);
                 float rotatedDirY = dirX * MathUtils.sinDeg(angleOffset) + dirY * MathUtils.cosDeg(angleOffset);
 
@@ -138,7 +150,13 @@ public class BossEnemy extends Enemy {
         return MathUtils.random(SPECIAL_MIN_COOLDOWN_SECONDS, SPECIAL_MAX_COOLDOWN_SECONDS);
     }
 
-
+    /**
+     * Applies damage to the player if they are outside the inferno safe zone.
+     *
+     * @param player the player to damage
+     * @param delta  time since last update
+     * @return the total damage taken this tick
+     */
     public int applyInfernoDamage(Player player, float delta) {
         if (!isInfernoActive()) {
             infernoDamageTimer = 0f;
@@ -225,5 +243,4 @@ public class BossEnemy extends Enemy {
     private boolean isEnraged() {
         return reinforcementsSummoned || health <= maxHealth / 2;
     }
-
 }

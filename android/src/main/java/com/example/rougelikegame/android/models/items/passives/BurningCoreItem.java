@@ -5,6 +5,9 @@ import com.example.rougelikegame.android.models.characters.Player;
 import com.example.rougelikegame.android.models.items.ItemTier;
 import com.example.rougelikegame.android.models.items.PassiveItem;
 
+/**
+ * The Burning Core item adds a chance-based burn effect to the player's attacks.
+ */
 public class BurningCoreItem implements PassiveItem {
 
     public static final int ID = 6;

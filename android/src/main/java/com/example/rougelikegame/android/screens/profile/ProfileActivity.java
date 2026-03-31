@@ -3,35 +3,48 @@ package com.example.rougelikegame.android.screens.profile;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.ImageButton;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.rougelikegame.R;
+import com.example.rougelikegame.android.models.meta.Guild;
+import com.example.rougelikegame.android.models.meta.User;
 import com.example.rougelikegame.android.screens.menu.ItemsActivity;
 import com.example.rougelikegame.android.screens.shop.ShopActivity;
 import com.example.rougelikegame.android.utils.ImageUtil;
 import com.example.rougelikegame.android.utils.SharedPreferencesUtil;
-import com.example.rougelikegame.android.models.meta.Guild;
-import com.example.rougelikegame.android.models.meta.User;
 
 import java.util.Locale;
 
+/**
+ * Activity for displaying and managing the user profile and statistics.
+ */
 public class ProfileActivity extends AppCompatActivity {
 
     // Header
     private ImageView imgAvatar;
-    private TextView txtName, txtSubtitle, txtGuildName;
+    private TextView txtName;
+    private TextView txtSubtitle;
+    private TextView txtGuildName;
     private ImageButton btnUpdateUser;
 
     // Stats
-    private TextView txtRuns, txtWinsLosses, txtWinRate;
-    private TextView txtKills, txtPickups, txtItemsPicked, txtCoins;
-    private TextView txtHighestWave, txtBestTime;
-    private TextView txtRangedPicks, txtMeleePicks;
-    private TextView txtCurrentStreak, txtBestStreak;
+    private TextView txtRuns;
+    private TextView txtWinsLosses;
+    private TextView txtWinRate;
+    private TextView txtKills;
+    private TextView txtPickups;
+    private TextView txtItemsPicked;
+    private TextView txtCoins;
+    private TextView txtHighestWave;
+    private TextView txtBestTime;
+    private TextView txtRangedPicks;
+    private TextView txtMeleePicks;
+    private TextView txtCurrentStreak;
+    private TextView txtBestStreak;
     private TextView txtDailyStats;
 
     @Override
@@ -43,6 +56,9 @@ public class ProfileActivity extends AppCompatActivity {
         loadUserToUI();
     }
 
+    /**
+     * Binds UI components to class fields.
+     */
     private void bindViews() {
         imgAvatar = findViewById(R.id.imgAvatar);
         txtName = findViewById(R.id.txtName);
@@ -92,6 +108,9 @@ public class ProfileActivity extends AppCompatActivity {
 
     }
 
+    /**
+     * Loads user data into the UI, either from local storage or database.
+     */
     private void loadUserToUI() {
         // Check if admin passed a user UID
         String userUid = getIntent().getStringExtra("USER_UID");
@@ -112,20 +131,26 @@ public class ProfileActivity extends AppCompatActivity {
         loadUserFromDatabase(local.getUid());
     }
 
+    /**
+     * Fetches user data from Firebase Database.
+     */
     private void loadUserFromDatabase(String uid) {
         com.google.firebase.database.FirebaseDatabase.getInstance()
-            .getReference("users")
-            .child(uid)
-            .get()
-            .addOnSuccessListener(snapshot -> {
-                User user = snapshot.getValue(User.class);
-                showUser(user);
-            })
-            .addOnFailureListener(e -> {
-                showUser(null);
-            });
+                .getReference("users")
+                .child(uid)
+                .get()
+                .addOnSuccessListener(snapshot -> {
+                    User user = snapshot.getValue(User.class);
+                    showUser(user);
+                })
+                .addOnFailureListener(e -> {
+                    showUser(null);
+                });
     }
 
+    /**
+     * Updates the UI with the provided user data.
+     */
     private void showUser(User user) {
         // ---------- GUEST ----------
         if (user == null) {
@@ -177,8 +202,8 @@ public class ProfileActivity extends AppCompatActivity {
         int losses = Math.max(0, runs - wins);
 
         double winRate = (runs > 0)
-            ? (wins * 100.0 / runs)
-            : 0.0;
+                ? (wins * 100.0 / runs)
+                : 0.0;
 
         txtRuns.setText("Runs: " + runs);
         txtWinsLosses.setText("Wins: " + wins + " | Losses: " + losses);
@@ -192,39 +217,38 @@ public class ProfileActivity extends AppCompatActivity {
         txtBestStreak.setText("Best Streak: " + bestStreak);
 
         txtDailyStats.setText(
-            "Completed: " + user.getDailyChallengesCompleted()
-                + " • 🔥 Streak: " + user.getDailyStreak()
-                + " (Best: " + user.getBestDailyStreak() + ")"
+                "Completed: " + user.getDailyChallengesCompleted()
+                        + " • 🔥 Streak: " + user.getDailyStreak()
+                        + " (Best: " + user.getBestDailyStreak() + ")"
         );
 
         // ---------- CLASS PICKS ----------
         int rangedPicks = user.getPickedRanged();
-        int totalRuns = runs;
 
         // Safety clamp (in case of bad data)
-        rangedPicks = Math.max(0, Math.min(rangedPicks, totalRuns));
-        int meleePicks = Math.max(0, totalRuns - rangedPicks);
+        rangedPicks = Math.max(0, Math.min(rangedPicks, runs));
+        int meleePicks = Math.max(0, runs - rangedPicks);
 
-        double rangedPercent = (totalRuns > 0)
-            ? (rangedPicks * 100.0 / totalRuns)
-            : 0.0;
+        double rangedPercent = (runs > 0)
+                ? (rangedPicks * 100.0 / runs)
+                : 0.0;
 
-        double meleePercent = (totalRuns > 0)
-            ? (meleePicks * 100.0 / totalRuns)
-            : 0.0;
+        double meleePercent = (runs > 0)
+                ? (meleePicks * 100.0 / runs)
+                : 0.0;
 
         txtRangedPicks.setText(String.format(
-            Locale.US,
-            "Ranged: %d (%.1f%%)",
-            rangedPicks,
-            rangedPercent
+                Locale.US,
+                "Ranged: %d (%.1f%%)",
+                rangedPicks,
+                rangedPercent
         ));
 
         txtMeleePicks.setText(String.format(
-            Locale.US,
-            "Melee: %d (%.1f%%)",
-            meleePicks,
-            meleePercent
+                Locale.US,
+                "Melee: %d (%.1f%%)",
+                meleePicks,
+                meleePercent
         ));
 
         // ---------- KILLS / PICKUPS ----------
@@ -234,38 +258,38 @@ public class ProfileActivity extends AppCompatActivity {
         int itemsPicked = user.getItemsPicked();
 
         double killsPerRun = (runs > 0)
-            ? (enemiesKilled * 1.0 / runs)
-            : 0.0;
+                ? (enemiesKilled * 1.0 / runs)
+                : 0.0;
 
         double pickupsPerRun = (runs > 0)
-            ? (pickupsPicked * 1.0 / runs)
-            : 0.0;
+                ? (pickupsPicked * 1.0 / runs)
+                : 0.0;
 
         double itemsPickedPerRun = (runs > 0)
-            ? (itemsPicked * 1.0 / runs)
-            : 0.0;
+                ? (itemsPicked * 1.0 / runs)
+                : 0.0;
 
         txtKills.setText(String.format(
-            Locale.US,
-            "Enemies Killed: %d (%.2f / run)",
-            enemiesKilled,
-            killsPerRun
+                Locale.US,
+                "Enemies Killed: %d (%.2f / run)",
+                enemiesKilled,
+                killsPerRun
         ));
 
         txtPickups.setText(String.format(
-            Locale.US,
-            "Pickups: %d (%.2f / run)",
-            pickupsPicked,
-            pickupsPerRun
+                Locale.US,
+                "Pickups: %d (%.2f / run)",
+                pickupsPicked,
+                pickupsPerRun
         ));
 
         txtCoins.setText("Coins: " + numOfCoins);
 
         txtItemsPicked.setText(String.format(
-            Locale.US,
-            "Items Picked: %d (%.2f / run)",
-            itemsPicked,
-            itemsPickedPerRun
+                Locale.US,
+                "Items Picked: %d (%.2f / run)",
+                itemsPicked,
+                itemsPickedPerRun
         ));
 
         // ---------- BESTS ----------
@@ -279,6 +303,9 @@ public class ProfileActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Binds the guild name to the UI based on guildId.
+     */
     private void bindGuildName(String guildId) {
         if (guildId == null || guildId.trim().isEmpty()) {
             txtGuildName.setText("No Guild");
@@ -288,23 +315,26 @@ public class ProfileActivity extends AppCompatActivity {
         txtGuildName.setText("Guild...");
 
         com.google.firebase.database.FirebaseDatabase.getInstance()
-            .getReference("guilds")
-            .child(guildId)
-            .get()
-            .addOnSuccessListener(snapshot -> {
-                Guild guild = snapshot.getValue(Guild.class);
-                String guildName = guild != null ? guild.getName() : null;
+                .getReference("guilds")
+                .child(guildId)
+                .get()
+                .addOnSuccessListener(snapshot -> {
+                    Guild guild = snapshot.getValue(Guild.class);
+                    String guildName = guild != null ? guild.getName() : null;
 
-                if (guildName == null || guildName.trim().isEmpty()) {
-                    txtGuildName.setText("Unknown Guild");
-                    return;
-                }
+                    if (guildName == null || guildName.trim().isEmpty()) {
+                        txtGuildName.setText("Unknown Guild");
+                        return;
+                    }
 
-                txtGuildName.setText(guildName.trim());
-            })
-            .addOnFailureListener(e -> txtGuildName.setText("Unknown Guild"));
+                    txtGuildName.setText(guildName.trim());
+                })
+                .addOnFailureListener(e -> txtGuildName.setText("Unknown Guild"));
     }
 
+    /**
+     * Formats seconds into a human-readable time string.
+     */
     private static String formatTime(int seconds) {
         int minutes = seconds / 60;
         int secs = seconds % 60;
@@ -315,3 +345,4 @@ public class ProfileActivity extends AppCompatActivity {
         return String.format(Locale.US, "%ds", secs);
     }
 }
+

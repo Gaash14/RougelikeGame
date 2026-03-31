@@ -10,6 +10,9 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * Static manager for handling background music tracks.
+ */
 public final class MusicManager {
     private static final String TAG = "MusicManager";
     private static final String BGM_KEY = "bgm";
@@ -29,6 +32,9 @@ public final class MusicManager {
     private MusicManager() {
     }
 
+    /**
+     * Loads all music tracks from internal assets.
+     */
     public static void load() {
         if (initialized) {
             return;
@@ -42,26 +48,49 @@ public final class MusicManager {
         initialized = true;
     }
 
+    /**
+     * Plays the standard background music.
+     */
     public static void playBackgroundMusic() {
         play(BGM_KEY, true);
     }
 
+    /**
+     * Plays the boss fight background music.
+     */
     public static void playBossMusic() {
         play(BOSS_KEY, true);
     }
 
+    /**
+     * Plays the victory theme.
+     */
     public static void playWinMusic() {
         play(WIN_KEY, true);
     }
 
+    /**
+     * Plays the death theme.
+     */
     public static void playDeathMusic() {
         play(DEATH_KEY, true);
     }
 
+    /**
+     * Checks if the boss music is currently active.
+     *
+     * @return true if boss music is active, false otherwise
+     */
     public static boolean isBossMusicActive() {
         return BOSS_KEY.equals(currentTrackKey);
     }
 
+    /**
+     * Plays a specific music track by its key.
+     *
+     * @param key the track key
+     * @param looping whether the track should loop
+     */
     public static void play(String key, boolean looping) {
         if (!initialized) {
             return;
@@ -96,11 +125,19 @@ public final class MusicManager {
         }
     }
 
+    /**
+     * Stops the currently playing music.
+     */
     public static void stop() {
         stopCurrent();
         currentTrackKey = null;
     }
 
+    /**
+     * Sets the volume for all music tracks.
+     *
+     * @param volume the volume level (0.0 to 1.0)
+     */
     public static void setMusicVolume(float volume) {
         musicVolume = MathUtils.clamp(volume, 0f, 1f);
         Music currentMusic = getCurrentMusic();
@@ -109,10 +146,20 @@ public final class MusicManager {
         }
     }
 
+    /**
+     * Gets the current music volume level.
+     *
+     * @return the volume level
+     */
     public static float getMusicVolume() {
         return musicVolume;
     }
 
+    /**
+     * Mutes or unmutes the music.
+     *
+     * @param isMuted true to mute, false to unmute
+     */
     public static void setMuted(boolean isMuted) {
         muted = isMuted;
 
@@ -129,10 +176,18 @@ public final class MusicManager {
         }
     }
 
+    /**
+     * Checks if the music is currently muted.
+     *
+     * @return true if muted, false otherwise
+     */
     public static boolean isMuted() {
         return muted;
     }
 
+    /**
+     * Disposes of all music tracks to free up memory.
+     */
     public static void dispose() {
         stop();
 
@@ -149,6 +204,12 @@ public final class MusicManager {
         initialized = false;
     }
 
+    /**
+     * Registers a new music track.
+     *
+     * @param key the track key
+     * @param path the internal path to the music file
+     */
     private static void registerMusic(String key, String path) {
         FileHandle file = Gdx.files.internal(path);
         if (!file.exists()) {
@@ -162,10 +223,18 @@ public final class MusicManager {
         tracks.put(key, Gdx.audio.newMusic(file));
     }
 
+    /**
+     * Gets the currently active Music instance.
+     *
+     * @return the active Music, or null if none
+     */
     private static Music getCurrentMusic() {
         return currentTrackKey == null ? null : tracks.get(currentTrackKey);
     }
 
+    /**
+     * Stops the currently active track if it exists.
+     */
     private static void stopCurrent() {
         Music currentMusic = getCurrentMusic();
         if (currentMusic != null) {
@@ -173,6 +242,11 @@ public final class MusicManager {
         }
     }
 
+    /**
+     * Applies the current volume/mute settings to a specific music track.
+     *
+     * @param music the music track to apply settings to
+     */
     private static void applyVolume(Music music) {
         music.setVolume(muted ? 0f : musicVolume);
     }

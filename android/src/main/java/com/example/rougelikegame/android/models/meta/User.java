@@ -4,11 +4,16 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * The User class stores all persistent data for a player, including stats, unlocked items, and guild affiliation.
+ */
 public class User implements Serializable {
 
     private String uid;
-    private String email, password;
-    private String firstName, lastName;
+    private String email;
+    private String password;
+    private String firstName;
+    private String lastName;
     private String fullName;
     private String phone;
     private boolean isAdmin;
@@ -41,10 +46,15 @@ public class User implements Serializable {
     private int dailyStreak;
     private int bestDailyStreak;
 
-    // Required empty constructor for Firebase
+    /**
+     * Default constructor for Firebase/JSON serialization.
+     */
     public User() {
     }
 
+    /**
+     * Constructs a new User with specified details and initial stats.
+     */
     public User(String uid,
                 String email,
                 String password,
@@ -144,11 +154,16 @@ public class User implements Serializable {
     }
 
     public void setAdmin(boolean admin) {
-        isAdmin = admin;
+        this.isAdmin = admin;
     }
 
-    public String getProfileImage() {return profileImage;}
-    public void setProfileImage(String profileImage) {this.profileImage = profileImage;}
+    public String getProfileImage() {
+        return profileImage;
+    }
+
+    public void setProfileImage(String profileImage) {
+        this.profileImage = profileImage;
+    }
 
     @Override
     public String toString() {
@@ -157,7 +172,7 @@ public class User implements Serializable {
             ", email='" + email + '\'' +
             ", password='" + password + '\'' +
             ", firstName='" + firstName + '\'' +
-            ", LastName='" + lastName + '\'' +
+            ", lastName='" + lastName + '\'' +
             ", phone='" + phone + '\'' +
             ", isAdmin=" + isAdmin +
             ", highestWave=" + highestWave +
@@ -167,8 +182,12 @@ public class User implements Serializable {
 
     @Override
     public boolean equals(Object object) {
-        if (this == object) return true;
-        if (object == null || getClass() != object.getClass()) return false;
+        if (this == object) {
+            return true;
+        }
+        if (object == null || getClass() != object.getClass()) {
+            return false;
+        }
 
         User user = (User) object;
         return uid.equals(user.uid);
@@ -182,11 +201,15 @@ public class User implements Serializable {
     public String getFullName() {
         return firstName + " " + lastName;
     }
-    public void setFullName(String fullName) { this.fullName = fullName; }
+
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
+    }
 
     public String getGuildId() {
         return guildId;
     }
+
     public void setGuildId(String guildId) {
         this.guildId = guildId;
     }
@@ -198,9 +221,19 @@ public class User implements Serializable {
         }
         return ownedSkins;
     }
-    public void setOwnedSkins(Map<String, Boolean> ownedSkins) { this.ownedSkins = ownedSkins;}
-    public String getEquippedSkinId() { return equippedSkinId == null ? "default" : equippedSkinId;}
-    public void setEquippedSkinId(String equippedSkinId) { this.equippedSkinId = equippedSkinId;}
+
+    public void setOwnedSkins(Map<String, Boolean> ownedSkins) {
+        this.ownedSkins = ownedSkins;
+    }
+
+    public String getEquippedSkinId() {
+        return equippedSkinId == null ? "default" : equippedSkinId;
+    }
+
+    public void setEquippedSkinId(String equippedSkinId) {
+        this.equippedSkinId = equippedSkinId;
+    }
+
     public boolean hasSkinUnlocked(String skinId) {
         return ownedSkins != null && Boolean.TRUE.equals(ownedSkins.get(skinId));
     }
@@ -209,51 +242,130 @@ public class User implements Serializable {
     public Map<String, Boolean> getAchievements() {
         return achievements;
     }
-    public void setAchievements(Map<String, Boolean> achievements) { this.achievements = achievements; }
 
-    public int getNumOfCoins() { return numOfCoins;}
-    public void setNumOfCoins(int numOfCoins) { this.numOfCoins = numOfCoins;}
+    public void setAchievements(Map<String, Boolean> achievements) {
+        this.achievements = achievements;
+    }
+
+    public int getNumOfCoins() {
+        return numOfCoins;
+    }
+
+    public void setNumOfCoins(int numOfCoins) {
+        this.numOfCoins = numOfCoins;
+    }
 
     // --- daily challenges ---
-    public int getDailyChallengesCompleted() {return dailyChallengesCompleted;}
-    public void setDailyChallengesCompleted(int dailyChallengesCompleted) {this.dailyChallengesCompleted = dailyChallengesCompleted;}
-    public String getLastDailyCompletionDate() {return lastDailyCompletionDate;}
-    public void setLastDailyCompletionDate(String lastDailyCompletionDate) {this.lastDailyCompletionDate = lastDailyCompletionDate;}
-    public int getDailyStreak() {return dailyStreak;}
-    public void setDailyStreak(int dailyStreak) {this.dailyStreak = dailyStreak;}
-    public int getBestDailyStreak() {return bestDailyStreak;}
-    public void setBestDailyStreak(int bestDailyStreak) {this.bestDailyStreak = bestDailyStreak;}
+    public int getDailyChallengesCompleted() {
+        return dailyChallengesCompleted;
+    }
+
+    public void setDailyChallengesCompleted(int dailyChallengesCompleted) {
+        this.dailyChallengesCompleted = dailyChallengesCompleted;
+    }
+
+    public String getLastDailyCompletionDate() {
+        return lastDailyCompletionDate;
+    }
+
+    public void setLastDailyCompletionDate(String lastDailyCompletionDate) {
+        this.lastDailyCompletionDate = lastDailyCompletionDate;
+    }
+
+    public int getDailyStreak() {
+        return dailyStreak;
+    }
+
+    public void setDailyStreak(int dailyStreak) {
+        this.dailyStreak = dailyStreak;
+    }
+
+    public int getBestDailyStreak() {
+        return bestDailyStreak;
+    }
+
+    public void setBestDailyStreak(int bestDailyStreak) {
+        this.bestDailyStreak = bestDailyStreak;
+    }
 
     // --- score stuff ---
-    // getters
     public int getHighestWave() {
         return highestWave;
     }
+
     public int getBestTime() {
         return bestTime;
     }
-    public int getNumOfAttempts() { return numOfAttempts; }
-    public int getNumOfWins() { return numOfWins; }
-    public int getCurrentStreak() {return currentStreak;}
-    public int getBestStreak() {return bestStreak;}
-    public int getPickedRanged() { return pickedRanged; }
-    public int getEnemiesKilled() { return enemiesKilled; }
-    public int getPickupsPicked() { return pickupsPicked; }
-    public int getItemsPicked() { return itemsPicked; }
 
-    // setters
+    public int getNumOfAttempts() {
+        return numOfAttempts;
+    }
+
+    public int getNumOfWins() {
+        return numOfWins;
+    }
+
+    public int getCurrentStreak() {
+        return currentStreak;
+    }
+
+    public int getBestStreak() {
+        return bestStreak;
+    }
+
+    public int getPickedRanged() {
+        return pickedRanged;
+    }
+
+    public int getEnemiesKilled() {
+        return enemiesKilled;
+    }
+
+    public int getPickupsPicked() {
+        return pickupsPicked;
+    }
+
+    public int getItemsPicked() {
+        return itemsPicked;
+    }
+
     public void setHighestWave(int highestWave) {
         this.highestWave = highestWave;
     }
+
     public void setBestTime(int bestTime) {
         this.bestTime = bestTime;
     }
-    public void setNumOfAttempts(int numOfAttempts) { this.numOfAttempts = numOfAttempts;}
-    public void setNumOfWins(int numOfWins) { this.numOfWins = numOfWins;}
-    public void setCurrentStreak(int currentStreak) {this.currentStreak = currentStreak;}
-    public void setBestStreak(int bestStreak) {this.bestStreak = bestStreak;}
-    public void setPickedRanged(int pickedRanged) { this.pickedRanged = pickedRanged;}
-    public void setEnemiesKilled(int enemiesKilled) { this.enemiesKilled = enemiesKilled;}
-    public void setPickupsPicked(int pickupsPicked) { this.pickupsPicked = pickupsPicked;}
-    public void setItemsPicked(int itemsPicked) { this.itemsPicked = itemsPicked;}
+
+    public void setNumOfAttempts(int numOfAttempts) {
+        this.numOfAttempts = numOfAttempts;
+    }
+
+    public void setNumOfWins(int numOfWins) {
+        this.numOfWins = numOfWins;
+    }
+
+    public void setCurrentStreak(int currentStreak) {
+        this.currentStreak = currentStreak;
+    }
+
+    public void setBestStreak(int bestStreak) {
+        this.bestStreak = bestStreak;
+    }
+
+    public void setPickedRanged(int pickedRanged) {
+        this.pickedRanged = pickedRanged;
+    }
+
+    public void setEnemiesKilled(int enemiesKilled) {
+        this.enemiesKilled = enemiesKilled;
+    }
+
+    public void setPickupsPicked(int pickupsPicked) {
+        this.pickupsPicked = pickupsPicked;
+    }
+
+    public void setItemsPicked(int itemsPicked) {
+        this.itemsPicked = itemsPicked;
+    }
 }

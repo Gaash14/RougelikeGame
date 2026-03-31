@@ -5,10 +5,19 @@ import com.example.rougelikegame.android.models.meta.Skin;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * SkinRegistry serves as a central repository for all character skins available in the game.
+ * It defines initial skin properties, unlock conditions, and asset paths.
+ */
 public class SkinRegistry {
 
     private static final List<Skin> SKINS = createSkins();
 
+    /**
+     * Initializes the list of all skins with their properties.
+     *
+     * @return the list of skins
+     */
     private static List<Skin> createSkins() {
         List<Skin> skins = new ArrayList<>();
 
@@ -83,10 +92,21 @@ public class SkinRegistry {
         return skins;
     }
 
+    /**
+     * Retrieves all skins registered in the game.
+     *
+     * @return a list of all skins
+     */
     public static List<Skin> getAllSkins() {
         return SKINS;
     }
 
+    /**
+     * Finds a skin by its unique ID.
+     *
+     * @param id the unique skin ID
+     * @return the found Skin, or the default skin if not found or ID is null
+     */
     public static Skin getSkinById(String id) {
         if (id == null) return getDefaultSkin();
 
@@ -98,6 +118,11 @@ public class SkinRegistry {
         return getDefaultSkin();
     }
 
+    /**
+     * Gets the default character skin.
+     *
+     * @return the default skin
+     */
     public static Skin getDefaultSkin() {
         return SKINS.get(0);
     }

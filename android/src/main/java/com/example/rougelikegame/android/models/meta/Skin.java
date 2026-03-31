@@ -1,7 +1,13 @@
 package com.example.rougelikegame.android.models.meta;
 
+/**
+ * Represents a character skin in the game.
+ */
 public class Skin {
 
+    /**
+     * Defines how a skin can be unlocked.
+     */
     public enum UnlockType {
         DEFAULT,
         SHOP,
@@ -15,7 +21,14 @@ public class Skin {
     private final String texturePath;
     private String achievementKey; // nullable
 
-    // DEFAULT / SHOP constructor
+    /**
+     * Constructor for DEFAULT or SHOP skins.
+     * @param id The unique identifier for the skin.
+     * @param name The display name.
+     * @param price The shop price (0 if not applicable).
+     * @param unlockType The method to unlock the skin.
+     * @param texturePath The path to the skin's texture.
+     */
     public Skin(String id,
                 String name,
                 int price,
@@ -29,7 +42,14 @@ public class Skin {
         this.texturePath = texturePath;
     }
 
-    // ACHIEVEMENT constructor
+    /**
+     * Constructor for ACHIEVEMENT skins.
+     * @param id The unique identifier for the skin.
+     * @param name The display name.
+     * @param unlockType The method to unlock the skin (ACHIEVEMENT).
+     * @param achievementKey The key of the required achievement.
+     * @param texturePath The path to the skin's texture.
+     */
     public Skin(String id,
                 String name,
                 UnlockType unlockType,
@@ -44,10 +64,27 @@ public class Skin {
         this.price = 0;
     }
 
-    public String getId() { return id; }
-    public String getName() { return name; }
-    public int getPrice() { return price; }
-    public UnlockType getUnlockType() { return unlockType; }
-    public String getTexturePath() { return texturePath; }
-    public String getAchievementKey() { return achievementKey; }
+    public String getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public int getPrice() {
+        return price;
+    }
+
+    public UnlockType getUnlockType() {
+        return unlockType;
+    }
+
+    public String getTexturePath() {
+        return texturePath;
+    }
+
+    public String getAchievementKey() {
+        return achievementKey;
+    }
 }

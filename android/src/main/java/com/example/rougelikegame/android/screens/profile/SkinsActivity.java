@@ -19,6 +19,9 @@ import com.example.rougelikegame.android.utils.SkinRegistry;
 
 import java.util.List;
 
+/**
+ * Activity for displaying and equipping player skins.
+ */
 public class SkinsActivity extends AppCompatActivity {
 
     private RecyclerView recyclerSkins;
@@ -44,44 +47,56 @@ public class SkinsActivity extends AppCompatActivity {
         });
 
         user = SharedPreferencesUtil.getUser(this);
-        if (user == null) return;
+        if (user == null) {
+            return;
+        }
 
         loadSkins();
     }
 
+    /**
+     * Loads the list of skins and sets up the adapter for the RecyclerView.
+     */
     private void loadSkins() {
         List<Skin> allSkins = SkinRegistry.getAllSkins();
 
         updateSkinsProgress(allSkins);
 
         SkinAdapter adapter = new SkinAdapter(
-            allSkins,
-            user,
-            false,
-            true,
-            new SkinAdapter.SkinActionListener() {
+                allSkins,
+                user,
+                false,
+                true,
+                new SkinAdapter.SkinActionListener() {
 
-                @Override
-                public void onBuy(Skin skin) {
-                    // Buying is NOT allowed here
+                    @Override
+                    public void onBuy(Skin skin) {
+                        // Buying is NOT allowed here
+                    }
+
+                    @Override
+                    public void onEquip(Skin skin) {
+                        user.setEquippedSkinId(skin.getId());
+
+                        SharedPreferencesUtil.saveUser(SkinsActivity.this, user);
+                        DatabaseService.getInstance()
+                                .setEquippedSkin(user.getUid(), skin.getId());
+
+                        if (recyclerSkins.getAdapter() != null) {
+                            recyclerSkins.getAdapter().notifyDataSetChanged();
+                        }
+                    }
                 }
-
-                @Override
-                public void onEquip(Skin skin) {
-                    user.setEquippedSkinId(skin.getId());
-
-                    SharedPreferencesUtil.saveUser(SkinsActivity.this, user);
-                    DatabaseService.getInstance()
-                        .setEquippedSkin(user.getUid(), skin.getId());
-
-                    recyclerSkins.getAdapter().notifyDataSetChanged();
-                }
-            }
         );
 
         recyclerSkins.setAdapter(adapter);
     }
 
+    /**
+     * Updates the progress text showing how many skins are unlocked.
+     *
+     * @param skins List of all skins to check progress against.
+     */
     private void updateSkinsProgress(List<Skin> skins) {
         int unlocked = 0;
 
@@ -95,3 +110,4 @@ public class SkinsActivity extends AppCompatActivity {
         txtSkinsProgress.setText("Unlocked: " + unlocked + " / " + total);
     }
 }
+

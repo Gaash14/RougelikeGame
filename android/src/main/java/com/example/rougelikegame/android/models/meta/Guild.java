@@ -2,6 +2,9 @@ package com.example.rougelikegame.android.models.meta;
 
 import java.util.Map;
 
+/**
+ * A Guild is a collective of players with shared statistics and identifiers.
+ */
 public class Guild {
     private String guildId;
     private String name;
@@ -13,7 +16,11 @@ public class Guild {
     private int totalWins;
     private int totalAttempts;
 
-    public Guild() {} // Firebase requires this
+    /**
+     * Default constructor for Firebase/JSON serialization.
+     */
+    public Guild() {
+    }
 
     public String getGuildId() {
         return guildId;
@@ -71,4 +78,3 @@ public class Guild {
         this.totalAttempts = totalAttempts;
     }
 }
-

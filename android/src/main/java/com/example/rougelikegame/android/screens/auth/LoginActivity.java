@@ -22,11 +22,11 @@ import com.example.rougelikegame.android.services.DatabaseService;
 import com.example.rougelikegame.android.utils.SharedPreferencesUtil;
 import com.example.rougelikegame.android.utils.Validator;
 
-/// Activity for logging in the user
-/// This activity is used to log in the user
-/// It contains fields for the user to enter their email and password
-/// It also contains a button to log in the user
-/// When the user is logged in, they are redirected to the main activity
+/**
+ * Activity for logging in the user.
+ * It contains fields for the user to enter their email and password,
+ * validates the input, and authenticates the user through the DatabaseService.
+ */
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener {
 
     private static final String TAG = "LoginActivity";
@@ -41,7 +41,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
-        /// set the layout for the activity
+        // set the layout for the activity
         setContentView(R.layout.activity_login);
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
@@ -51,13 +51,13 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
         databaseService = DatabaseService.getInstance();
 
-        /// get the views
+        // get the views
         etEmail = findViewById(R.id.et_login_email);
         etPassword = findViewById(R.id.et_login_password);
         btnLogin = findViewById(R.id.btn_login_login);
         tvRegister = findViewById(R.id.tv_login_register);
 
-        /// set the click listener
+        // set the click listener
         btnLogin.setOnClickListener(this);
         tvRegister.setOnClickListener(this);
     }
@@ -67,51 +67,54 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         if (v.getId() == btnLogin.getId()) {
             Log.d(TAG, "onClick: Login button clicked");
 
-            /// get the email and password entered by the user
+            // get the email and password entered by the user
             String email = etEmail.getText().toString();
             String password = etPassword.getText().toString();
 
-            /// log the email and password
+            // log the email and password
             Log.d(TAG, "onClick: Email: " + email);
             Log.d(TAG, "onClick: Password: " + password);
 
             Log.d(TAG, "onClick: Validating input...");
-            /// Validate input
+            // Validate input
             if (!checkInput(email, password)) {
-                /// stop if input is invalid
+                // stop if input is invalid
                 return;
             }
 
             Log.d(TAG, "onClick: Logging in user...");
 
-            /// Login user
+            // Login user
             loginUser(email, password);
         } else if (v.getId() == tvRegister.getId()) {
-            /// Navigate to Register Activity
+            // Navigate to Register Activity
             Intent registerIntent = new Intent(LoginActivity.this, RegisterActivity.class);
             startActivity(registerIntent);
         }
     }
 
-    /// Method to check if the input is valid
-    /// It checks if the email and password are valid
-    /// @see Validator#isEmailValid(String)
-    /// @see Validator#isPasswordValid(String)
+    /**
+     * Validates the user input for email and password.
+     *
+     * @param email The email address to validate
+     * @param password The password to validate
+     * @return true if both email and password are valid, false otherwise
+     */
     private boolean checkInput(String email, String password) {
         if (!Validator.isEmailValid(email)) {
             Log.e(TAG, "checkInput: Invalid email address");
-            /// show error message to user
+            // show error message to user
             etEmail.setError("Invalid email address");
-            /// set focus to email field
+            // set focus to email field
             etEmail.requestFocus();
             return false;
         }
 
         if (!Validator.isPasswordValid(password)) {
             Log.e(TAG, "checkInput: Invalid password");
-            /// show error message to user
+            // show error message to user
             etPassword.setError("Password must be at least 6 characters long");
-            /// set focus to password field
+            // set focus to password field
             etPassword.requestFocus();
             return false;
         }
@@ -119,10 +122,19 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         return true;
     }
 
+    /**
+     * Authenticates the user with the provided email and password.
+     *
+     * @param email User's email
+     * @param password User's password
+     */
     private void loginUser(String email, String password) {
         databaseService.getUserByEmailAndPassword(email, password, new DatabaseService.DatabaseCallback<User>() {
-            /// Callback method called when the operation is completed
-            /// @param user the user object that is logged in
+            /**
+             * Callback method called when the login operation is completed.
+             *
+             * @param user the user object that is logged in
+             */
             @Override
             public void onCompleted(User user) {
                 Log.d(TAG, "onCompleted: User logged in: " + user.toString());
@@ -160,11 +172,11 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             @Override
             public void onFailed(Exception e) {
                 Log.e(TAG, "onFailed: Failed to retrieve user data", e);
-                /// Show error message to user
+                // Show error message to user
                 etPassword.setError("Invalid email or password");
                 etPassword.requestFocus();
-                /// Sign out the user if failed to retrieve user data
-                /// This is to prevent the user from being logged in again
+                // Sign out the user if failed to retrieve user data
+                // This is to prevent the user from being logged in again
                 SharedPreferencesUtil.signOutUser(LoginActivity.this);
             }
         });

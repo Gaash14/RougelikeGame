@@ -13,16 +13,32 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.example.rougelikegame.android.models.items.ItemTier;
 
+/**
+ * This file manages the game's overlay screens, including reward selection,
+ * victory, and death screens. It handles the UI elements and interactions
+ * for these overlays using LibGDX Stage and Actor.
+ */
 class GameOverlayScreens {
+    /**
+     * Interface for handling actions triggered from overlay screens.
+     */
     interface OverlayCallbacks {
         void onRewardSelected(int itemId);
+
         boolean canAffordRewardReroll();
+
         RewardOption[] onRewardRerollRequested();
+
         void onVictoryMainMenuSelected();
+
         void onVictoryEndlessModeSelected();
+
         void onDeathMainMenuSelected();
     }
 
+    /**
+     * Represents a reward option shown to the player.
+     */
     static class RewardOption {
         final int itemId;
         final String displayName;
@@ -84,6 +100,9 @@ class GameOverlayScreens {
         return rewardWave;
     }
 
+    /**
+     * Updates the active stage.
+     */
     void act(float delta) {
         if (rewardScreenActive && rewardStage != null) {
             rewardStage.act(delta);
@@ -94,6 +113,9 @@ class GameOverlayScreens {
         }
     }
 
+    /**
+     * Draws the overlay background and text.
+     */
     void drawOverlay(Batch batch) {
         if (rewardScreenActive) {
             drawRewardOverlay(batch);
@@ -106,6 +128,9 @@ class GameOverlayScreens {
         }
     }
 
+    /**
+     * Draws the active stage (buttons, etc.).
+     */
     void drawStage() {
         if (rewardScreenActive && rewardStage != null) {
             rewardStage.draw();
@@ -118,6 +143,9 @@ class GameOverlayScreens {
         }
     }
 
+    /**
+     * Sets up and shows the reward selection screen.
+     */
     void showRewardScreen(int waveNumber, RewardOption[] options) {
         rewardScreenActive = true;
         rewardWave = waveNumber;
@@ -181,14 +209,17 @@ class GameOverlayScreens {
         disposeRewardStage();
     }
 
+    /**
+     * Shows the victory screen with options to go to main menu or continue.
+     */
     void showVictoryScreen() {
         victoryScreenActive = true;
         disposeVictoryStage();
         victoryStage = createTwoButtonStage(
-            "Main Menu",
-            callbacks::onVictoryMainMenuSelected,
-            "Continue Endless Mode",
-            callbacks::onVictoryEndlessModeSelected
+                "Main Menu",
+                callbacks::onVictoryMainMenuSelected,
+                "Continue Endless Mode",
+                callbacks::onVictoryEndlessModeSelected
         );
         Gdx.input.setInputProcessor(victoryStage);
     }
@@ -198,12 +229,15 @@ class GameOverlayScreens {
         disposeVictoryStage();
     }
 
+    /**
+     * Shows the death screen with option to return to main menu.
+     */
     void showDeathScreen() {
         deathScreenActive = true;
         disposeDeathStage();
         deathStage = createSingleButtonStage(
-            "Main Menu",
-            callbacks::onDeathMainMenuSelected
+                "Main Menu",
+                callbacks::onDeathMainMenuSelected
         );
         Gdx.input.setInputProcessor(deathStage);
     }
@@ -219,6 +253,9 @@ class GameOverlayScreens {
         disposeDeathStage();
     }
 
+    /**
+     * Handles the request to reroll reward options.
+     */
     private void requestRewardReroll() {
         if (!rewardScreenActive) {
             return;
@@ -242,6 +279,9 @@ class GameOverlayScreens {
         updateRerollButtonState();
     }
 
+    /**
+     * Updates the visual state and label of the reroll button.
+     */
     private void updateRerollButtonState() {
         if (rerollButton == null) {
             return;
@@ -250,9 +290,12 @@ class GameOverlayScreens {
         boolean hasRerollsLeft = rewardRerollsUsed < MAX_REWARD_REROLLS;
         boolean canAfford = callbacks.canAffordRewardReroll();
         rerollButton.setDisabled(!(hasRerollsLeft && canAfford));
-        rerollButton.setLabel(hasRerollsLeft ? "Reroll (20 coins)" : "Reroll (max used)");
+        rerollButton.setLabel(hasRerollsLeft ? "Reroll (" + REWARD_REROLL_COST + " coins)" : "Reroll (max used)");
     }
 
+    /**
+     * Creates a stage with a single centered button.
+     */
     private Stage createSingleButtonStage(String label, Runnable action) {
         Stage stage = new Stage(new ScreenViewport());
         float screenW = Gdx.graphics.getWidth();
@@ -275,6 +318,9 @@ class GameOverlayScreens {
         return stage;
     }
 
+    /**
+     * Creates a stage with two vertically stacked buttons.
+     */
     private Stage createTwoButtonStage(String firstLabel, Runnable firstAction, String secondLabel, Runnable secondAction) {
         Stage stage = new Stage(new ScreenViewport());
         float screenW = Gdx.graphics.getWidth();
@@ -308,6 +354,9 @@ class GameOverlayScreens {
         return stage;
     }
 
+    /**
+     * Draws a darkened background and centered message text.
+     */
     private void drawMessageOverlay(Batch batch, String title, String subtitle) {
         batch.setColor(0f, 0f, 0f, 0.78f);
         batch.draw(panelTexture, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
@@ -323,6 +372,9 @@ class GameOverlayScreens {
         font.getData().setScale(1f);
     }
 
+    /**
+     * Draws the reward selection overlay text.
+     */
     private void drawRewardOverlay(Batch batch) {
         batch.setColor(0, 0, 0, 0.7f);
         batch.draw(panelTexture, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
@@ -365,6 +417,9 @@ class GameOverlayScreens {
         }
     }
 
+    /**
+     * Actor representing a card for a reward option.
+     */
     private class RewardCardActor extends Actor {
         private final int optionIndex;
 
@@ -398,6 +453,9 @@ class GameOverlayScreens {
         }
     }
 
+    /**
+     * Actor representing a menu button.
+     */
     private class MenuButtonActor extends Actor {
         private final String label;
 
@@ -417,9 +475,12 @@ class GameOverlayScreens {
         }
     }
 
+    /**
+     * Actor representing a reroll button.
+     */
     private class RewardRerollButtonActor extends Actor {
         private boolean disabled;
-        private String label = "Reroll (20 coins)";
+        private String label = "Reroll (" + REWARD_REROLL_COST + " coins)";
 
         boolean isDisabled() {
             return disabled;
@@ -447,3 +508,4 @@ class GameOverlayScreens {
         }
     }
 }
+

@@ -5,6 +5,9 @@ import com.example.rougelikegame.android.models.items.ItemTier;
 import com.example.rougelikegame.android.models.items.PassiveItem;
 import com.example.rougelikegame.android.models.items.contexts.IncomingDamageContext;
 
+/**
+ * The Protective Spell item increases maximum health and ensures no single hit deals more than a capped amount of damage.
+ */
 public class ProtectiveSpellItem implements PassiveItem {
 
     public static final int ID = 13;

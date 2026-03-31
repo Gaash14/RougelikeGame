@@ -17,11 +17,23 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * LeaderboardAdapter manages the display of the global leaderboard.
+ * It handles highlighting the current user and displaying stats such as highest wave and best time.
+ */
 public class LeaderboardAdapter extends ArrayAdapter<User> {
 
     private final String currentUserUid;
     private final Map<String, String> guildNamesById;
 
+    /**
+     * Constructs a new LeaderboardAdapter.
+     *
+     * @param context the context to use for layout inflation
+     * @param users the list of users to display in the leaderboard
+     * @param currentUserUid the UID of the current user for highlighting
+     * @param guildNamesById a map of guild IDs to guild names for display
+     */
     public LeaderboardAdapter(
         @NonNull Context context,
         @NonNull List<User> users,
@@ -38,7 +50,6 @@ public class LeaderboardAdapter extends ArrayAdapter<User> {
     @NonNull
     @Override
     public View getView(int position, View convertView, @NonNull ViewGroup parent) {
-
         if (convertView == null) {
             convertView = LayoutInflater.from(getContext())
                 .inflate(R.layout.item_leaderboard, parent, false);
@@ -96,6 +107,12 @@ public class LeaderboardAdapter extends ArrayAdapter<User> {
         return convertView;
     }
 
+    /**
+     * Formats seconds into a MM:SS time string.
+     *
+     * @param totalSeconds the total seconds to format
+     * @return a formatted time string
+     */
     private String formatTime(int totalSeconds) {
         int minutes = totalSeconds / 60;
         int seconds = totalSeconds % 60;

@@ -18,6 +18,11 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Activity that allows users to browse and join existing guilds.
+ * It fetches a list of available guilds from Firebase and updates the user's
+ * membership status both locally and in the database upon selection.
+ */
 public class JoinGuildActivity extends AppCompatActivity {
 
     private ListView guildListView;
@@ -48,6 +53,9 @@ public class JoinGuildActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Loads the list of all available guilds from Firebase.
+     */
     private void loadGuilds() {
         FirebaseDatabase.getInstance()
             .getReference("guilds")
@@ -82,6 +90,12 @@ public class JoinGuildActivity extends AppCompatActivity {
             });
     }
 
+    /**
+     * Processes the request to join a specific guild.
+     * Updates the user's guild ID in SharedPreferences and Firebase.
+     *
+     * @param guildId The ID of the guild the user wants to join.
+     */
     private void joinGuild(String guildId) {
         User user = SharedPreferencesUtil.getUser(this);
         if (user == null) return;

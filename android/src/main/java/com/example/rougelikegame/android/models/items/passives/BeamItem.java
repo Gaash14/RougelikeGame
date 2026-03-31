@@ -3,6 +3,9 @@ package com.example.rougelikegame.android.models.items.passives;
 import com.example.rougelikegame.android.models.items.ItemTier;
 import com.example.rougelikegame.android.models.items.PassiveItem;
 
+/**
+ * The Beam item represents a powerful offensive upgrade that allows the player to use a light beam.
+ */
 public class BeamItem implements PassiveItem {
 
     public static final int ID = 5;

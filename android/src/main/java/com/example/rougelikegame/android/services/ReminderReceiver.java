@@ -14,6 +14,9 @@ import com.example.rougelikegame.R;
 import com.example.rougelikegame.android.screens.auth.SplashActivity;
 import com.example.rougelikegame.android.screens.menu.MainMenu;
 
+/**
+ * BroadcastReceiver for handling daily reminder notifications.
+ */
 public class ReminderReceiver extends BroadcastReceiver {
     private static final String CHANNEL_ID = "daily_reminder_channel";
 

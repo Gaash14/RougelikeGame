@@ -4,11 +4,18 @@ import com.badlogic.gdx.utils.Array;
 import com.example.rougelikegame.android.managers.SoundManager;
 import com.example.rougelikegame.android.models.characters.Enemy;
 import com.example.rougelikegame.android.models.characters.Player;
-import com.example.rougelikegame.android.models.items.contexts.DamageContext;
 import com.example.rougelikegame.android.models.items.PassiveItem;
+import com.example.rougelikegame.android.models.items.contexts.DamageContext;
 
+/**
+ * The CombatSystem class manages interactions between the player and enemies,
+ * including collisions, attacks, and enemy cleanup.
+ */
 public class CombatSystem {
 
+    /**
+     * Callbacks interface for combat-related events.
+     */
     public interface Callbacks {
         void onPlayerDied();
         void onBossDefeated();
@@ -18,10 +25,20 @@ public class CombatSystem {
 
     private final Callbacks callbacks;
 
+    /**
+     * Constructs a CombatSystem with the specified callbacks.
+     *
+     * @param callbacks the callbacks to handle combat events
+     */
     public CombatSystem(Callbacks callbacks) {
         this.callbacks = callbacks;
     }
 
+    /**
+     * Prevents enemies from overlapping by pushing them apart.
+     *
+     * @param enemies the list of active enemies
+     */
     public void preventEnemyOverlap(Array<Enemy> enemies) {
         for (int i = 0; i < enemies.size; i++) {
             Enemy a = enemies.get(i);
@@ -53,7 +70,12 @@ public class CombatSystem {
         }
     }
 
-    // enemy touches player
+    /**
+     * Handles collisions between the player and enemies.
+     *
+     * @param player  the player character
+     * @param enemies the list of active enemies
+     */
     public void handlePlayerEnemyCollision(Player player, Array<Enemy> enemies) {
         if (player.isImmune()) return;
 
@@ -97,7 +119,12 @@ public class CombatSystem {
         }
     }
 
-    // player swinging
+    /**
+     * Handles damage dealt by the player to enemies during an attack.
+     *
+     * @param player  the player character
+     * @param enemies the list of active enemies
+     */
     public void handleAttackDamage(Player player, Array<Enemy> enemies) {
         if (!player.attacking) return;
 
@@ -138,6 +165,11 @@ public class CombatSystem {
         }
     }
 
+    /**
+     * Removes dead enemies from the list and triggers killed callbacks.
+     *
+     * @param enemies the list of active enemies
+     */
     public void cleanupDeadEnemies(Array<Enemy> enemies) {
         for (int i = enemies.size - 1; i >= 0; i--) {
             Enemy dead = enemies.get(i);

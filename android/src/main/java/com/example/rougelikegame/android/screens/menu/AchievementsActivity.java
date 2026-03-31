@@ -10,6 +10,10 @@ import com.example.rougelikegame.R;
 import com.example.rougelikegame.android.managers.AchievementManager;
 import com.example.rougelikegame.android.models.meta.Achievement;
 
+/**
+ * Activity that displays the list of achievements.
+ * It dynamically creates UI cards for each achievement, indicating whether it is unlocked or locked.
+ */
 public class AchievementsActivity extends AppCompatActivity {
 
     @Override
@@ -19,6 +23,15 @@ public class AchievementsActivity extends AppCompatActivity {
 
         LinearLayout container = findViewById(R.id.achievementsContainer);
 
+        populateAchievements(container);
+    }
+
+    /**
+     * Iterates through all achievements and adds them to the container layout.
+     *
+     * @param container The layout container to add achievement views to.
+     */
+    private void populateAchievements(LinearLayout container) {
         for (Achievement achievement :
             AchievementManager.getInstance().getAllAchievements()) {
 
@@ -34,7 +47,7 @@ public class AchievementsActivity extends AppCompatActivity {
             cardParams.setMargins(0, 0, 0, 16);
             card.setLayoutParams(cardParams);
 
-        // Background
+            // Background
             card.setBackgroundColor(
                 achievement.isUnlocked() ? 0xFF1E1E1E : 0xFF161616
             );

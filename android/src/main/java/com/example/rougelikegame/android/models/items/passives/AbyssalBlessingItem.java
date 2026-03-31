@@ -6,6 +6,9 @@ import com.example.rougelikegame.android.models.items.PassiveItem;
 import com.example.rougelikegame.android.models.items.contexts.CooldownContext;
 import com.example.rougelikegame.android.models.items.contexts.DamageContext;
 
+/**
+ * The Abyssal Blessing item increases health, speed, damage, and grants coins on pickup.
+ */
 public class AbyssalBlessingItem implements PassiveItem {
 
     public static final int ID = 9;

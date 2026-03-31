@@ -8,21 +8,22 @@ import androidx.annotation.Nullable;
 import com.example.rougelikegame.android.models.meta.User;
 import com.google.gson.Gson;
 
-/// Utility class for shared preferences operations
-/// Contains methods for saving and retrieving data from shared preferences
-/// Also contains methods for clearing and removing data from shared preferences
-/// @see SharedPreferences
+import java.util.HashMap;
+
+/**
+ * Utility class for SharedPreferences operations.
+ */
 public class SharedPreferencesUtil {
 
-    /// The name of the shared preferences file
-    /// @see Context#getSharedPreferences(String, int)
     private static final String PREF_NAME = "com.example.rougelikegame.PREFERENCE_FILE_KEY";
 
-    /// Save a string to shared preferences
-    /// @param context The context to use
-    /// @param key The key to save the string with
-    /// @param value The string to save
-    /// @see SharedPreferences.Editor#putString(String, String)
+    /**
+     * Saves a string value to SharedPreferences.
+     *
+     * @param context the context to use
+     * @param key the key to save the string with
+     * @param value the string value to save
+     */
     private static void saveString(Context context, String key, String value) {
         SharedPreferences sharedPreferences = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
@@ -30,22 +31,26 @@ public class SharedPreferencesUtil {
         editor.apply();
     }
 
-    /// Get a string from shared preferences
-    /// @param context The context to use
-    /// @param key The key to get the string with
-    /// @param defaultValue The default value to return if the key is not found
-    /// @return The string value stored in shared preferences
-    /// @see SharedPreferences#getString(String, String)
+    /**
+     * Retrieves a string value from SharedPreferences.
+     *
+     * @param context the context to use
+     * @param key the key to retrieve the string with
+     * @param defaultValue the default value if the key is not found
+     * @return the retrieved string value
+     */
     private static String getString(Context context, String key, String defaultValue) {
         SharedPreferences sharedPreferences = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
         return sharedPreferences.getString(key, defaultValue);
     }
 
-    /// Save an integer to shared preferences
-    /// @param context The context to use
-    /// @param key The key to save the integer with
-    /// @param value The integer to save
-    /// @see SharedPreferences.Editor#putInt(String, int)
+    /**
+     * Saves an integer value to SharedPreferences.
+     *
+     * @param context the context to use
+     * @param key the key to save the integer with
+     * @param value the integer value to save
+     */
     private static void saveInt(Context context, String key, int value) {
         SharedPreferences sharedPreferences = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
@@ -53,22 +58,24 @@ public class SharedPreferencesUtil {
         editor.apply();
     }
 
-    /// Get an integer from shared preferences
-    /// @param context The context to use
-    /// @param key The key to get the integer with
-    /// @param defaultValue The default value to return if the key is not found
-    /// @return The integer value stored in shared preferences
-    /// @see SharedPreferences#getInt(String, int)
+    /**
+     * Retrieves an integer value from SharedPreferences.
+     *
+     * @param context the context to use
+     * @param key the key to retrieve the integer with
+     * @param defaultValue the default value if the key is not found
+     * @return the retrieved integer value
+     */
     private static int getInt(Context context, String key, int defaultValue) {
         SharedPreferences sharedPreferences = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
         return sharedPreferences.getInt(key, defaultValue);
     }
 
-    // Add more methods for other data types as needed
-
-    /// Clear all data from shared preferences
-    /// @param context The context to use
-    /// @see SharedPreferences.Editor#clear()
+    /**
+     * Clears all data from SharedPreferences.
+     *
+     * @param context the context to use
+     */
     public static void clear(Context context) {
         SharedPreferences sharedPreferences = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
@@ -76,10 +83,12 @@ public class SharedPreferencesUtil {
         editor.apply();
     }
 
-    /// Remove a specific key from shared preferences
-    /// @param context The context to use
-    /// @param key The key to remove
-    /// @see SharedPreferences.Editor#remove(String)
+    /**
+     * Removes a specific key and its value from SharedPreferences.
+     *
+     * @param context the context to use
+     * @param key the key to remove
+     */
     private static void remove(Context context, String key) {
         SharedPreferences sharedPreferences = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
@@ -87,22 +96,41 @@ public class SharedPreferencesUtil {
         editor.apply();
     }
 
-    /// Check if a key exists in shared preferences
-    /// @param context The context to use
-    /// @param key The key to check
-    /// @return true if the key exists, false otherwise
-    /// @see SharedPreferences#contains(String)
+    /**
+     * Checks if SharedPreferences contains a specific key.
+     *
+     * @param context the context to use
+     * @param key the key to check
+     * @return true if the key exists, false otherwise
+     */
     private static boolean contains(Context context, String key) {
         SharedPreferences sharedPreferences = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
         return sharedPreferences.contains(key);
     }
 
+    /**
+     * Serializes an object to JSON and saves it to SharedPreferences.
+     *
+     * @param context the context to use
+     * @param key the key to save the object with
+     * @param object the object to save
+     * @param <T> the type of the object
+     */
     private static <T> void saveObject(Context context, String key, T object) {
         Gson gson = new Gson();
         String json = gson.toJson(object);
         saveString(context, key, json);
     }
 
+    /**
+     * Retrieves and deserializes an object from JSON in SharedPreferences.
+     *
+     * @param context the context to use
+     * @param key the key to retrieve the object with
+     * @param type the class of the object
+     * @param <T> the type of the object
+     * @return the deserialized object, or null if not found
+     */
     private static <T> T getObject(Context context, String key, Class<T> type) {
         String json = getString(context, key, null);
         if (json == null) {
@@ -112,21 +140,22 @@ public class SharedPreferencesUtil {
         return gson.fromJson(json, type);
     }
 
-    // Add more utility methods as needed
-
-    /// Save a user object to shared preferences
-    /// @param context The context to use
-    /// @param user The user object to save
-    /// @see User
+    /**
+     * Saves the current user object to local storage.
+     *
+     * @param context the context to use
+     * @param user the user object to save
+     */
     public static void saveUser(Context context, User user) {
         saveObject(context, "user", user);
     }
 
-    /// Get the user object from shared preferences
-    /// @param context The context to use
-    /// @return The user object stored in shared preferences
-    /// @see User
-    /// @see #isUserLoggedIn(Context)
+    /**
+     * Retrieves the current logged-in user object from local storage.
+     *
+     * @param context the context to use
+     * @return the user object, or null if no user is logged in
+     */
     public static User getUser(Context context) {
         if (!isUserLoggedIn(context)) {
             return null;
@@ -135,30 +164,38 @@ public class SharedPreferencesUtil {
         User user = getObject(context, "user", User.class);
 
         if (user != null && user.getOwnedSkins() == null) {
-            user.setOwnedSkins(new java.util.HashMap<>());
+            user.setOwnedSkins(new HashMap<>());
             saveUser(context, user);
         }
 
-        return getObject(context, "user", User.class);
+        return user;
     }
 
-    /// Sign out the user by removing user data from shared preferences
-    /// @param context The context to use
+    /**
+     * Signs out the current user by removing their data from local storage.
+     *
+     * @param context the context to use
+     */
     public static void signOutUser(Context context) {
         remove(context, "user");
     }
 
-    /// Check if a user is logged in by checking if the user id is present in shared preferences
-    /// @param context The context to use
-    /// @return true if the user is logged in, false otherwise
-    /// @see #contains(Context, String)
+    /**
+     * Checks if a user is currently logged in locally.
+     *
+     * @param context the context to use
+     * @return true if a user is logged in, false otherwise
+     */
     public static boolean isUserLoggedIn(Context context) {
         return contains(context, "user");
     }
 
-    /// Get the user id of the logged in user
-    /// @param context The context to use
-    /// @return The user id of the logged in user, or null if no user is logged in
+    /**
+     * Gets the UID of the currently logged-in user.
+     *
+     * @param context the context to use
+     * @return the user's UID, or null if not logged in
+     */
     @Nullable
     public static String getUserId(Context context) {
         User user = getUser(context);
@@ -167,6 +204,4 @@ public class SharedPreferencesUtil {
         }
         return null;
     }
-
-
 }

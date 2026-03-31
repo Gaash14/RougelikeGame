@@ -16,9 +16,14 @@ import com.example.rougelikegame.android.models.meta.ImageSourceOption;
 
 import java.util.List;
 
-/// Adapter for the image source dialog
+/**
+ * Adapter for displaying image source options in a list.
+ */
 public class ImageSourceAdapter extends ArrayAdapter<ImageSourceOption> {
 
+    /**
+     * Interface for handling selection of an image source.
+     */
     public interface OnImageSourceSelectedListener {
         void onImageSourceSelected(ImageSourceOption option);
     }
@@ -27,6 +32,13 @@ public class ImageSourceAdapter extends ArrayAdapter<ImageSourceOption> {
     private final List<ImageSourceOption> objects;
     private final OnImageSourceSelectedListener listener;
 
+    /**
+     * Constructs a new ImageSourceAdapter.
+     *
+     * @param context the context to use for layout inflation
+     * @param objects the list of image source options to display
+     * @param listener the listener for selection events
+     */
     public ImageSourceAdapter(@NonNull Context context, @NonNull List<ImageSourceOption> objects,
                               @NonNull OnImageSourceSelectedListener listener) {
         super(context, R.layout.item_image_source, objects);
@@ -38,14 +50,12 @@ public class ImageSourceAdapter extends ArrayAdapter<ImageSourceOption> {
 
     @Override
     public int getCount() {
-        /// return the number of items in the list
         return objects.size();
     }
 
     @Nullable
     @Override
     public ImageSourceOption getItem(int position) {
-        /// return the item at the position
         return objects.get(position);
     }
 
@@ -57,22 +67,18 @@ public class ImageSourceAdapter extends ArrayAdapter<ImageSourceOption> {
             convertView = this.inflater.inflate(R.layout.item_image_source, parent, false);
         }
 
-        /// get the views from the layout
         ImageView icon = convertView.findViewById(R.id.icon_dialog_item);
         TextView title = convertView.findViewById(R.id.text_dialog_item);
         TextView description = convertView.findViewById(R.id.text_dialog_item_description);
 
-        /// get the item at the position
         ImageSourceOption item = getItem(position);
 
         if (item != null) {
-            /// set the text and icon
             title.setText(item.getTitle());
             description.setText(item.getDescription());
             icon.setImageResource(item.getIconResource());
         }
 
-        /// set the click listener for the item
         convertView.setOnClickListener(v -> {
             if (listener != null) {
                 listener.onImageSourceSelected(item);

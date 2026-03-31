@@ -9,6 +9,11 @@ import com.example.rougelikegame.R;
 import com.example.rougelikegame.android.screens.menu.MainMenu;
 import com.example.rougelikegame.android.utils.SharedPreferencesUtil;
 
+/**
+ * LandingActivity is the first screen shown to unauthenticated users.
+ * It provides options to register, log in, or exit the application.
+ * It also handles automatic redirection to the MainMenu if a user is already logged in.
+ */
 public class LandingActivity extends AppCompatActivity {
 
     @Override

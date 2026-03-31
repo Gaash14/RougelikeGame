@@ -6,6 +6,9 @@ import com.example.rougelikegame.android.models.items.PassiveItem;
 import com.example.rougelikegame.android.models.items.contexts.CooldownContext;
 import com.example.rougelikegame.android.models.items.contexts.DamageContext;
 
+/**
+ * The Overclock Injector item significantly decreases attack cooldowns while also significantly decreasing damage output.
+ */
 public class OverclockInjectorItem implements PassiveItem {
 
     public static final int ID = 8;

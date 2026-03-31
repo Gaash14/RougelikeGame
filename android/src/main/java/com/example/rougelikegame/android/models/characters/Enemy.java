@@ -12,6 +12,11 @@ import com.example.rougelikegame.android.graphics.FrameAnimation;
 import com.example.rougelikegame.android.graphics.FrameAnimationManager;
 import com.example.rougelikegame.android.models.world.Obstacle;
 
+/**
+ * Base class for all enemies in the game. Handles movement towards the player,
+ * collision with obstacles, animations, and status effects like burning or poison.
+ * Is also the class for the base zombie enemy.
+ */
 public class Enemy {
     protected Texture texture;
     protected FrameAnimationManager animationManager;
@@ -31,6 +36,18 @@ public class Enemy {
 
     private final StatusEffects effects = new StatusEffects();
 
+    /**
+     * Constructs a new Enemy.
+     *
+     * @param texture  the base texture
+     * @param startX   starting X position
+     * @param startY   starting Y position
+     * @param speed    movement speed
+     * @param width    width of the enemy
+     * @param height   height of the enemy
+     * @param health   initial health
+     * @param damage   contact damage
+     */
     public Enemy(Texture texture, float startX, float startY, float speed, float width, float height, int health, int damage) {
         this.texture = texture;
         this.x = startX;
@@ -44,32 +61,43 @@ public class Enemy {
         this.bounds = new Rectangle(x, y, width, height);
     }
 
-    // Draw the enemy
+    /**
+     * Draws the enemy to the provided SpriteBatch.
+     * Handles color tinting based on active status effects.
+     *
+     * @param batch the SpriteBatch to draw with
+     */
     public void draw(SpriteBatch batch) {
         if (effects.isBurning()) {
             batch.setColor(1f, 0.65f, 0.45f, 1f);
         } else if (effects.isPoisoned()) {
             batch.setColor(0.8f, 0.55f, 1f, 1f);
         }
+
         TextureRegion frame = getCurrentFrame();
         if (frame != null) {
             drawCurrentFrame(batch, frame);
         } else {
             drawCurrentTexture(batch);
         }
+
         if (effects.isBurning() || effects.isPoisoned()) {
             batch.setColor(Color.WHITE);
         }
     }
 
-    // Update enemy position
+    /**
+     * Updates the enemy's state, position, and animations.
+     *
+     * @param delta   time since last update
+     * @param playerX current player X position
+     * @param playerY current player Y position
+     */
     public void update(float delta, float playerX, float playerY) {
-        // movements
         float dx = playerX - x;
         float dy = playerY - y;
 
-        // Normalize movement
-        float length = (float) Math.sqrt(dx*dx + dy*dy);
+        float length = (float) Math.sqrt(dx * dx + dy * dy);
         if (length != 0) {
             dx /= length;
             dy /= length;
@@ -111,24 +139,28 @@ public class Enemy {
         effects.applyPoison(durationSeconds);
     }
 
-    public void applyBurn(float durationSeconds) { effects.applyBurn(durationSeconds); }
+    public void applyBurn(float durationSeconds) {
+        effects.applyBurn(durationSeconds);
+    }
 
+    /**
+     * Handles collision with obstacles by pushing the enemy out of them.
+     *
+     * @param obstacles list of obstacles to check collision against
+     */
     public void handleObstacleCollision(Array<Obstacle> obstacles) {
         for (Obstacle o : obstacles) {
             if (bounds.overlaps(o.bounds)) {
                 float overlapX = Math.min(bounds.x + width - o.x, o.x + o.bounds.width - bounds.x);
                 float overlapY = Math.min(bounds.y + height - o.y, o.y + o.bounds.height - bounds.y);
 
-                // Push out in the direction of the smallest overlap
                 if (overlapX < overlapY) {
-                    // push left or right
                     if (x < o.x) {
                         x -= overlapX;
                     } else {
                         x += overlapX;
                     }
                 } else {
-                    // push down or up
                     if (y < o.y) {
                         y -= overlapY;
                     } else {
@@ -141,6 +173,11 @@ public class Enemy {
         }
     }
 
+    /**
+     * Inflicts damage on the enemy.
+     *
+     * @param dmg amount of damage to take
+     */
     public void takeDamage(int dmg) {
         health -= dmg;
         if (health <= 0) {
@@ -148,26 +185,30 @@ public class Enemy {
         }
     }
 
-    public float getX() { return x; }
-    public float getY() { return y; }
+    public float getX() {
+        return x;
+    }
+
+    public float getY() {
+        return y;
+    }
 
     public void setX(float x) {
         this.x = x;
-        bounds.setX(x); // keep collision synced
+        bounds.setX(x);
     }
 
     public void setY(float y) {
         this.y = y;
-        bounds.setY(y); // keep collision synced
+        bounds.setY(y);
     }
 
-    // Get collision rectangle
     public Rectangle getBounds() {
         return bounds;
     }
 
-    // Dispose the texture when done
     public void dispose() {
+        // Textures are typically managed by a central AssetManager or the Factory
     }
 
     public void setAnimationManager(FrameAnimationManager animationManager) {
