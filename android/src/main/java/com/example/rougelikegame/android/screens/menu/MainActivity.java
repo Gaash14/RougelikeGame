@@ -352,8 +352,6 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
 
         waveManager = new WaveManager();
 
-        player.addPassiveItem(ItemRegistry.create(16));
-
         spawnWave(waveManager.getWave(), enemies, player, getDifficulty(), true);
     }
 

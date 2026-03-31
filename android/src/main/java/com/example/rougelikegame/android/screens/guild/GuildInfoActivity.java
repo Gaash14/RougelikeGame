@@ -18,6 +18,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.rougelikegame.R;
 import com.example.rougelikegame.android.adapters.GuildChatAdapter;
+import com.example.rougelikegame.android.adapters.GuildMemberAdapter;
 import com.example.rougelikegame.android.models.meta.GuildMessage;
 import com.example.rougelikegame.android.models.meta.User;
 import com.example.rougelikegame.android.utils.SharedPreferencesUtil;
@@ -56,12 +57,14 @@ public class GuildInfoActivity extends AppCompatActivity {
     private LinearLayout layoutNoGuild;
 
     private RecyclerView recyclerGuildChat;
+    private RecyclerView recyclerGuildMembers;
     private EditText edtGuildMessage;
     private Button btnSendGuildMessage;
     private TextView txtGuildChatStatus;
     private LinearLayout layoutGuildChatInput;
 
     private GuildChatAdapter guildChatAdapter;
+    private GuildMemberAdapter guildMemberAdapter;
     private ChildEventListener chatListener;
     private Query chatQuery;
     private String activeGuildId;
@@ -87,6 +90,7 @@ public class GuildInfoActivity extends AppCompatActivity {
         layoutNoGuild = findViewById(R.id.layoutNoGuild);
 
         recyclerGuildChat = findViewById(R.id.recyclerGuildChat);
+        recyclerGuildMembers = findViewById(R.id.recyclerGuildMembers);
         edtGuildMessage = findViewById(R.id.edtGuildMessage);
         btnSendGuildMessage = findViewById(R.id.btnSendGuildMessage);
         txtGuildChatStatus = findViewById(R.id.txtGuildChatStatus);
@@ -96,10 +100,14 @@ public class GuildInfoActivity extends AppCompatActivity {
         String currentUid = user != null ? user.getUid() : null;
 
         guildChatAdapter = new GuildChatAdapter(currentUid);
-        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
-        layoutManager.setStackFromEnd(true);
-        recyclerGuildChat.setLayoutManager(layoutManager);
+        LinearLayoutManager chatLayoutManager = new LinearLayoutManager(this);
+        chatLayoutManager.setStackFromEnd(true);
+        recyclerGuildChat.setLayoutManager(chatLayoutManager);
         recyclerGuildChat.setAdapter(guildChatAdapter);
+
+        guildMemberAdapter = new GuildMemberAdapter();
+        recyclerGuildMembers.setLayoutManager(new LinearLayoutManager(this));
+        recyclerGuildMembers.setAdapter(guildMemberAdapter);
 
         btnLeaveGuild.setOnClickListener(v -> confirmLeaveGuild());
         btnDeleteGuild.setOnClickListener(v -> confirmDeleteGuild());
@@ -166,6 +174,11 @@ public class GuildInfoActivity extends AppCompatActivity {
                     );
 
                     String ownerUid = snapshot.child("ownerUid").getValue(String.class);
+                    guildMemberAdapter.setOwnerUid(ownerUid);
+
+                    if (members != null) {
+                        loadGuildMembers(members.keySet());
+                    }
 
                     User user = SharedPreferencesUtil.getUser(GuildInfoActivity.this);
                     if (user != null && ownerUid != null && ownerUid.equals(user.getUid())) {
@@ -187,6 +200,47 @@ public class GuildInfoActivity extends AppCompatActivity {
                     disableGuildChat("Chat unavailable right now");
                 }
             });
+    }
+
+    /**
+     * Loads the details of all guild members.
+     *
+     * @param memberUids The UIDs of the guild members to load.
+     */
+    private void loadGuildMembers(java.util.Set<String> memberUids) {
+        java.util.List<User> members = new java.util.ArrayList<>();
+        if (memberUids == null || memberUids.isEmpty()) {
+            guildMemberAdapter.setMembers(members);
+            return;
+        }
+
+        DatabaseReference usersRef = FirebaseDatabase.getInstance().getReference("users");
+        int totalMembers = memberUids.size();
+        final int[] loadedCount = {0};
+
+        for (String uid : memberUids) {
+            usersRef.child(uid).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    User member = snapshot.getValue(User.class);
+                    if (member != null) {
+                        members.add(member);
+                    }
+                    loadedCount[0]++;
+                    if (loadedCount[0] == totalMembers) {
+                        guildMemberAdapter.setMembers(members);
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+                    loadedCount[0]++;
+                    if (loadedCount[0] == totalMembers) {
+                        guildMemberAdapter.setMembers(members);
+                    }
+                }
+            });
+        }
     }
 
     /**
