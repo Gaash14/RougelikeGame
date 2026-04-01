@@ -64,40 +64,48 @@
                         android:textSize="18sp"
                         android:textStyle="bold" />
 
-                    <TextView
-                        android:id="@+id/txtMemberCount"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Members: 0"
-                        android:textColor="#FFFFFF"
-                        android:textSize="14sp"
-                        android:layout_marginBottom="6dp" />
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="180dp"
+                        android:background="#12000000"
+                        android:orientation="vertical"
+                        android:padding="8dp">
 
-                    <TextView
-                        android:id="@+id/txtEnemiesKilled"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Enemies Killed: 0"
-                        android:textColor="#FFFFFF"
-                        android:textSize="14sp"
-                        android:layout_marginBottom="6dp" />
+                        <TextView
+                            android:id="@+id/txtMemberCount"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Members: 0"
+                            android:textColor="#FFFFFF"
+                            android:textSize="14sp"
+                            android:layout_marginBottom="6dp" />
 
-                    <TextView
-                        android:id="@+id/txtWins"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Wins: 0"
-                        android:textColor="#FFFFFF"
-                        android:textSize="14sp"
-                        android:layout_marginBottom="6dp" />
+                        <TextView
+                            android:id="@+id/txtEnemiesKilled"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Enemies Killed: 0"
+                            android:textColor="#FFFFFF"
+                            android:textSize="14sp"
+                            android:layout_marginBottom="6dp" />
 
-                    <TextView
-                        android:id="@+id/txtAttempts"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Attempts: 0"
-                        android:textColor="#FFFFFF"
-                        android:textSize="14sp" />
+                        <TextView
+                            android:id="@+id/txtWins"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Wins: 0"
+                            android:textColor="#FFFFFF"
+                            android:textSize="14sp"
+                            android:layout_marginBottom="6dp" />
+
+                        <TextView
+                            android:id="@+id/txtAttempts"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Attempts: 0"
+                            android:textColor="#FFFFFF"
+                            android:textSize="14sp" />
+                    </LinearLayout>
                 </LinearLayout>
 
                 <!-- Members Column -->

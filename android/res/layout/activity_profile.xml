@@ -87,14 +87,14 @@
                 android:gravity="center_vertical">
 
                 <ImageButton
-                    android:id="@+id/btnOpenItems"
+                    android:id="@+id/btnAchievements"
                     android:layout_width="40dp"
                     android:layout_height="40dp"
                     android:background="?attr/selectableItemBackgroundBorderless"
-                    android:contentDescription="Open items"
+                    android:contentDescription="Achievements"
                     android:padding="8dp"
                     android:scaleType="centerInside"
-                    android:src="@android:drawable/ic_menu_agenda"
+                    android:src="@drawable/ic_trophy"
                     app:tint="#FFFFFF" />
 
                 <ImageButton
@@ -380,6 +380,14 @@
             </LinearLayout>
 
         </LinearLayout>
+
+        <!-- Sign Out -->
+        <Button
+            android:id="@+id/btn_sign_out"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="Sign Out" />
 
     </LinearLayout>
 </ScrollView>

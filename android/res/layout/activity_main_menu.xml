@@ -111,11 +111,11 @@
                         android:layout_height="1dp" />
 
                     <Button
-                        android:id="@+id/achievementsButton"
+                        android:id="@+id/itemsCodexButton"
                         android:layout_width="0dp"
                         android:layout_height="52dp"
                         android:layout_weight="1"
-                        android:text="🏆 Achievements"
+                        android:text="📚 Item Codex"
                         android:textColor="#FFFFFF"
                         android:background="@drawable/btn_primary" />
                 </LinearLayout>

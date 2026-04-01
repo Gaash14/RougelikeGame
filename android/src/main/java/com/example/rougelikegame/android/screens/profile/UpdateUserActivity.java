@@ -50,7 +50,6 @@ public class UpdateUserActivity extends AppCompatActivity implements View.OnClic
     private TextView tvUserDisplayName;
     private TextView tvUserDisplayEmail;
     private Button btnUpdateProfile;
-    private Button btnSignOut;
     private View adminBadge;
     private String selectedUid;
     private User selectedUser;
@@ -102,7 +101,6 @@ public class UpdateUserActivity extends AppCompatActivity implements View.OnClic
         tvUserDisplayName = findViewById(R.id.tv_user_display_name);
         tvUserDisplayEmail = findViewById(R.id.tv_user_display_email);
         btnUpdateProfile = findViewById(R.id.btn_edit_profile);
-        btnSignOut = findViewById(R.id.btn_sign_out);
         adminBadge = findViewById(R.id.admin_badge);
 
         ivProfileIcon = findViewById(R.id.iv_profile_icon);
@@ -116,12 +114,6 @@ public class UpdateUserActivity extends AppCompatActivity implements View.OnClic
         });
 
         btnUpdateProfile.setOnClickListener(this);
-        btnSignOut.setOnClickListener(this);
-
-        // if the user is not the current user, hide the sign out button
-        if (!isCurrentUser) {
-            btnSignOut.setVisibility(View.GONE);
-        }
 
         showUserProfile();
     }
@@ -130,10 +122,6 @@ public class UpdateUserActivity extends AppCompatActivity implements View.OnClic
     public void onClick(View v) {
         if (v.getId() == R.id.btn_edit_profile) {
             updateUserProfile();
-            return;
-        }
-        if (v.getId() == R.id.btn_sign_out) {
-            signOut();
         }
     }
 
@@ -361,17 +349,6 @@ public class UpdateUserActivity extends AppCompatActivity implements View.OnClic
         } catch (Exception e) {
             Log.e(TAG, "Failed to load image", e);
         }
-    }
-
-    private void signOut() {
-        Log.d(TAG, "Sign out button clicked");
-        AchievementManager.getInstance().reset();
-        SharedPreferencesUtil.signOutUser(UpdateUserActivity.this);
-
-        Log.d(TAG, "User signed out, redirecting to LandingActivity");
-        Intent landingIntent = new Intent(UpdateUserActivity.this, LandingActivity.class);
-        landingIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        startActivity(landingIntent);
     }
 }
 

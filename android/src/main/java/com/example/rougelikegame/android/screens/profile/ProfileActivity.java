@@ -3,6 +3,9 @@ package com.example.rougelikegame.android.screens.profile;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -10,9 +13,11 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.rougelikegame.R;
+import com.example.rougelikegame.android.managers.AchievementManager;
 import com.example.rougelikegame.android.models.meta.Guild;
 import com.example.rougelikegame.android.models.meta.User;
-import com.example.rougelikegame.android.screens.menu.ItemsActivity;
+import com.example.rougelikegame.android.screens.auth.LandingActivity;
+import com.example.rougelikegame.android.screens.menu.AchievementsActivity;
 import com.example.rougelikegame.android.screens.shop.ShopActivity;
 import com.example.rougelikegame.android.utils.ImageUtil;
 import com.example.rougelikegame.android.utils.SharedPreferencesUtil;
@@ -46,6 +51,7 @@ public class ProfileActivity extends AppCompatActivity {
     private TextView txtCurrentStreak;
     private TextView txtBestStreak;
     private TextView txtDailyStats;
+    private Button btnSignOut;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,6 +91,7 @@ public class ProfileActivity extends AppCompatActivity {
         txtBestStreak = findViewById(R.id.txtBestStreak);
 
         txtDailyStats = findViewById(R.id.txtDailyStats);
+        btnSignOut = findViewById(R.id.btn_sign_out);
 
         // Placeholder avatar
         imgAvatar.setImageResource(android.R.drawable.ic_menu_myplaces);
@@ -102,10 +109,23 @@ public class ProfileActivity extends AppCompatActivity {
             startActivity(new Intent(this, SkinsActivity.class));
         });
 
-        findViewById(R.id.btnOpenItems).setOnClickListener(v -> {
-            startActivity(new Intent(this, ItemsActivity.class));
+        findViewById(R.id.btnAchievements).setOnClickListener(v -> {
+            startActivity(new Intent(this, AchievementsActivity.class));
         });
 
+        btnSignOut.setOnClickListener(v -> signOut());
+
+    }
+
+    private void signOut() {
+        Log.d("ProfileActivity", "Sign out button clicked");
+        AchievementManager.getInstance().reset();
+        SharedPreferencesUtil.signOutUser(this);
+
+        Log.d("ProfileActivity", "User signed out, redirecting to LandingActivity");
+        Intent landingIntent = new Intent(this, LandingActivity.class);
+        landingIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(landingIntent);
     }
 
     /**
@@ -157,6 +177,8 @@ public class ProfileActivity extends AppCompatActivity {
             txtName.setText("Guest");
             txtSubtitle.setText("Not logged in");
             txtGuildName.setText("No Guild");
+            btnSignOut.setVisibility(View.GONE);
+            btnUpdateUser.setVisibility(View.GONE);
 
             txtRuns.setText("Runs: 0");
             txtWinsLosses.setText("Wins: 0 | Losses: 0");
@@ -184,6 +206,23 @@ public class ProfileActivity extends AppCompatActivity {
         txtName.setText(user.getFullName());
         txtSubtitle.setText("Profile");
         bindGuildName(user.getGuildId());
+
+        // Check if this is the current user's profile
+        User currentUser = SharedPreferencesUtil.getUser(this);
+        boolean isCurrentUser = currentUser != null && user.getUid().equals(currentUser.getUid());
+
+        if (isCurrentUser) {
+            btnSignOut.setVisibility(View.VISIBLE);
+            btnUpdateUser.setVisibility(View.VISIBLE);
+        } else {
+            btnSignOut.setVisibility(View.GONE);
+            // If admin is viewing, they might still see the update button
+            if (currentUser != null && currentUser.isAdmin()) {
+                btnUpdateUser.setVisibility(View.VISIBLE);
+            } else {
+                btnUpdateUser.setVisibility(View.GONE);
+            }
+        }
 
         // ---------- PROFILE IMAGE ----------
         if (user.getProfileImage() != null && !user.getProfileImage().isEmpty()) {

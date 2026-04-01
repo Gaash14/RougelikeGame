@@ -48,7 +48,7 @@ public class MainMenu extends AppCompatActivity {
         Button leaderboard = findViewById(R.id.leaderboardButton);
         Button guilds = findViewById(R.id.guildsButton);
         Button profile = findViewById(R.id.profileButton);
-        Button achievements = findViewById(R.id.achievementsButton);
+        Button itemCodex = findViewById(R.id.itemsCodexButton);
         Button signOut = findViewById(R.id.signOutButton);
         Button adminPanel = findViewById(R.id.adminPanelButton);
 
@@ -105,8 +105,8 @@ public class MainMenu extends AppCompatActivity {
             startActivity(intent);
         });
 
-        achievements.setOnClickListener(v -> {
-            Intent intent = new Intent(this, AchievementsActivity.class);
+        itemCodex.setOnClickListener(v -> {
+            Intent intent = new Intent(this, ItemsActivity.class);
             startActivity(intent);
         });
 
