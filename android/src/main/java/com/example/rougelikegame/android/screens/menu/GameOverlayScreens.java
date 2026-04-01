@@ -203,6 +203,15 @@ class GameOverlayScreens {
             batch.setColor(0, 0, 0, 0.4f);
             batch.draw(panelTexture, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
             batch.setColor(1, 1, 1, 1);
+
+            // Display help text under the console bar
+            font.getData().setScale(0.7f);
+            String helpText = "Commands: /giveitem [ID], /killall, /spawnpickup [TYPE], /spawnenemy, /spawnghost";
+            glyphLayout.setText(font, helpText);
+            float helpX = (Gdx.graphics.getWidth() - glyphLayout.width) / 2f;
+            float helpY = Gdx.graphics.getHeight() - 220f; // Just below the 80px high bar at GHeight - 200
+            font.draw(batch, glyphLayout, helpX, helpY);
+            font.getData().setScale(1.0f);
         }
         if (rewardScreenActive) {
             drawRewardOverlay(batch);

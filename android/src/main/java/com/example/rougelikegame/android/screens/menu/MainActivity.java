@@ -439,6 +439,45 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
             } catch (Exception e) {
                 Gdx.app.error("ADMIN", "Failed to give item: " + e.getMessage());
             }
+        } else if (cmd.equals("/killall")) {
+            for (Enemy e : enemies) {
+                e.alive = false;
+            }
+            combatSystem.cleanupDeadEnemies(enemies);
+            Gdx.app.log("ADMIN", "Killed all active enemies");
+        } else if (cmd.equals("/spawnpickup") && parts.length > 1) {
+            try {
+                String typeStr = parts[1].toUpperCase();
+                Pickup.Type type = Pickup.Type.valueOf(typeStr);
+                pickups.add(new Pickup(type, player.x, player.y));
+                Gdx.app.log("ADMIN", "Spawned pickup " + type + " at player position");
+            } catch (Exception e) {
+                Gdx.app.error("ADMIN", "Failed to spawn pickup: " + e.getMessage());
+            }
+        } else if (cmd.equals("/spawnenemy")) {
+            float spawnX = player.x + 200;
+            float spawnY = player.y + 200;
+            // Ensure within bounds
+            spawnX = Math.min(spawnX, Gdx.graphics.getWidth() - 128);
+            spawnY = Math.min(spawnY, Gdx.graphics.getHeight() - 128);
+
+            int hp = calculateEnemyHP(30, false);
+            int damage = 1 + waveManager.getWave() / 6;
+
+            enemies.add(enemyFactory.createNormalEnemy(spawnX, spawnY, hp, damage));
+            Gdx.app.log("ADMIN", "Spawned normal enemy near player");
+        } else if (cmd.equals("/spawnghost")) {
+            float spawnX = player.x + 200;
+            float spawnY = player.y + 200;
+            // Ensure within bounds
+            spawnX = Math.min(spawnX, Gdx.graphics.getWidth() - 128);
+            spawnY = Math.min(spawnY, Gdx.graphics.getHeight() - 128);
+
+            int hp = calculateEnemyHP(20, false);
+            int damage = 1 + waveManager.getWave() / 6;
+
+            enemies.add(enemyFactory.createGhostEnemy(spawnX, spawnY, hp, damage));
+            Gdx.app.log("ADMIN", "Spawned ghost enemy near player");
         } else {
             Gdx.app.log("ADMIN", "Unknown command: " + command);
         }
