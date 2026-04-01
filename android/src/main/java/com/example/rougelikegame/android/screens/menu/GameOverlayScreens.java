@@ -11,6 +11,10 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.scenes.scene2d.ui.TextField;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.example.rougelikegame.android.models.items.ItemTier;
 
 /**
@@ -34,6 +38,8 @@ class GameOverlayScreens {
         void onVictoryEndlessModeSelected();
 
         void onDeathMainMenuSelected();
+
+        void onCommandEntered(String command);
     }
 
     /**
@@ -64,6 +70,11 @@ class GameOverlayScreens {
     private Stage rewardStage;
     private Stage victoryStage;
     private Stage deathStage;
+    private Stage consoleStage;
+    private TextField adminConsole;
+    private boolean consoleActive;
+    private Texture whiteTexture;
+
     private RewardOption[] currentRewardOptions;
     private RewardRerollButtonActor rerollButton;
     private int rewardWave = -1;
@@ -78,10 +89,60 @@ class GameOverlayScreens {
         this.glyphLayout = glyphLayout;
         this.panelTexture = panelTexture;
         this.callbacks = callbacks;
+        
+        // Create a guaranteed white texture for UI elements
+        Pixmap pixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
+        pixmap.setColor(Color.WHITE);
+        pixmap.fill();
+        this.whiteTexture = new Texture(pixmap);
+        pixmap.dispose();
+
+        setupConsoleStage();
+    }
+
+    private void setupConsoleStage() {
+        consoleStage = new Stage(new ScreenViewport());
+
+        TextField.TextFieldStyle style = new TextField.TextFieldStyle();
+        style.font = font;
+        style.fontColor = Color.WHITE;
+        
+        // Use whiteTexture for guaranteed white cursor and selection
+        style.cursor = new TextureRegionDrawable(new TextureRegion(whiteTexture));
+        style.selection = new TextureRegionDrawable(new TextureRegion(whiteTexture)).tint(new Color(0.7f, 0.7f, 0.7f, 0.5f));
+        style.background = new TextureRegionDrawable(new TextureRegion(panelTexture)).tint(new Color(0.05f, 0.05f, 0.05f, 0.95f));
+
+        adminConsole = new TextField("", style);
+        adminConsole.setMessageText("Enter command...");
+        adminConsole.setSize(Gdx.graphics.getWidth() * 0.8f, 80);
+        // Move console down to GHeight - 200 so it doesn't overlap with the button at GHeight - 100
+        adminConsole.setPosition((Gdx.graphics.getWidth() - adminConsole.getWidth()) / 2f, Gdx.graphics.getHeight() - 200);
+
+        adminConsole.setTextFieldListener((textField, c) -> {
+            if (c == '\n' || c == '\r') {
+                callbacks.onCommandEntered(textField.getText());
+                textField.setText("");
+            }
+        });
+
+        // Add a transparent actor to catch "CLOSE" clicks while console is open
+        Actor closeBtnCatcher = new Actor();
+        // admin button in top right: Gdx.graphics.getWidth() - 220, Gdx.graphics.getHeight() - 100, 200, 80
+        closeBtnCatcher.setBounds(Gdx.graphics.getWidth() - 220, Gdx.graphics.getHeight() - 100, 200, 80);
+        closeBtnCatcher.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                // Clicking this area will trigger a close via empty command
+                callbacks.onCommandEntered(""); 
+            }
+        });
+
+        consoleStage.addActor(adminConsole);
+        consoleStage.addActor(closeBtnCatcher);
     }
 
     boolean isAnyOverlayActive() {
-        return rewardScreenActive || victoryScreenActive || deathScreenActive;
+        return rewardScreenActive || victoryScreenActive || deathScreenActive || consoleActive;
     }
 
     boolean isRewardScreenActive() {
@@ -100,11 +161,31 @@ class GameOverlayScreens {
         return rewardWave;
     }
 
+    boolean isConsoleActive() {
+        return consoleActive;
+    }
+
+    void showConsole() {
+        consoleActive = true;
+        Gdx.input.setInputProcessor(consoleStage);
+        consoleStage.setKeyboardFocus(adminConsole);
+        Gdx.input.setOnscreenKeyboardVisible(true);
+    }
+
+    void hideConsole() {
+        consoleActive = false;
+        Gdx.input.setOnscreenKeyboardVisible(false);
+        consoleStage.setKeyboardFocus(null);
+        // Restore input processor should be handled by MainActivity
+    }
+
     /**
      * Updates the active stage.
      */
     void act(float delta) {
-        if (rewardScreenActive && rewardStage != null) {
+        if (consoleActive) {
+            consoleStage.act(delta);
+        } else if (rewardScreenActive && rewardStage != null) {
             rewardStage.act(delta);
         } else if (victoryScreenActive && victoryStage != null) {
             victoryStage.act(delta);
@@ -117,6 +198,12 @@ class GameOverlayScreens {
      * Draws the overlay background and text.
      */
     void drawOverlay(Batch batch) {
+        if (consoleActive) {
+            // Darken background more for console
+            batch.setColor(0, 0, 0, 0.4f);
+            batch.draw(panelTexture, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+            batch.setColor(1, 1, 1, 1);
+        }
         if (rewardScreenActive) {
             drawRewardOverlay(batch);
         }
@@ -132,6 +219,9 @@ class GameOverlayScreens {
      * Draws the active stage (buttons, etc.).
      */
     void drawStage() {
+        if (consoleActive) {
+            consoleStage.draw();
+        }
         if (rewardScreenActive && rewardStage != null) {
             rewardStage.draw();
         }
@@ -251,6 +341,18 @@ class GameOverlayScreens {
         disposeRewardStage();
         disposeVictoryStage();
         disposeDeathStage();
+        disposeConsoleStage();
+        if (whiteTexture != null) {
+            whiteTexture.dispose();
+            whiteTexture = null;
+        }
+    }
+
+    private void disposeConsoleStage() {
+        if (consoleStage != null) {
+            consoleStage.dispose();
+            consoleStage = null;
+        }
     }
 
     /**
@@ -508,4 +610,3 @@ class GameOverlayScreens {
         }
     }
 }
-

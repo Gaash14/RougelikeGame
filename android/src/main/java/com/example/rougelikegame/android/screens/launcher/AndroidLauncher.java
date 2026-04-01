@@ -179,7 +179,7 @@ public class AndroidLauncher extends AndroidApplication {
                 }
             }
         },
-        selectedClass, difficulty, equippedSkinId, dailyChallenge, runSeed), configuration);
+        selectedClass, difficulty, equippedSkinId, dailyChallenge, runSeed, user != null && user.isAdmin()), configuration);
     }
 
     /**

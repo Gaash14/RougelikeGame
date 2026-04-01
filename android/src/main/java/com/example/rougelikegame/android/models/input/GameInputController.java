@@ -38,9 +38,11 @@ public class GameInputController {
     private final Rectangle attackBtnBounds;
     private final Rectangle resumeBounds;
     private final Rectangle exitBounds;
+    private final Rectangle adminBtnBounds;
 
     private final ProjectileSpawner projectileSpawner;
     private final Runnable onExitRequested;
+    private final Runnable toggleAdminConsole;
 
     private boolean paused = false;
     private int attackPointer = -1;
@@ -58,8 +60,10 @@ public class GameInputController {
         Rectangle attackBtnBounds,
         Rectangle resumeBounds,
         Rectangle exitBounds,
+        Rectangle adminBtnBounds,
         ProjectileSpawner projectileSpawner,
-        Runnable onExitRequested
+        Runnable onExitRequested,
+        Runnable toggleAdminConsole
     ) {
         this.camera = camera;
         this.stage = stage;
@@ -69,8 +73,10 @@ public class GameInputController {
         this.attackBtnBounds = attackBtnBounds;
         this.resumeBounds = resumeBounds;
         this.exitBounds = exitBounds;
+        this.adminBtnBounds = adminBtnBounds;
         this.projectileSpawner = projectileSpawner;
         this.onExitRequested = onExitRequested;
+        this.toggleAdminConsole = toggleAdminConsole;
     }
 
     /**
@@ -129,6 +135,14 @@ public class GameInputController {
 
                 // JOYSTICK
                 joystick.touchDown(touch.x, touch.y, pointer);
+
+                // ---------------- ADMIN BUTTON ----------------
+                if (paused && adminBtnBounds != null && adminBtnBounds.contains(touch.x, touch.y)) {
+                    if (toggleAdminConsole != null) {
+                        toggleAdminConsole.run();
+                        return true;
+                    }
+                }
 
                 // ---------------- PAUSE MENU ----------------
                 if (paused) {

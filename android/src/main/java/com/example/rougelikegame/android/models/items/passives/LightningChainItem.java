@@ -33,7 +33,7 @@ public class LightningChainItem implements PassiveItem {
 
     @Override
     public String getIconPath() {
-        return "items/error.png";
+        return "items/lightning_chain.png";
     }
 
     @Override

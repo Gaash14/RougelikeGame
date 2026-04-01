@@ -59,6 +59,7 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
     private final Player.PlayerClass selectedClass;
     private final Player.Difficulty difficulty;
     private final String skinId;
+    private final boolean isAdmin;
 
     public MainActivity(
             ScoreReporter scoreReporter,
@@ -66,7 +67,8 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
             Player.Difficulty difficulty,
             String skinId,
             boolean dailyChallenge,
-            long runSeed
+            long runSeed,
+            boolean isAdmin
     ) {
         this.scoreReporter = scoreReporter;
         this.selectedClass = selectedClass;
@@ -74,16 +76,17 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
         this.skinId = skinId;
         this.dailyChallenge = dailyChallenge;
         this.runSeed = runSeed;
+        this.isAdmin = isAdmin;
     }
 
     public MainActivity(ScoreReporter scoreReporter) {
         this(scoreReporter, Player.PlayerClass.MELEE,
-                Player.Difficulty.NORMAL, "default", false, System.currentTimeMillis());
+                Player.Difficulty.NORMAL, "default", false, System.currentTimeMillis(), false);
     }
 
     public MainActivity() {
         this(null, Player.PlayerClass.MELEE,
-                Player.Difficulty.NORMAL, "default", false, System.currentTimeMillis());
+                Player.Difficulty.NORMAL, "default", false, System.currentTimeMillis(), false);
     }
 
     private boolean runReported = false;
@@ -152,6 +155,8 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
     private final GlyphLayout glyphLayout = new GlyphLayout();
     private Rectangle resumeBounds;
     private Rectangle exitBounds;
+    private Rectangle adminBtnBounds;
+    private boolean consoleVisible = false;
 
     @Override
     public void create() {
@@ -172,11 +177,11 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
         loadTextures();
         setupPickupsAndObstacles();
         setupPlayerAndEnemies();
-        setupStageAndJoystick();
         setupPauseButtons();
         setupAttackButton();
-        setupInput();
         setupFont();
+        setupStageAndJoystick();
+        setupInput();
         setupOverlayScreens();
 
         Gdx.input.setCatchKey(Input.Keys.BACK, true);
@@ -375,6 +380,9 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
 
         resumeBounds = new Rectangle(centerX - 150, Gdx.graphics.getHeight() / 2f + 20, 300, 80);
         exitBounds = new Rectangle(centerX - 150, Gdx.graphics.getHeight() / 2f - 100, 300, 80);
+
+        // admin button in top right
+        adminBtnBounds = new Rectangle(Gdx.graphics.getWidth() - 220, Gdx.graphics.getHeight() - 100, 200, 80);
     }
 
     private void setupAttackButton() {
@@ -397,6 +405,7 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
                 attackBtnBounds,
                 resumeBounds,
                 exitBounds,
+                isAdmin ? adminBtnBounds : null,
                 new GameInputController.ProjectileSpawner() {
                     @Override
                     public void spawnProjectile(float x, float y, Vector2 dir, int damage) {
@@ -408,10 +417,46 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
                         MainActivity.this.spawnBeam(dir, chargePercent);
                     }
                 },
-                this::exitRun
+                this::exitRun,
+                this::toggleAdminConsole
         );
 
         Gdx.input.setInputProcessor(inputController.buildProcessor());
+    }
+
+    private void executeCommand(String command) {
+        if (command == null || command.isEmpty()) return;
+
+        String[] parts = command.split(" ");
+        String cmd = parts[0].toLowerCase();
+
+        if (cmd.equals("/giveitem") && parts.length > 1) {
+            try {
+                int itemId = Integer.parseInt(parts[1]);
+                player.addPassiveItem(ItemRegistry.create(itemId));
+                runStats.addItemPicked();
+                Gdx.app.log("ADMIN", "Gave item " + itemId + " to player");
+            } catch (Exception e) {
+                Gdx.app.error("ADMIN", "Failed to give item: " + e.getMessage());
+            }
+        } else {
+            Gdx.app.log("ADMIN", "Unknown command: " + command);
+        }
+    }
+
+    private void toggleAdminConsole() {
+        if (!isAdmin) return;
+
+        if (overlayScreens.isConsoleActive()) {
+            overlayScreens.hideConsole();
+            consoleVisible = false;
+            if (inputController != null) inputController.setPaused(false);
+            Gdx.input.setInputProcessor(inputController.buildProcessor());
+        } else {
+            overlayScreens.showConsole();
+            consoleVisible = true;
+            if (inputController != null) inputController.setPaused(true);
+        }
     }
 
     private void setupOverlayScreens() {
@@ -446,6 +491,11 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
                 MainActivity.this.onDeathMainMenuSelected();
             }
 
+            @Override
+            public void onCommandEntered(String command) {
+                MainActivity.this.executeCommand(command);
+                MainActivity.this.toggleAdminConsole();
+            }
         });
     }
 
@@ -930,6 +980,10 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
             drawPauseOverlay();
         }
 
+        if (isAdmin) {
+            drawAdminButton();
+        }
+
         overlayScreens.drawOverlay(batch);
 
         batch.end();
@@ -938,6 +992,18 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
         stage.draw();
 
         overlayScreens.drawStage();
+    }
+
+    private void drawAdminButton() {
+        if (!isAdmin || !inputController.isPaused()) return;
+
+        batch.setColor(0, 0, 0, 0.6f);
+        batch.draw(player.debugPixel, adminBtnBounds.x, adminBtnBounds.y, adminBtnBounds.width, adminBtnBounds.height);
+        batch.setColor(1, 1, 1, 1);
+
+        glyphLayout.setText(font, overlayScreens.isConsoleActive() ? "CLOSE" : "CONSOLE");
+        font.draw(batch, glyphLayout, adminBtnBounds.x + (adminBtnBounds.width - glyphLayout.width) / 2f,
+                adminBtnBounds.y + (adminBtnBounds.height + glyphLayout.height) / 2f);
     }
 
     private void drawPauseOverlay() {

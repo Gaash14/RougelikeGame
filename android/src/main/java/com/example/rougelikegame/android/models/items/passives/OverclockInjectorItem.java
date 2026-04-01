@@ -14,7 +14,7 @@ public class OverclockInjectorItem implements PassiveItem {
     public static final int ID = 8;
 
     private static final float ATTACK_SPEED_MULTIPLIER = 5.5f;
-    private static final float DAMAGE_MULTIPLIER = 0.2f;
+    private static final float DAMAGE_MULTIPLIER = 0.4f;
 
     @Override
     public int getItemId() {
