@@ -12,7 +12,7 @@ import androidx.core.app.NotificationCompat;
 
 import com.example.rougelikegame.R;
 import com.example.rougelikegame.android.screens.auth.SplashActivity;
-import com.example.rougelikegame.android.screens.menu.MainMenu;
+import com.example.rougelikegame.android.screens.menu.MainMenuActivity;
 
 /**
  * BroadcastReceiver for handling daily reminder notifications.
@@ -57,6 +57,6 @@ public class ReminderReceiver extends BroadcastReceiver {
 
         notificationManager.notify(100, builder.build());
 
-        MainMenu.scheduleDailyReminder(context);
+        MainMenuActivity.scheduleDailyReminder(context);
     }
 }

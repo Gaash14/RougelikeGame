@@ -131,15 +131,6 @@
                     android:visibility="gone"
                     android:layout_marginBottom="10dp" />
 
-                <!-- SIGN OUT ONLY -->
-                <Button
-                    android:id="@+id/signOutButton"
-                    android:layout_width="match_parent"
-                    android:layout_height="52dp"
-                    android:text="Sign Out"
-                    android:textColor="#FFFFFF"
-                    android:background="@drawable/btn_primary" />
-
             </LinearLayout>
         </LinearLayout>
 

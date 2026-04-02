@@ -6,7 +6,7 @@ import android.widget.Button;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.rougelikegame.R;
-import com.example.rougelikegame.android.screens.menu.MainMenu;
+import com.example.rougelikegame.android.screens.menu.MainMenuActivity;
 import com.example.rougelikegame.android.utils.SharedPreferencesUtil;
 
 /**
@@ -22,7 +22,7 @@ public class LandingActivity extends AppCompatActivity {
 
         // auto login
         if (SharedPreferencesUtil.isUserLoggedIn(this)) {
-            Intent mainIntent = new Intent(LandingActivity.this, MainMenu.class);
+            Intent mainIntent = new Intent(LandingActivity.this, MainMenuActivity.class);
             mainIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(mainIntent);
             finish();

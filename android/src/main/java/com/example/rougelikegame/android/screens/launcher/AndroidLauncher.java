@@ -7,7 +7,7 @@ import com.badlogic.gdx.backends.android.AndroidApplication;
 import com.badlogic.gdx.backends.android.AndroidApplicationConfiguration;
 import com.example.rougelikegame.android.models.core.ScoreReporter;
 import com.example.rougelikegame.android.models.meta.DailyRun;
-import com.example.rougelikegame.android.screens.menu.MainActivity;
+import com.example.rougelikegame.android.screens.menu.GameActivity;
 import com.example.rougelikegame.android.services.DatabaseService;
 import com.example.rougelikegame.android.utils.SharedPreferencesUtil;
 import com.example.rougelikegame.android.models.characters.Player;
@@ -63,7 +63,7 @@ public class AndroidLauncher extends AndroidApplication {
         AndroidApplicationConfiguration configuration = new AndroidApplicationConfiguration();
         configuration.useImmersiveMode = true;
 
-        initialize(new MainActivity(new ScoreReporter() {
+        initialize(new GameActivity(new ScoreReporter() {
             /**
              * Reports the results of a game run and updates user statistics.
              */

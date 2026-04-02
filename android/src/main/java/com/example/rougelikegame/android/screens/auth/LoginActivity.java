@@ -17,7 +17,7 @@ import androidx.core.view.WindowInsetsCompat;
 import com.example.rougelikegame.R;
 import com.example.rougelikegame.android.managers.AchievementManager;
 import com.example.rougelikegame.android.models.meta.User;
-import com.example.rougelikegame.android.screens.menu.MainMenu;
+import com.example.rougelikegame.android.screens.menu.MainMenuActivity;
 import com.example.rougelikegame.android.services.DatabaseService;
 import com.example.rougelikegame.android.utils.SharedPreferencesUtil;
 import com.example.rougelikegame.android.utils.Validator;
@@ -164,7 +164,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 SharedPreferencesUtil.saveUser(LoginActivity.this, user);
 
                 // go to main menu
-                Intent mainIntent = new Intent(LoginActivity.this, MainMenu.class);
+                Intent mainIntent = new Intent(LoginActivity.this, MainMenuActivity.class);
                 mainIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                 startActivity(mainIntent);
             }

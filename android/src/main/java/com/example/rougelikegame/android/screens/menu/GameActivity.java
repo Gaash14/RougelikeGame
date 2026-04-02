@@ -53,7 +53,7 @@ import java.util.Set;
 /**
  * Main game class that implements the LibGDX application lifecycle.
  */
-public class MainActivity extends ApplicationAdapter implements WaveSpawner {
+public class GameActivity extends ApplicationAdapter implements WaveSpawner {
 
     private final ScoreReporter scoreReporter;
     private final Player.PlayerClass selectedClass;
@@ -61,7 +61,7 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
     private final String skinId;
     private final boolean isAdmin;
 
-    public MainActivity(
+    public GameActivity(
             ScoreReporter scoreReporter,
             Player.PlayerClass selectedClass,
             Player.Difficulty difficulty,
@@ -79,12 +79,12 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
         this.isAdmin = isAdmin;
     }
 
-    public MainActivity(ScoreReporter scoreReporter) {
+    public GameActivity(ScoreReporter scoreReporter) {
         this(scoreReporter, Player.PlayerClass.MELEE,
                 Player.Difficulty.NORMAL, "default", false, System.currentTimeMillis(), false);
     }
 
-    public MainActivity() {
+    public GameActivity() {
         this(null, Player.PlayerClass.MELEE,
                 Player.Difficulty.NORMAL, "default", false, System.currentTimeMillis(), false);
     }
@@ -331,17 +331,17 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
         combatSystem = new CombatSystem(new CombatSystem.Callbacks() {
             @Override
             public void onPlayerDied() {
-                MainActivity.this.onPlayerDied();
+                GameActivity.this.onPlayerDied();
             }
 
             @Override
             public void onBossDefeated() {
-                MainActivity.this.onBossDefeat();
+                GameActivity.this.onBossDefeat();
             }
 
             @Override
             public void onPlayerDamaged(int damageTaken) {
-                MainActivity.this.onPlayerDamaged(damageTaken);
+                GameActivity.this.onPlayerDamaged(damageTaken);
             }
 
             @Override
@@ -409,12 +409,12 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
                 new GameInputController.ProjectileSpawner() {
                     @Override
                     public void spawnProjectile(float x, float y, Vector2 dir, int damage) {
-                        MainActivity.this.spawnProjectile(x, y, dir, damage);
+                        GameActivity.this.spawnProjectile(x, y, dir, damage);
                     }
 
                     @Override
                     public void spawnBeam(Vector2 dir, float chargePercent) {
-                        MainActivity.this.spawnBeam(dir, chargePercent);
+                        GameActivity.this.spawnBeam(dir, chargePercent);
                     }
                 },
                 this::exitRun,
@@ -502,7 +502,7 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
         overlayScreens = new GameOverlayScreens(font, glyphLayout, player.debugPixel, new GameOverlayScreens.OverlayCallbacks() {
             @Override
             public void onRewardSelected(int itemId) {
-                MainActivity.this.onRewardItemSelected(itemId);
+                GameActivity.this.onRewardItemSelected(itemId);
             }
 
             @Override
@@ -512,28 +512,28 @@ public class MainActivity extends ApplicationAdapter implements WaveSpawner {
 
             @Override
             public GameOverlayScreens.RewardOption[] onRewardRerollRequested() {
-                return MainActivity.this.onRewardRerollRequested();
+                return GameActivity.this.onRewardRerollRequested();
             }
 
             @Override
             public void onVictoryMainMenuSelected() {
-                MainActivity.this.onVictoryMainMenuSelected();
+                GameActivity.this.onVictoryMainMenuSelected();
             }
 
             @Override
             public void onVictoryEndlessModeSelected() {
-                MainActivity.this.onVictoryEndlessModeSelected();
+                GameActivity.this.onVictoryEndlessModeSelected();
             }
 
             @Override
             public void onDeathMainMenuSelected() {
-                MainActivity.this.onDeathMainMenuSelected();
+                GameActivity.this.onDeathMainMenuSelected();
             }
 
             @Override
             public void onCommandEntered(String command) {
-                MainActivity.this.executeCommand(command);
-                MainActivity.this.toggleAdminConsole();
+                GameActivity.this.executeCommand(command);
+                GameActivity.this.toggleAdminConsole();
             }
         });
     }

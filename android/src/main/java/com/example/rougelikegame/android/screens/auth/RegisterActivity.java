@@ -18,7 +18,7 @@ import androidx.core.view.WindowInsetsCompat;
 import com.example.rougelikegame.R;
 import com.example.rougelikegame.android.managers.AchievementManager;
 import com.example.rougelikegame.android.models.meta.User;
-import com.example.rougelikegame.android.screens.menu.MainMenu;
+import com.example.rougelikegame.android.screens.menu.MainMenuActivity;
 import com.example.rougelikegame.android.services.DatabaseService;
 import com.example.rougelikegame.android.utils.SharedPreferencesUtil;
 import com.example.rougelikegame.android.utils.Validator;
@@ -234,7 +234,7 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
 
                 Log.d(TAG, "createUserInDatabase: Redirecting to MainActivity");
                 // Redirect to MainActivity and clear back stack to prevent user from going back to register screen
-                Intent mainIntent = new Intent(RegisterActivity.this, MainMenu.class);
+                Intent mainIntent = new Intent(RegisterActivity.this, MainMenuActivity.class);
                 // clear the back stack (clear history) and start the MainActivity
                 mainIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                 startActivity(mainIntent);

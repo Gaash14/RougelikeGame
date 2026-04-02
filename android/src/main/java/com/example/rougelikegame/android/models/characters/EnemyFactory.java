@@ -4,7 +4,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.utils.Array;
 import com.example.rougelikegame.android.graphics.FrameAnimationManager;
 import com.example.rougelikegame.android.models.world.Projectile;
-import com.example.rougelikegame.android.screens.menu.MainActivity;
+import com.example.rougelikegame.android.screens.menu.GameActivity;
 
 /**
  * Factory class for creating various types of enemies (Normal, Ghost, Boss).
@@ -103,7 +103,7 @@ public class EnemyFactory {
      * @param game   reference to MainActivity
      * @return a new BossEnemy instance
      */
-    public Enemy createBossEnemy(float x, float y, int hp, int damage, MainActivity game) {
+    public Enemy createBossEnemy(float x, float y, int hp, int damage, GameActivity game) {
         Enemy enemy = new BossEnemy(
             bossTexture,
             x,

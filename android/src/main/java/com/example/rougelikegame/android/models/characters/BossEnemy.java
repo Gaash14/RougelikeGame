@@ -10,7 +10,7 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Array;
 import com.example.rougelikegame.android.models.world.Obstacle;
 import com.example.rougelikegame.android.models.world.Projectile;
-import com.example.rougelikegame.android.screens.menu.MainActivity;
+import com.example.rougelikegame.android.screens.menu.GameActivity;
 
 /**
  * This class represents a boss enemy in the game. It features a unique 'Inferno' ability
@@ -35,7 +35,7 @@ public class BossEnemy extends Enemy {
 
     private boolean reinforcementsSummoned = false;
     private final int maxHealth;
-    private final MainActivity game;
+    private final GameActivity game;
 
     private final Array<Projectile> projectiles;
     private final Rectangle infernoSafeZone = new Rectangle();
@@ -55,7 +55,7 @@ public class BossEnemy extends Enemy {
      * @param game        reference to the main activity for summoning reinforcements
      */
     public BossEnemy(Texture texture, float startX, float startY, Array<Projectile> projectiles,
-                     int health, int damage, MainActivity game) {
+                     int health, int damage, GameActivity game) {
         super(texture, startX, startY, 70f, 256f, 256f, health, damage);
 
         this.projectiles = projectiles;

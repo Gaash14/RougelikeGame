@@ -4,7 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.example.rougelikegame.android.models.characters.Player;
 import com.example.rougelikegame.android.models.items.ItemTier;
 import com.example.rougelikegame.android.models.items.PassiveItem;
-import com.example.rougelikegame.android.screens.menu.MainActivity;
+import com.example.rougelikegame.android.screens.menu.GameActivity;
 
 /**
  * Item that gives a chance to spawn coins when the player takes damage.
@@ -51,8 +51,8 @@ public class PiggyBankItem implements PassiveItem {
         }
 
         if (player.getRandomSource().nextFloat() < COIN_SPAWN_CHANCE) {
-            if (Gdx.app.getApplicationListener() instanceof MainActivity) {
-                MainActivity game = (MainActivity) Gdx.app.getApplicationListener();
+            if (Gdx.app.getApplicationListener() instanceof GameActivity) {
+                GameActivity game = (GameActivity) Gdx.app.getApplicationListener();
                 game.spawnCoinAtPlayerPosition();
             }
         }

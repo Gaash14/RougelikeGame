@@ -11,7 +11,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.example.rougelikegame.R;
-import com.example.rougelikegame.android.screens.menu.MainMenu;
+import com.example.rougelikegame.android.screens.menu.MainMenuActivity;
 import com.example.rougelikegame.android.utils.SharedPreferencesUtil;
 
 /**
@@ -45,7 +45,7 @@ public class SplashActivity extends AppCompatActivity {
                 // Check if user is signed in or not and redirect to LandingActivity if not signed in
                 if (SharedPreferencesUtil.isUserLoggedIn(this)) {
                     Log.d(TAG, "User signed in, redirecting to MainActivity");
-                    intent = new Intent(SplashActivity.this, MainMenu.class);
+                    intent = new Intent(SplashActivity.this, MainMenuActivity.class);
                 } else {
                     Log.d(TAG, "User not signed in, redirecting to LandingActivity");
                     intent = new Intent(SplashActivity.this, LandingActivity.class);

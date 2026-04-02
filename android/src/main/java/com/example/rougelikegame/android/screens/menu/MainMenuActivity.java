@@ -8,7 +8,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
@@ -21,7 +20,6 @@ import com.example.rougelikegame.R;
 import com.example.rougelikegame.android.managers.AchievementManager;
 import com.example.rougelikegame.android.models.meta.User;
 import com.example.rougelikegame.android.screens.admin.AdminActivity;
-import com.example.rougelikegame.android.screens.auth.LandingActivity;
 import com.example.rougelikegame.android.screens.guild.GuildInfoActivity;
 import com.example.rougelikegame.android.screens.leaderboard.LeaderboardActivity;
 import com.example.rougelikegame.android.screens.profile.ProfileActivity;
@@ -33,8 +31,7 @@ import java.util.Calendar;
 /**
  * Main menu activity providing access to all game features.
  */
-public class MainMenu extends AppCompatActivity {
-    private static final String TAG = "MainMenu";
+public class MainMenuActivity extends AppCompatActivity {
     private static final int PERMISSION_REQUEST_CODE = 101;
 
     @Override
@@ -49,7 +46,6 @@ public class MainMenu extends AppCompatActivity {
         Button guilds = findViewById(R.id.guildsButton);
         Button profile = findViewById(R.id.profileButton);
         Button itemCodex = findViewById(R.id.itemsCodexButton);
-        Button signOut = findViewById(R.id.signOutButton);
         Button adminPanel = findViewById(R.id.adminPanelButton);
 
         User currentUser = SharedPreferencesUtil.getUser(this);
@@ -58,7 +54,7 @@ public class MainMenu extends AppCompatActivity {
             adminPanel.setVisibility(View.VISIBLE);
 
             adminPanel.setOnClickListener(v -> {
-                Intent intent = new Intent(MainMenu.this, AdminActivity.class);
+                Intent intent = new Intent(MainMenuActivity.this, AdminActivity.class);
                 startActivity(intent);
             });
         } else {
@@ -73,7 +69,7 @@ public class MainMenu extends AppCompatActivity {
 
             // set active user
             manager.setUserUid(currentUser.getUid());
-            manager.setContext(MainMenu.this);
+            manager.setContext(MainMenuActivity.this);
 
             // load achievements from Firebase
             if (currentUser.getAchievements() != null) {
@@ -108,17 +104,6 @@ public class MainMenu extends AppCompatActivity {
         itemCodex.setOnClickListener(v -> {
             Intent intent = new Intent(this, ItemsActivity.class);
             startActivity(intent);
-        });
-
-        signOut.setOnClickListener(v -> {
-            Log.d(TAG, "Sign out button clicked");
-            AchievementManager.getInstance().reset();
-            SharedPreferencesUtil.signOutUser(MainMenu.this);
-
-            Log.d(TAG, "User signed out, redirecting to LandingActivity");
-            Intent landingIntent = new Intent(MainMenu.this, LandingActivity.class);
-            landingIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            startActivity(landingIntent);
         });
     }
 
