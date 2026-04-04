@@ -3,8 +3,8 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:paddingStart="8dp"
-    android:paddingEnd="48dp"
+    android:paddingStart="48dp"
+    android:paddingEnd="8dp"
     android:paddingTop="4dp"
     android:paddingBottom="4dp">
 
@@ -14,22 +14,23 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:padding="10dp"
-        android:background="@drawable/card_gradient"
-        android:layout_gravity="start">
+        android:background="@drawable/bg_you_outline"
+        android:layout_gravity="end">
 
         <TextView
             android:id="@+id/txtMessageSender"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="#FFCA28"
+            android:textColor="#4CAF50"
             android:textStyle="bold"
-            android:textSize="12sp" />
+            android:textSize="12sp"
+            android:visibility="gone" />
 
         <TextView
             android:id="@+id/txtMessageText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
+            android:layout_marginTop="0dp"
             android:textColor="#FFFFFF"
             android:textSize="15sp" />
 
@@ -39,7 +40,8 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
             android:textColor="#BDBDBD"
-            android:textSize="11sp" />
+            android:textSize="11sp"
+            android:layout_gravity="end" />
 
     </LinearLayout>
 

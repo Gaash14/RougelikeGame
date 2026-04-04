@@ -19,9 +19,9 @@ import com.example.rougelikegame.android.screens.menu.GameActivity;
  */
 public class BossEnemy extends Enemy {
 
-    private final float shootCooldown = 2f;
+    private final float shootCooldown = 2.5f;
     private float shootTimer = 0f;
-    private static final int PROJECTILE_DAMAGE = 4;
+    private static final int PROJECTILE_DAMAGE = 3;
 
     private static final float HALF_HEALTH_THRESHOLD = 0.5f;
     private static final float SPECIAL_MIN_COOLDOWN_SECONDS = 30f;

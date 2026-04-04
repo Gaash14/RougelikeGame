@@ -664,7 +664,7 @@ public class GameActivity extends ApplicationAdapter implements WaveSpawner {
                             x,
                             y,
                             calculateEnemyHP(250, true),
-                            5,
+                            3,
                             this
                     )
             );
@@ -765,7 +765,7 @@ public class GameActivity extends ApplicationAdapter implements WaveSpawner {
     }
 
     public void spawnBossReinforcements() {
-        int reinforcementWave = 5;
+        int reinforcementWave = 3;
         spawnWave(reinforcementWave, enemies, player, getDifficulty(), false);
     }
 

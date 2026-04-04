@@ -29,6 +29,9 @@ public class GuildChatAdapter extends RecyclerView.Adapter<GuildChatAdapter.View
     private final String currentUid;
     private final SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
 
+    private static final int VIEW_TYPE_SENT = 1;
+    private static final int VIEW_TYPE_RECEIVED = 2;
+
     /**
      * Constructs a new GuildChatAdapter.
      *
@@ -38,11 +41,23 @@ public class GuildChatAdapter extends RecyclerView.Adapter<GuildChatAdapter.View
         this.currentUid = currentUid;
     }
 
+    @Override
+    public int getItemViewType(int position) {
+        GuildMessage message = messages.get(position);
+        if (currentUid != null && message != null && currentUid.equals(message.getSenderId())) {
+            return VIEW_TYPE_SENT;
+        } else {
+            return VIEW_TYPE_RECEIVED;
+        }
+    }
+
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext())
-            .inflate(R.layout.item_guild_message, parent, false);
+        int layout = (viewType == VIEW_TYPE_SENT)
+            ? R.layout.item_guild_message_sent
+            : R.layout.item_guild_message;
+        View view = LayoutInflater.from(parent.getContext()).inflate(layout, parent, false);
         return new ViewHolder(view);
     }
 
@@ -52,21 +67,15 @@ public class GuildChatAdapter extends RecyclerView.Adapter<GuildChatAdapter.View
         if (message == null) return;
 
         String senderName = message.getSenderName();
-        holder.txtSender.setText(senderName != null ? senderName : "Unknown");
+        if (holder.txtSender != null) {
+            holder.txtSender.setText(senderName != null ? senderName : "Unknown");
+        }
 
         String text = message.getText();
         holder.txtMessage.setText(text != null ? text : "");
 
         long timestamp = message.getTimestamp();
         holder.txtTimestamp.setText(timestamp > 0 ? timeFormat.format(new Date(timestamp)) : "--:--");
-
-        boolean isMine = currentUid != null && currentUid.equals(message.getSenderId());
-
-        LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) holder.container.getLayoutParams();
-        params.gravity = isMine ? Gravity.END : Gravity.START;
-        holder.container.setLayoutParams(params);
-
-        holder.txtMessage.setBackgroundColor(isMine ? 0xFF2E7D32 : 0x33222222);
     }
 
     @Override
