@@ -6,13 +6,14 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.Pool;
 import com.example.rougelikegame.android.models.characters.Enemy;
 import com.example.rougelikegame.android.models.core.TargetingHelper;
 
 /**
  * Represents a projectile fired by the player or an enemy.
  */
-public class Projectile {
+public class Projectile implements Pool.Poolable {
     public float x;
     public float y;
     public float speed = 800f;
@@ -23,10 +24,10 @@ public class Projectile {
     private final Vector2 dir = new Vector2();
     private final Rectangle bounds = new Rectangle();
 
-    private final boolean homingEnabled;
-    private final float homingRange;
-    private final float homingStrength;
-    private final float maxTurnRateDeg;
+    private boolean homingEnabled;
+    private float homingRange;
+    private float homingStrength;
+    private float maxTurnRateDeg;
 
     private Enemy homingTarget;
     private float retargetTimer = 0f;
@@ -40,14 +41,17 @@ public class Projectile {
     /**
      * Constructs a basic Projectile.
      */
-    public Projectile(float x, float y, float dirX, float dirY, int damage) {
-        this(x, y, dirX, dirY, damage, false, 0f, 0f, 0f);
+    public Projectile() {
+        if (tex == null) {
+            tex = new Texture("pixel.png");
+        }
+        bounds.set(0, 0, 16, 16);
     }
 
     /**
-     * Constructs a Projectile with optional homing capabilities.
+     * Initializes a Projectile with optional homing capabilities.
      */
-    public Projectile(float x, float y, float dirX, float dirY, int damage,
+    public void init(float x, float y, float dirX, float dirY, int damage,
                       boolean homingEnabled, float homingRange, float homingStrength, float maxTurnRateDeg) {
         this.damage = damage;
         this.x = x;
@@ -58,12 +62,50 @@ public class Projectile {
         this.homingRange = Math.max(0f, homingRange);
         this.homingStrength = Math.max(0f, homingStrength);
         this.maxTurnRateDeg = Math.max(0f, maxTurnRateDeg);
+        this.alive = true;
+        this.life = 1.2f;
 
-        if (tex == null) {
-            tex = new Texture("pixel.png");
-        }
+        bounds.setPosition(x, y);
+    }
 
-        bounds.set(x, y, 16, 16);
+    @Override
+    public void reset() {
+        this.x = 0;
+        this.y = 0;
+        this.speed = 800f;
+        this.damage = 0;
+        this.alive = false;
+        this.life = 0;
+        this.dir.set(0, 0);
+        this.bounds.set(0, 0, 16, 16);
+        this.homingEnabled = false;
+        this.homingRange = 0;
+        this.homingStrength = 0;
+        this.maxTurnRateDeg = 0;
+        this.homingTarget = null;
+        this.retargetTimer = 0;
+        this.homingDesired.set(0, 0);
+        this.homingSteered.set(0, 0);
+    }
+
+    /**
+     * Constructs a basic Projectile.
+     * @deprecated Use pool and init() instead.
+     */
+    @Deprecated
+    public Projectile(float x, float y, float dirX, float dirY, int damage) {
+        this(x, y, dirX, dirY, damage, false, 0f, 0f, 0f);
+    }
+
+    /**
+     * Constructs a Projectile with optional homing capabilities.
+     * @deprecated Use pool and init() instead.
+     */
+    @Deprecated
+    public Projectile(float x, float y, float dirX, float dirY, int damage,
+                      boolean homingEnabled, float homingRange, float homingStrength, float maxTurnRateDeg) {
+        this();
+        init(x, y, dirX, dirY, damage, homingEnabled, homingRange, homingStrength, maxTurnRateDeg);
     }
 
     /**

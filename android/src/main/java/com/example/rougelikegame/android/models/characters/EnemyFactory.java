@@ -3,7 +3,7 @@ package com.example.rougelikegame.android.models.characters;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.utils.Array;
 import com.example.rougelikegame.android.graphics.FrameAnimationManager;
-import com.example.rougelikegame.android.models.world.Projectile;
+import com.example.rougelikegame.android.models.world.ProjectileSystem;
 import com.example.rougelikegame.android.screens.menu.GameActivity;
 
 /**
@@ -19,7 +19,7 @@ public class EnemyFactory {
     private final Texture enemyTexture;
     private final Texture ghostTexture;
     private final Texture bossTexture;
-    private final Array<Projectile> enemyProjectiles;
+    private final ProjectileSystem projectileSystem;
     private final FrameAnimationManager animationManager;
 
     /**
@@ -29,20 +29,20 @@ public class EnemyFactory {
      * @param ghostTexture     texture for ghost enemies
      * @param bossTexture      texture for boss enemies
      * @param animationManager manager for handling enemy animations
-     * @param enemyProjectiles array to store projectiles fired by enemies
+     * @param projectileSystem system for managing projectiles fired by enemies
      */
     public EnemyFactory(
         Texture enemyTexture,
         Texture ghostTexture,
         Texture bossTexture,
         FrameAnimationManager animationManager,
-        Array<Projectile> enemyProjectiles
+        ProjectileSystem projectileSystem
     ) {
         this.enemyTexture = enemyTexture;
         this.ghostTexture = ghostTexture;
         this.bossTexture = bossTexture;
         this.animationManager = animationManager;
-        this.enemyProjectiles = enemyProjectiles;
+        this.projectileSystem = projectileSystem;
     }
 
     /**
@@ -84,7 +84,7 @@ public class EnemyFactory {
             ghostTexture,
             x,
             y,
-            enemyProjectiles,
+            projectileSystem,
             hp,
             damage
         );
@@ -108,7 +108,7 @@ public class EnemyFactory {
             bossTexture,
             x,
             y,
-            enemyProjectiles,
+            projectileSystem,
             hp,
             damage,
             game

@@ -5,7 +5,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Array;
 import com.example.rougelikegame.android.models.world.Obstacle;
-import com.example.rougelikegame.android.models.world.Projectile;
+import com.example.rougelikegame.android.models.world.ProjectileSystem;
 
 /**
  * A specialized enemy that attempts to keep a distance from the player
@@ -19,21 +19,21 @@ public class GhostEnemy extends Enemy {
     private float shootTimer = 0f;
     private final float preferredDistance = 280f;
 
-    private final Array<Projectile> projectiles;
+    private final ProjectileSystem projectileSystem;
 
     /**
      * Constructs a new GhostEnemy.
      *
-     * @param texture     the ghost texture
-     * @param x           starting X position
-     * @param y           starting Y position
-     * @param projectiles array to add fired projectiles to
-     * @param health      initial health
-     * @param damage      contact damage (also used for projectile damage)
+     * @param texture          the ghost texture
+     * @param x                starting X position
+     * @param y                starting Y position
+     * @param projectileSystem system for managing projectiles
+     * @param health           initial health
+     * @param damage           contact damage (also used for projectile damage)
      */
-    public GhostEnemy(Texture texture, float x, float y, Array<Projectile> projectiles, int health, int damage) {
+    public GhostEnemy(Texture texture, float x, float y, ProjectileSystem projectileSystem, int health, int damage) {
         super(texture, x, y, 120f, 128, 128, health, damage);
-        this.projectiles = projectiles;
+        this.projectileSystem = projectileSystem;
     }
 
     @Override
@@ -42,10 +42,11 @@ public class GhostEnemy extends Enemy {
 
         float dx = playerX - x;
         float dy = playerY - y;
-        float dist = (float) Math.sqrt(dx * dx + dy * dy);
+        float distSq = dx * dx + dy * dy;
 
         // Move AWAY if too close
-        if (dist < preferredDistance) {
+        if (distSq < preferredDistance * preferredDistance) {
+            float dist = (float) Math.sqrt(distSq);
             dx /= dist;
             dy /= dist;
             updateAnimationState(delta, -dx, -dy);
@@ -59,15 +60,14 @@ public class GhostEnemy extends Enemy {
         if (shootTimer <= 0) {
             shootTimer = SHOOT_COOLDOWN_SECONDS;
 
-            Projectile projectile = new Projectile(
+            projectileSystem.spawnEnemyProjectile(
                 x + width / 2,
                 y + height / 2,
-                playerX - x,
-                playerY - y,
-                damage
+                playerX - (x + width / 2),
+                playerY - (y + height / 2),
+                damage,
+                PROJECTILE_SPEED
             );
-            projectile.speed = PROJECTILE_SPEED;
-            projectiles.add(projectile);
         }
 
         x = MathUtils.clamp(x, 0, Gdx.graphics.getWidth() - width);

@@ -49,10 +49,11 @@ public class CombatSystem {
                 float dx = b.getX() - a.getX();
                 float dy = b.getY() - a.getY();
 
-                float dist = (float) Math.sqrt(dx * dx + dy * dy);
+                float distSq = dx * dx + dy * dy;
                 float minDist = a.width;
 
-                if (dist < minDist && dist > 0) {
+                if (distSq < minDist * minDist && distSq > 0) {
+                    float dist = (float) Math.sqrt(distSq);
                     float overlap = minDist - dist;
 
                     // normalize
@@ -104,8 +105,9 @@ public class CombatSystem {
                     // knockback direction
                     float dx = player.x - e.getX();
                     float dy = player.y - e.getY();
-                    float len = (float) Math.sqrt(dx * dx + dy * dy);
-                    if (len != 0) {
+                    float distSq = dx * dx + dy * dy;
+                    if (distSq > 0) {
+                        float len = (float) Math.sqrt(distSq);
                         dx /= len;
                         dy /= len;
                     }
@@ -128,13 +130,15 @@ public class CombatSystem {
     public void handleAttackDamage(Player player, Array<Enemy> enemies) {
         if (!player.attacking) return;
 
+        DamageContext ctx = new DamageContext(player.getCurrentDamage());
+
         for (int i = 0; i < enemies.size; i++) {
             Enemy e = enemies.get(i);
             if (!e.alive) continue;
             if (e.hitThisSwing) continue;
             if (!e.getBounds().overlaps(player.attackHitbox)) continue;
 
-            DamageContext ctx = new DamageContext(player.getCurrentDamage());
+            ctx.damage = player.getCurrentDamage();
 
             for (PassiveItem it : player.getPassiveItems()) {
                 it.modifyMeleeDamage(player, ctx);
@@ -153,8 +157,9 @@ public class CombatSystem {
             float dx = e.getX() - player.x;
             float dy = e.getY() - player.y;
 
-            float length = (float) Math.sqrt(dx * dx + dy * dy);
-            if (length != 0) {
+            float distSq = dx * dx + dy * dy;
+            if (distSq > 0) {
+                float length = (float) Math.sqrt(distSq);
                 dx /= length;
                 dy /= length;
             }

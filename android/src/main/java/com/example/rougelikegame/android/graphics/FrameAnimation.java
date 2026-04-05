@@ -1,6 +1,7 @@
 package com.example.rougelikegame.android.graphics;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
@@ -17,41 +18,41 @@ public class FrameAnimation {
     private static final float DEFAULT_FRAME_DURATION_SECONDS = 0.12f;
     private static final String DEFAULT_FALLBACK_TEXTURE_PATH = "skins/player_default.png";
 
-    private final Texture[] textures;
+    private final String[] loadedPaths;
     private final TextureRegion idleFrame;
     private final Animation<TextureRegion> loopAnimation;
 
     /**
-     * Constructs a FrameAnimation with default settings.
-     *
-     * @param baseTexturePath the base path to the texture files
+     * Constructs a FrameAnimation with specified AssetManager.
      */
-    public FrameAnimation(String baseTexturePath) {
-        this(baseTexturePath, DEFAULT_FRAME_COUNT, DEFAULT_FRAME_DURATION_SECONDS, DEFAULT_FALLBACK_TEXTURE_PATH);
+    public FrameAnimation(String baseTexturePath, AssetManager assetManager) {
+        this(baseTexturePath, DEFAULT_FRAME_COUNT, DEFAULT_FRAME_DURATION_SECONDS, DEFAULT_FALLBACK_TEXTURE_PATH, assetManager);
     }
 
     /**
      * Constructs a FrameAnimation with specified settings.
-     *
-     * @param baseTexturePath the base path to the texture files
-     * @param frameCount the number of frames in the animation
-     * @param frameDurationSeconds the duration of each frame in seconds
-     * @param fallbackTexturePath the path to a fallback texture if frames are missing
      */
     public FrameAnimation(
         String baseTexturePath,
         int frameCount,
         float frameDurationSeconds,
-        String fallbackTexturePath
+        String fallbackTexturePath,
+        AssetManager assetManager
     ) {
-        this.textures = new Texture[frameCount];
+        this.loadedPaths = new String[frameCount];
         Array<TextureRegion> frames = new Array<>(frameCount);
 
         for (int i = 0; i < frameCount; i++) {
             String texturePath = resolveTexturePath(baseTexturePath, fallbackTexturePath, i);
-            Texture texture = new Texture(texturePath);
+            assetManager.load(texturePath, Texture.class);
+            this.loadedPaths[i] = texturePath;
+        }
+
+        assetManager.finishLoading();
+
+        for (int i = 0; i < frameCount; i++) {
+            Texture texture = assetManager.get(loadedPaths[i], Texture.class);
             texture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
-            textures[i] = texture;
             frames.add(new TextureRegion(texture));
         }
 
@@ -74,14 +75,21 @@ public class FrameAnimation {
     }
 
     /**
-     * Disposes of all textures used by this animation to free up memory.
+     * Unloads all textures used by this animation using the AssetManager.
      */
-    public void dispose() {
-        for (Texture texture : textures) {
-            if (texture != null) {
-                texture.dispose();
+    public void dispose(AssetManager assetManager) {
+        for (String path : loadedPaths) {
+            if (path != null && assetManager.isLoaded(path)) {
+                assetManager.unload(path);
             }
         }
+    }
+
+    /**
+     * Legacy dispose for compatibility if needed.
+     */
+    public void dispose() {
+        // Textures are now managed by AssetManager, do nothing here.
     }
 
     /**

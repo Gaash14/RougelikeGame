@@ -9,7 +9,7 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Array;
 import com.example.rougelikegame.android.models.world.Obstacle;
-import com.example.rougelikegame.android.models.world.Projectile;
+import com.example.rougelikegame.android.models.world.ProjectileSystem;
 import com.example.rougelikegame.android.screens.menu.GameActivity;
 
 /**
@@ -22,6 +22,7 @@ public class BossEnemy extends Enemy {
     private final float shootCooldown = 2.5f;
     private float shootTimer = 0f;
     private static final int PROJECTILE_DAMAGE = 3;
+    private static final float PROJECTILE_SPEED = 800f;
 
     private static final float HALF_HEALTH_THRESHOLD = 0.5f;
     private static final float SPECIAL_MIN_COOLDOWN_SECONDS = 30f;
@@ -37,7 +38,7 @@ public class BossEnemy extends Enemy {
     private final int maxHealth;
     private final GameActivity game;
 
-    private final Array<Projectile> projectiles;
+    private final ProjectileSystem projectileSystem;
     private final Rectangle infernoSafeZone = new Rectangle();
     private float infernoCooldownTimer = randomInfernoCooldown();
     private float infernoActiveTimer = 0f;
@@ -46,19 +47,19 @@ public class BossEnemy extends Enemy {
     /**
      * Constructs a new BossEnemy.
      *
-     * @param texture     the boss texture
-     * @param startX      starting X position
-     * @param startY      starting Y position
-     * @param projectiles array of projectiles to add boss bullets to
-     * @param health      initial health
-     * @param damage      base contact damage
-     * @param game        reference to the main activity for summoning reinforcements
+     * @param texture          the boss texture
+     * @param startX           starting X position
+     * @param startY           starting Y position
+     * @param projectileSystem system for managing projectiles
+     * @param health           initial health
+     * @param damage           base contact damage
+     * @param game             reference to the main activity for summoning reinforcements
      */
-    public BossEnemy(Texture texture, float startX, float startY, Array<Projectile> projectiles,
+    public BossEnemy(Texture texture, float startX, float startY, ProjectileSystem projectileSystem,
                      int health, int damage, GameActivity game) {
         super(texture, startX, startY, 70f, 256f, 256f, health, damage);
 
-        this.projectiles = projectiles;
+        this.projectileSystem = projectileSystem;
         this.isBoss = true;
         this.maxHealth = health;
         this.game = game;
@@ -89,14 +90,13 @@ public class BossEnemy extends Enemy {
                 float rotatedDirX = dirX * MathUtils.cosDeg(angleOffset) - dirY * MathUtils.sinDeg(angleOffset);
                 float rotatedDirY = dirX * MathUtils.sinDeg(angleOffset) + dirY * MathUtils.cosDeg(angleOffset);
 
-                projectiles.add(
-                    new Projectile(
-                        originX,
-                        originY,
-                        rotatedDirX,
-                        rotatedDirY,
-                        PROJECTILE_DAMAGE
-                    )
+                projectileSystem.spawnEnemyProjectile(
+                    originX,
+                    originY,
+                    rotatedDirX,
+                    rotatedDirY,
+                    PROJECTILE_DAMAGE,
+                    PROJECTILE_SPEED
                 );
             }
         }

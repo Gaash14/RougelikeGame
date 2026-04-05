@@ -44,7 +44,8 @@ public class ChooseDifficultyActivity extends AppCompatActivity {
     private RadioGroup difficultyGroup;
 
     private Switch dailyChallengeSwitch;
-    private boolean dailyChallenge = false;
+    private static boolean dailyChallengePersistent = false;
+    private boolean dailyChallenge = dailyChallengePersistent;
     private TextView txtDailyReset;
     private final Handler handler = new Handler();
     private EditText seedInput;
@@ -98,6 +99,7 @@ public class ChooseDifficultyActivity extends AppCompatActivity {
 
         dailyChallengeSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
             dailyChallenge = isChecked;
+            dailyChallengePersistent = isChecked;
 
             if (isChecked) {
                 // Lock difficulty to NORMAL
@@ -126,6 +128,11 @@ public class ChooseDifficultyActivity extends AppCompatActivity {
                 seedInput.setVisibility(View.VISIBLE);
             }
         });
+
+        // Sync initial state if it's already checked from persistent state
+        if (dailyChallengePersistent) {
+            dailyChallengeSwitch.setChecked(true);
+        }
 
         startGameButton = findViewById(R.id.startGameButton);
         // Start game

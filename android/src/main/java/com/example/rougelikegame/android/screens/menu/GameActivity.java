@@ -150,6 +150,7 @@ public class GameActivity extends ApplicationAdapter implements WaveSpawner {
     Rectangle attackBtnBounds;
     private static final float SWING_SWORD_LENGTH = 120f;
     private static final float SWING_SWORD_WIDTH = 56f;
+    private final Vector2 swingAttackDir = new Vector2();
 
     // UI
     private final GlyphLayout glyphLayout = new GlyphLayout();
@@ -323,7 +324,7 @@ public class GameActivity extends ApplicationAdapter implements WaveSpawner {
                 ghostTexture,
                 bossTexture,
                 animationManager,
-                projectileSystem.getEnemyProjectiles()
+                projectileSystem
         );
 
         enemies = new Array<>();
@@ -1188,11 +1189,11 @@ public class GameActivity extends ApplicationAdapter implements WaveSpawner {
 
         final String bossName = "The Sugar-Fueled Anomaly, Reaper of Souls";
 
-        float originalScaleX = font.getData().scaleX;
-        float originalScaleY = font.getData().scaleY;
-        Color originalFontColor = font.getColor().cpy();
+        float originalR = font.getColor().r;
+        float originalG = font.getColor().g;
+        float originalB = font.getColor().b;
+        float originalA = font.getColor().a;
 
-        font.getData().setScale(1.15f, 1.15f);
         glyphLayout.setText(font, bossName);
 
         float textX = x + (barWidth - glyphLayout.width) / 2f;
@@ -1216,8 +1217,7 @@ public class GameActivity extends ApplicationAdapter implements WaveSpawner {
         font.setColor(0.92f, 0.12f, 0.12f, 1f);
         font.draw(batch, glyphLayout, textX, textY);
 
-        font.getData().setScale(originalScaleX, originalScaleY);
-        font.setColor(originalFontColor);
+        font.setColor(originalR, originalG, originalB, originalA);
     }
 
     private void drawBossInferno() {
@@ -1264,16 +1264,16 @@ public class GameActivity extends ApplicationAdapter implements WaveSpawner {
         float hitboxCenterX = player.attackHitbox.x + player.attackHitbox.width * 0.5f;
         float hitboxCenterY = player.attackHitbox.y + player.attackHitbox.height * 0.5f;
 
-        Vector2 attackDirection = new Vector2(hitboxCenterX - playerCenterX, hitboxCenterY - playerCenterY);
-        if (attackDirection.isZero(0.001f)) {
-            attackDirection.set(1f, 0f);
+        swingAttackDir.set(hitboxCenterX - playerCenterX, hitboxCenterY - playerCenterY);
+        if (swingAttackDir.isZero(0.001f)) {
+            swingAttackDir.set(1f, 0f);
         } else {
-            attackDirection.nor();
+            swingAttackDir.nor();
         }
 
-        float swingCenterX = playerCenterX + attackDirection.x * (player.width * 0.45f);
-        float swingCenterY = playerCenterY + attackDirection.y * (player.height * 0.45f);
-        float swordRotationDeg = attackDirection.angleDeg() - 45f;
+        float swingCenterX = playerCenterX + swingAttackDir.x * (player.width * 0.45f);
+        float swingCenterY = playerCenterY + swingAttackDir.y * (player.height * 0.45f);
+        float swordRotationDeg = swingAttackDir.angleDeg() - 45f;
 
         batch.setColor(1f, 1f, 1f, 0.92f);
         batch.draw(

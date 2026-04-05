@@ -143,7 +143,7 @@ public class LeaderboardActivity extends AppCompatActivity {
                     "Failed to load leaderboard",
                     Toast.LENGTH_SHORT
                 ).show();
-                e.printStackTrace();
+                android.util.Log.e("LeaderboardActivity", "Failed to load leaderboard", e);
             }
         });
     }
@@ -221,7 +221,12 @@ public class LeaderboardActivity extends AppCompatActivity {
                 runs.sort((a, b) -> {
                     int waveCompare = Integer.compare(b.wave, a.wave);
                     if (waveCompare != 0) return waveCompare;
-                    return Integer.compare(a.time, b.time);
+
+                    // If same wave, win is better than loss.
+                    if (a.time > 0 && b.time > 0) return Integer.compare(a.time, b.time); // ASC time
+                    if (a.time > 0) return -1; // a is win, b is loss -> a better
+                    if (b.time > 0) return 1;  // b is win, a is loss -> b better
+                    return 0; // both losses
                 });
 
                 String currentUid =
@@ -285,5 +290,13 @@ public class LeaderboardActivity extends AppCompatActivity {
                 handler.postDelayed(this, 1000);
             }
         });
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (handler != null) {
+            handler.removeCallbacksAndMessages(null);
+        }
     }
 }

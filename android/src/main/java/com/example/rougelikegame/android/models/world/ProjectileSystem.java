@@ -5,6 +5,7 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.Pool;
 import com.example.rougelikegame.android.managers.SoundManager;
 import com.example.rougelikegame.android.models.characters.Enemy;
 import com.example.rougelikegame.android.models.characters.Player;
@@ -28,20 +29,49 @@ public class ProjectileSystem {
     private final Array<Projectile> enemyProjectiles = new Array<>();
     private final Array<Beam> activeBeams = new Array<>();
 
+    private final Pool<Projectile> projectilePool = new Pool<Projectile>() {
+        @Override
+        protected Projectile newObject() {
+            return new Projectile();
+        }
+    };
+
+    private final Pool<Beam> beamPool = new Pool<Beam>() {
+        @Override
+        protected Beam newObject() {
+            return new Beam();
+        }
+    };
+
+    // Pre-allocated objects for applyBeamTick to avoid GC
+    private final Rectangle beamSampleRect = new Rectangle(0, 0, BEAM_WIDTH, BEAM_WIDTH);
+    private final Vector2 beamSamplePoint = new Vector2();
+
     /**
      * Internal class representing a beam weapon effect.
      */
-    private static class Beam {
+    private static class Beam implements Pool.Poolable {
         final Vector2 start = new Vector2();
         final Vector2 dir = new Vector2();
         float lifetime = BEAM_LIFETIME;
         float tickTimer = 0f;
         int damagePerTick;
 
-        Beam(float x, float y, Vector2 direction, int damagePerTick) {
+        void init(float x, float y, Vector2 direction, int damagePerTick) {
             this.start.set(x, y);
             this.dir.set(direction).nor();
             this.damagePerTick = damagePerTick;
+            this.lifetime = BEAM_LIFETIME;
+            this.tickTimer = 0f;
+        }
+
+        @Override
+        public void reset() {
+            start.set(0, 0);
+            dir.set(0, 0);
+            lifetime = 0;
+            tickTimer = 0;
+            damagePerTick = 0;
         }
     }
 
@@ -63,7 +93,8 @@ public class ProjectileSystem {
      * @param homingContext Context containing homing behavior parameters
      */
     public void spawnPlayerProjectile(float x, float y, Vector2 dir, int damage, HomingContext homingContext) {
-        Projectile p = new Projectile(
+        Projectile p = projectilePool.obtain();
+        p.init(
             x,
             y,
             dir.x,
@@ -78,6 +109,23 @@ public class ProjectileSystem {
     }
 
     /**
+     * Spawns a new projectile fired by an enemy.
+     *
+     * @param x X coordinate of the starting position
+     * @param y Y coordinate of the starting position
+     * @param dirX X component of direction
+     * @param dirY Y component of direction
+     * @param damage Damage dealt by the projectile
+     * @param speed Speed of the projectile
+     */
+    public void spawnEnemyProjectile(float x, float y, float dirX, float dirY, int damage, float speed) {
+        Projectile p = projectilePool.obtain();
+        p.init(x, y, dirX, dirY, damage, false, 0, 0, 0);
+        p.speed = speed;
+        enemyProjectiles.add(p);
+    }
+
+    /**
      * Spawns a beam weapon effect.
      *
      * @param x X coordinate of the starting position
@@ -87,7 +135,9 @@ public class ProjectileSystem {
      */
     public void spawnBeam(float x, float y, Vector2 dir, int damagePerTick) {
         if (dir.isZero(0.01f) || damagePerTick <= 0) return;
-        activeBeams.add(new Beam(x, y, dir, damagePerTick));
+        Beam beam = beamPool.obtain();
+        beam.init(x, y, dir, damagePerTick);
+        activeBeams.add(beam);
     }
 
     /**
@@ -107,6 +157,7 @@ public class ProjectileSystem {
 
             if (beam.lifetime <= 0f) {
                 activeBeams.removeIndex(i);
+                beamPool.free(beam);
             }
         }
     }
@@ -120,6 +171,7 @@ public class ProjectileSystem {
             p.update(delta, enemies);
             if (!p.alive) {
                 list.removeIndex(i);
+                projectilePool.free(p);
             }
         }
     }
@@ -148,6 +200,7 @@ public class ProjectileSystem {
                     }
 
                     p.alive = false;
+                    // Projectile will be removed and freed in update()
                     break;
                 }
             }
@@ -166,13 +219,10 @@ public class ProjectileSystem {
      * Applies a single tick of damage from a beam to all enemies it hits.
      */
     private void applyBeamTick(Player player, Array<Enemy> enemies, Beam beam) {
-        Rectangle sampleRect = new Rectangle(0, 0, BEAM_WIDTH, BEAM_WIDTH);
-        Vector2 samplePoint = new Vector2();
-
         for (int i = 0; i < enemies.size; i++) {
             Enemy e = enemies.get(i);
             if (!e.alive) continue;
-            if (beamHitsEnemy(sampleRect, samplePoint, beam, e)) {
+            if (beamHitsEnemy(beamSampleRect, beamSamplePoint, beam, e)) {
                 e.takeDamage(beam.damagePerTick);
                 SoundManager.play("hit", 0.4f);
                 for (PassiveItem it : player.getPassiveItems()) {

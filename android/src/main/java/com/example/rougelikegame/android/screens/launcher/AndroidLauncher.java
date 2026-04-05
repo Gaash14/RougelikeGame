@@ -98,7 +98,17 @@ public class AndroidLauncher extends AndroidApplication {
                     DatabaseService.getInstance().saveDailyRunIfBetter(
                         today,
                         dailyRun,
-                        null
+                        new DatabaseService.DatabaseCallback<Void>() {
+                            @Override
+                            public void onCompleted(Void result) {
+                                Log.d("DailyRun", "Daily run processed successfully");
+                            }
+
+                            @Override
+                            public void onFailed(Exception e) {
+                                Log.e("DailyRun", "Failed to save daily run", e);
+                            }
+                        }
                     );
 
                     if (win) {

@@ -574,6 +574,12 @@ public class DatabaseService {
      * @param callback the completion callback
      */
     public void saveDailyRunIfBetter(String dateKey, DailyRun run, DatabaseCallback<Void> callback) {
+        if (run == null || run.uid == null || run.uid.trim().isEmpty()) {
+            android.util.Log.e("DatabaseService", "Cannot save daily run: invalid run or UID");
+            if (callback != null) callback.onFailed(new Exception("Invalid run or UID"));
+            return;
+        }
+
         FirebaseDatabase.getInstance()
             .getReference("daily_runs")
             .child(dateKey)
@@ -582,21 +588,37 @@ public class DatabaseService {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
                     DailyRun existingRun = snapshot.getValue(DailyRun.class);
-                    boolean shouldSave = existingRun == null
-                        || run.wave > existingRun.wave
-                        || (run.wave == existingRun.wave
-                        && run.time > 0
-                        && (existingRun.time <= 0 || run.time < existingRun.time));
+                    
+                    // Logic for improvement: 
+                    // 1. Higher wave is always better.
+                    // 2. If same wave, a non-zero time (win) is better than zero time (loss).
+                    // 3. If both have non-zero time, lower time is better.
+                    boolean shouldSave = existingRun == null;
+                    if (!shouldSave) {
+                        if (run.wave > existingRun.wave) {
+                            shouldSave = true;
+                        } else if (run.wave == existingRun.wave) {
+                            if (run.time > 0) {
+                                if (existingRun.time <= 0 || run.time < existingRun.time) {
+                                    shouldSave = true;
+                                }
+                            }
+                        }
+                    }
 
                     if (!shouldSave) {
+                        android.util.Log.d("DatabaseService", "Daily run not better than existing. Wave: " + run.wave + " vs " + (existingRun != null ? existingRun.wave : "null"));
                         if (callback != null) callback.onCompleted(null);
                         return;
                     }
+
+                    android.util.Log.d("DatabaseService", "Saving better daily run. Wave: " + run.wave + ", Time: " + run.time);
                     saveDailyRun(dateKey, run, callback);
                 }
 
                 @Override
                 public void onCancelled(@NonNull DatabaseError error) {
+                    android.util.Log.e("DatabaseService", "Failed to check existing daily run", error.toException());
                     if (callback != null) callback.onFailed(error.toException());
                 }
             });
